@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Price Check KE",
+    "slug": "price-check-ke",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "android"
+    ],
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "android": {
+      "package": "ke.pricecheck.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#07583E",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
