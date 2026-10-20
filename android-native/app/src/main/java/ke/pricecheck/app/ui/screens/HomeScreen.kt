@@ -23,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import ke.pricecheck.app.data.Product
-import ke.pricecheck.app.data.ShoppingArea
+import ke.pricecheck.app.data.MarketArea
 import ke.pricecheck.app.R
 import ke.pricecheck.app.ui.PriceCheckUiState
 import ke.pricecheck.app.ui.PriceCheckTheme
@@ -46,7 +46,7 @@ fun HomeScreen(
     onTrends: () -> Unit,
     onRefresh: () -> Unit,
     onToggleWatched: (String) -> Unit,
-    onArea: (ShoppingArea) -> Unit,
+    onArea: (String) -> Unit,
 ) {
     LazyColumn(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
@@ -99,13 +99,21 @@ fun HomeScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.shopping_area), style = MaterialTheme.typography.titleMedium)
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(ShoppingArea.entries) { area ->
-                        FilterChip(
-                            selected = state.preferences.shoppingArea == area,
-                            onClick = { onArea(area) },
-                            label = { Text(stringResource(area.labelResource)) },
-                        )
+                if (state.marketDirectoryLoading || state.marketDirectoryError != null) {
+                    MarketLoadState(
+                        loading = state.marketDirectoryLoading,
+                        error = state.marketDirectoryError,
+                        onRetry = onRefresh,
+                    )
+                } else {
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(state.marketAreas, key = MarketArea::county) { area ->
+                            FilterChip(
+                                selected = state.preferences.shoppingArea == area.county,
+                                onClick = { onArea(area.county) },
+                                label = { Text(area.county) },
+                            )
+                        }
                     }
                 }
                 Text(stringResource(R.string.demo_area_disclaimer), style = MaterialTheme.typography.bodySmall)
@@ -152,7 +160,7 @@ fun HomeScreen(
                             val commodityLabel = stringResource(
                                 marketCommodityLabel(price.commodity),
                             )
-                            append(stringResource(R.string.market_price_line, price.market, commodityLabel, price.price, price.currency, price.unit))
+                            append(stringResource(R.string.market_price_line, price.market, commodityLabel, price.price, price.currency, price.unit, price.date))
                         }
                     },
                 )
@@ -169,14 +177,6 @@ fun HomeScreen(
         }
     }
 }
-
-private val ShoppingArea.labelResource: Int
-    get() = when (this) {
-        ShoppingArea.NAIROBI -> R.string.area_nairobi
-        ShoppingArea.MOMBASA -> R.string.area_mombasa
-        ShoppingArea.KISUMU -> R.string.area_kisumu
-        ShoppingArea.NAKURU -> R.string.area_nakuru
-    }
 
 private fun marketCommodityLabel(commodity: String): Int = when (commodity) {
     "maize" -> R.string.market_maize

@@ -28,6 +28,31 @@ class MarketRepositoryParsingTest {
         assertNull(result.coverageEnd)
     }
 
+    @Test fun marketAreaFilteringDropsMarketsWithoutCommoditiesAndGroupsByCounty() {
+        val areas = filterMarketAreas(
+            listOf(
+                MarketListing("Kitui", "Kitui", "Eastern", setOf("beans", "maize")),
+                MarketListing("Mwingi", "Kitui", "Eastern", setOf("beans")),
+                MarketListing("Kisumu", "Kisumu", "Nyanza", emptySet()),
+            ),
+        )
+
+        assertEquals(listOf("Kitui"), areas.map(MarketArea::county))
+        assertEquals(listOf("Kitui", "Mwingi"), areas.single().markets)
+        assertEquals(setOf("beans", "maize"), areas.single().availableCommodities)
+    }
+
+    @Test fun defaultCountyUsesKituiAndFallsBackToADataCounty() {
+        val areas = listOf(
+            MarketArea("Nairobi", listOf("Nairobi"), setOf("beans")),
+            MarketArea("Kitui", listOf("Kitui"), setOf("beans", "maize")),
+        )
+
+        assertEquals("Kitui", defaultMarketCounty(areas, "Kisumu"))
+        assertEquals("Nairobi", defaultMarketCounty(areas, "NAIROBI"))
+        assertEquals("Nairobi", defaultMarketCounty(listOf(areas.first()), "Kisumu"))
+    }
+
     private companion object {
         // Schema and Nairobi observation are copied from the live endpoint contract and backend dataset tests.
         const val NAIROBI_BEANS_RESPONSE = """{"market":"Nairobi","commodity":"beans","unit":"1 kg","currency":"KES","source_name":"World Bank Kenya Monthly Food Price Estimates by Product and Market (RTFP)","source_url":"https://microdata.worldbank.org/index.php/catalog/6167","coverage_start":"2022-01-01","coverage_end":"2022-01-01","source_note":"Observed source-market prices in KES; one record per market and month. No missing values are interpolated and county selections are not averaged.","observations":[{"market":"Kibra (Nairobi)","county":"Nairobi","region":"Nairobi","date":"2022-01-01","commodity":"beans","price":130.0,"currency":"KES","unit":"1 kg"}]}"""

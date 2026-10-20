@@ -6,25 +6,31 @@ import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 interface MarketDataSource {
+    suspend fun loadMarketAreas(): List<MarketArea>
     suspend fun loadFoodInflation(): FoodInflationData
-    suspend fun loadAreaPrices(area: ShoppingArea): AreaMarketData
+    suspend fun loadAreaPrices(county: String): AreaMarketData
     suspend fun askQuestion(question: String): MarketQuestionAnswer
 }
 
 class MarketRepository(private val baseUrl: String) : MarketDataSource {
-    override suspend fun loadAreaPrices(area: ShoppingArea): AreaMarketData = withContext(Dispatchers.IO) {
-        val county = area.name.lowercase().replaceFirstChar(Char::uppercase)
-        val maize = parsePriceSeries(request("/api/prices?market=$county&commodity=maize").toString(), "maize")
-        val beans = parsePriceSeries(request("/api/prices?market=$county&commodity=beans").toString(), "beans")
+    override suspend fun loadMarketAreas(): List<MarketArea> = withContext(Dispatchers.IO) {
+        parseMarketAreas(request("/api/markets").toString())
+    }
+
+    override suspend fun loadAreaPrices(county: String): AreaMarketData = withContext(Dispatchers.IO) {
+        val queryCounty = URLEncoder.encode(county, Charsets.UTF_8)
+        val maize = parsePriceSeries(request("/api/prices?market=$queryCounty&commodity=maize").toString(), "maize")
+        val beans = parsePriceSeries(request("/api/prices?market=$queryCounty&commodity=beans").toString(), "beans")
         val combined = maize.prices + beans.prices
         val latestDate = combined.maxOfOrNull { it.date }
         AreaMarketData(
-            area = area,
+            area = county,
             sourceName = maize.sourceName,
             sourceUrl = maize.sourceUrl,
             coverageStart = listOfNotNull(maize.coverageStart, beans.coverageStart).minOrNull().orEmpty(),
@@ -36,6 +42,21 @@ class MarketRepository(private val baseUrl: String) : MarketDataSource {
                 points.maxByOrNull { it.date }
             },
         )
+    }
+
+    internal fun parseMarketAreas(payload: String): List<MarketArea> {
+        val markets = JSONObject(payload).getJSONArray("markets")
+        val listings = List(markets.length()) { index ->
+            val market = markets.getJSONObject(index)
+            val commodities = market.getJSONArray("available_commodities")
+            MarketListing(
+                name = market.getString("name"),
+                county = market.getString("county"),
+                region = market.getString("region"),
+                availableCommodities = List(commodities.length()) { commodities.getString(it) }.toSet(),
+            )
+        }
+        return filterMarketAreas(listings)
     }
     internal fun parsePriceSeries(payload: String, expectedCommodity: String): MarketPriceSeries {
         val response = JSONObject(payload)
@@ -147,4 +168,30 @@ class MarketRepository(private val baseUrl: String) : MarketDataSource {
             connection.disconnect()
         }
     }
+}
+
+internal fun filterMarketAreas(listings: List<MarketListing>): List<MarketArea> =
+    listings.asSequence()
+        .filter { it.availableCommodities.isNotEmpty() }
+        .groupBy(MarketListing::county)
+        .map { (county, markets) ->
+            MarketArea(
+                county = county,
+                markets = markets.map(MarketListing::name).distinct().sorted(),
+                availableCommodities = markets.flatMap(MarketListing::availableCommodities).toSet(),
+            )
+        }
+        .sortedBy(MarketArea::county)
+
+internal fun defaultMarketCounty(areas: List<MarketArea>, storedCounty: String? = null): String? {
+    areas.firstOrNull { it.county.equals(storedCounty?.trim(), ignoreCase = true) }?.let {
+        return it.county
+    }
+    areas.firstOrNull {
+        it.county.equals("Kitui", ignoreCase = true) &&
+            setOf("beans", "maize").all(it.availableCommodities::contains)
+    }?.let { return it.county }
+    areas.firstOrNull { setOf("beans", "maize").all(it.availableCommodities::contains) }
+        ?.let { return it.county }
+    return areas.firstOrNull()?.county
 }
