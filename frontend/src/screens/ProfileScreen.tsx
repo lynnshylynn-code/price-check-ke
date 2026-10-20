@@ -16,6 +16,8 @@ export function ProfileScreen({
   storageError,
   savedNotice,
   savedBudget,
+  displayName,
+  onSignOut,
 }: {
   shoppingArea: string;
   onChangeArea: () => void;
@@ -26,6 +28,8 @@ export function ProfileScreen({
   storageError: string | null;
   savedNotice: boolean;
   savedBudget: number;
+  displayName: string;
+  onSignOut: () => void;
 }) {
   return (
     <ScrollView contentContainerStyle={styles.screenContent} keyboardShouldPersistTaps="handled">
@@ -34,6 +38,23 @@ export function ProfileScreen({
         shoppingArea={shoppingArea}
         onChangeArea={onChangeArea}
       />
+      <View style={styles.profileCard}>
+        <View style={styles.avatar}>
+          <Text style={styles.avatarText}>{displayName.charAt(0).toUpperCase()}</Text>
+        </View>
+        <View style={styles.profileIdentity}>
+          <Text style={styles.profileName}>{displayName}</Text>
+          <Text style={styles.profileSubtext}>Your profile is saved on this device</Text>
+        </View>
+        <Pressable
+          style={styles.profileSignOutButton}
+          onPress={onSignOut}
+          accessibilityRole="button"
+        >
+          <Ionicons name="log-out-outline" size={16} color={COLORS.green} />
+          <Text style={styles.profileSignOutText}>Sign out</Text>
+        </Pressable>
+      </View>
       <SectionHeading eyebrow="Preferences" title="Shopping settings" />
       <View style={styles.settingsCard}>
         <SettingRow
