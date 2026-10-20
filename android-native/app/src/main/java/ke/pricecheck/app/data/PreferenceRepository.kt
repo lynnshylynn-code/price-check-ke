@@ -19,16 +19,9 @@ data class AppPreferences(
     val basket: Map<String, Int> = emptyMap(),
     val watchedProductIds: Set<String> = emptySet(),
     val weeklyBudget: Int = 700,
-    val shoppingArea: ShoppingArea = ShoppingArea.NAIROBI,
+    val shoppingArea: String = "Kitui",
     val basketStrategy: BasketStrategy = BasketStrategy.LOWEST_PER_ITEM,
 )
-
-enum class ShoppingArea {
-    NAIROBI,
-    MOMBASA,
-    KISUMU,
-    NAKURU,
-}
 
 enum class BasketStrategy {
     LOWEST_PER_ITEM,
@@ -41,7 +34,7 @@ interface PreferencesStore {
     suspend fun setWatched(productId: String, watched: Boolean)
     suspend fun setBudget(amount: Int)
     suspend fun setBasketStrategy(strategy: BasketStrategy)
-    suspend fun setShoppingArea(area: ShoppingArea)
+    suspend fun setShoppingArea(county: String)
 }
 
 class PreferenceRepository(context: Context) : PreferencesStore {
@@ -57,11 +50,9 @@ class PreferenceRepository(context: Context) : PreferencesStore {
             basket = basket,
             watchedProductIds = values[WATCHED] ?: emptySet(),
             weeklyBudget = values[BUDGET] ?: 700,
-            shoppingArea = values[AREA]?.let { stored ->
-                ShoppingArea.entries.firstOrNull { area ->
-                    area.name.equals(stored, ignoreCase = true)
-                }
-            } ?: ShoppingArea.NAIROBI,
+            // Earlier releases stored enum names (for example, NAIROBI). Keep the raw value;
+            // MarketRepository resolves it case-insensitively against the live county list.
+            shoppingArea = values[AREA]?.takeIf(String::isNotBlank) ?: "Kitui",
             basketStrategy = values[STRATEGY]
                 ?.let { stored ->
                     when (stored.lowercase()) {
@@ -100,8 +91,8 @@ class PreferenceRepository(context: Context) : PreferencesStore {
         dataStore.edit { it[STRATEGY] = strategy.name }
     }
 
-    override suspend fun setShoppingArea(area: ShoppingArea) {
-        dataStore.edit { it[AREA] = area.name }
+    override suspend fun setShoppingArea(county: String) {
+        dataStore.edit { it[AREA] = county }
     }
 
     private companion object {

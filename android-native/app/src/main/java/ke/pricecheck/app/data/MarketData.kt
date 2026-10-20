@@ -48,13 +48,26 @@ data class MarketPricePoint(
 )
 
 data class AreaMarketData(
-    val area: ShoppingArea,
+    val area: String,
     val sourceName: String,
     val sourceUrl: String,
     val coverageStart: String,
     val coverageEnd: String,
     val latestMonth: String,
     val prices: List<MarketPricePoint>,
+)
+
+data class MarketListing(
+    val name: String,
+    val county: String,
+    val region: String,
+    val availableCommodities: Set<String>,
+)
+
+data class MarketArea(
+    val county: String,
+    val markets: List<String>,
+    val availableCommodities: Set<String>,
 )
 
 data class MarketPriceSeries(

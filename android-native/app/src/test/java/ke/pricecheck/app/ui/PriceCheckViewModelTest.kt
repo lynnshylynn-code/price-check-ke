@@ -30,10 +30,10 @@ class PriceCheckViewModelTest {
         backgroundScope.launch { viewModel.uiState.collect {} }
         advanceUntilIdle()
 
-        viewModel.setShoppingArea(ShoppingArea.MOMBASA)
+        viewModel.setShoppingArea("Mombasa")
         advanceUntilIdle()
 
-        assertEquals(ShoppingArea.MOMBASA, viewModel.uiState.value.areaMarketData?.area)
+        assertEquals("Mombasa", viewModel.uiState.value.areaMarketData?.area)
     }
 
     @Test fun marketStateCoversLoadingErrorAndEmptyResponses() = runTest {
@@ -120,15 +120,19 @@ class PriceCheckViewModelTest {
         }
         override suspend fun setBudget(amount: Int) { state.update { it.copy(weeklyBudget = amount) } }
         override suspend fun setBasketStrategy(strategy: BasketStrategy) { state.update { it.copy(basketStrategy = strategy) } }
-        override suspend fun setShoppingArea(area: ShoppingArea) { state.update { it.copy(shoppingArea = area) } }
+        override suspend fun setShoppingArea(county: String) { state.update { it.copy(shoppingArea = county) } }
     }
 
     private class FakeMarket : MarketDataSource {
         var areaError: Exception? = null
         var emptyArea = false
-        override suspend fun loadAreaPrices(area: ShoppingArea): AreaMarketData {
+        override suspend fun loadMarketAreas() = listOf(
+            MarketArea("Kitui", listOf("Kitui"), setOf("beans", "maize")),
+            MarketArea("Mombasa", listOf("Mombasa"), setOf("beans")),
+        )
+        override suspend fun loadAreaPrices(county: String): AreaMarketData {
             areaError?.let { throw it }
-            return AreaMarketData(area, "World Bank RTFP", "https://example.org/data", "2022-01-01", "2022-08-01", "2022-08", if (emptyArea) emptyList() else listOf(MarketPricePoint("Nairobi", "Nairobi", "2022-08-01", "beans", 130.0, "KES", "1 kg")))
+            return AreaMarketData(county, "World Bank RTFP", "https://example.org/data", "2022-01-01", "2022-08-01", "Aug 2022", if (emptyArea) emptyList() else listOf(MarketPricePoint(county, county, "2022-08-01", "beans", 130.0, "KES", "1 kg")))
         }
         override suspend fun loadFoodInflation() = sampleInflation
         override suspend fun askQuestion(question: String) = MarketQuestionAnswer("The dataset answer", "World Bank RTFP", "https://example.org/data", "2022-01-01", "2022-08-01")

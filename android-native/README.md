@@ -43,9 +43,13 @@ the web application in `../frontend/`.
   watchlist XML sort menu and View-system context `PopupMenu`.
 - Separate UI, application/state-holder, and data/repository layers.
 - Resource-backed UI strings and a mipmap adaptive launcher icon.
-- The Home screen area picker selects the matching Nairobi, Mombasa, Kisumu,
-  or Nakuru county in the backend market dataset. Some county/commodity pairs
-  have no recorded prices; the app displays that gap instead of estimating.
+- The Home screen area picker is populated from `GET /api/markets` and includes
+  only counties with at least one market that has available commodities. Kitui
+  is the default when no saved selection is valid; saved legacy enum names are
+  matched case-insensitively and normalized to the API county name.
+- Market data shows the latest observation date for each market and commodity.
+  Missing county/commodity observations are displayed explicitly rather than
+  estimated.
 - Supermarket product prices are labelled demo data and do not vary with the
   selected area. Market observations come from the World Bank RTFP dataset.
 
