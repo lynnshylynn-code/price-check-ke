@@ -21,7 +21,8 @@
 
 - `offline_answers.py` is a **simple reflex agent**: condition-action rules inspect words and return a response based on matching patterns and market data.
 - `ai_insights.py` with `market_tools.py` is a **goal-based agent**: it seeks a grounded answer, uses `get_series` and `compare_markets` as sensors/actions, validates tool arguments with strict schemas, and caps the tool-call loop at four rounds.
-- `basket_search.py` is a **problem-solving agent**: it searches a finite state space of product-to-store assignments for a low-cost goal state. Its example prices are explicitly demo data.
+- `basket_search.py` is a **problem-solving agent**: it searches a finite state space of product-to-store assignments. BFS, DFS, iterative deepening, and greedy best-first return the first goal in their traversal order and can be non-optimal with unequal prices; UCS and A* optimize the stated basket plus optional fixed visit cost. `POST /api/v1/basket/optimize` exposes BFS, UCS, and A* for a small selected basket and marks all catalog prices as demo data.
+- `fuzzy_price.py` is a transparent historical description: p10/p50/p90 thresholds define low, typical, and high memberships; min implication, max aggregation, and centroid defuzzification produce a 0–100 position score. `/api/v1/market/price-position` reports the source and coverage, and returns no score for missing history. This position is not a forecast or recommendation.
 - A **utility-based** version could balance basket cost against trip count, travel burden, stock confidence, and user preferences. The optional fixed store visit cost in the search model illustrates only one such trade-off.
 
 ### Learning-agent components
@@ -36,7 +37,13 @@ The model is selected by `OPENAI_MODEL`, defaulting to `gpt-4.1-mini` in `ai_ins
 
 The 17 committed pytest golden cases use a fake OpenAI client and fixture tool outputs. They verify request/tool plumbing and expected answer facts without calling the live model. `scripts/run_live_eval.py` is an opt-in model evaluation: it calls the configured model for all fixture questions plus at least eight questions whose expected numbers are derived from the CSV at runtime. It reports pass rate and failures and skips when `OPENAI_API_KEY` is absent. The live evaluation is not part of CI and can incur API usage.
 
+The executed CRISP-DM notebook read 55,224 rows from `rtfp_kenya_market_2007_2026-08.csv`; after filtering, 7,345 observed price rows remained and 191 IQR flags were retained for inspection. County profile clustering selected k=6 (silhouette 0.573; elbow candidate k=4). For the chronological trend-class holdout, which starts in April 2020, the most-frequent baseline accuracy was 0.4712, selected kNN (k=3) was 0.5833, and the selected depth-2 decision tree was 0.5096. These are single-snapshot descriptive results; the small improvement over baseline does not establish robust predictive value. The notebook saved its local cluster-label artifact under the ignored `notebooks/output/` directory.
+
 The AI rate limiter is in-memory and keyed by `request.client.host`; all users behind the same proxy therefore share a bucket. `X-Forwarded-For` is trusted only if the deployment sets `PRICE_CHECK_TRUST_PROXY=1` and the proxy overwrites that header. The limiter is process-local and is not a distributed quota.
+
+### Live model evaluation status
+
+Live evaluation has **not yet been run** as of 2026-10-20. `OPENAI_API_KEY` was not available in the environment, so there are no live pass-rate or failure results to report. After configuring the key, run `python scripts/run_live_eval.py` from `backend/`. The configured model defaults to `gpt-4.1-mini` (override with `OPENAI_MODEL`). Record the date, model, and printed result here after the command completes; the committed pytest golden tests are not a substitute for a live model run.
 
 ## Ethics, coverage, and bias
 
