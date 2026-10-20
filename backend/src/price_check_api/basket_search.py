@@ -42,21 +42,16 @@ def _search(
     expanded = 0
     if strategy == "bfs":
         frontier = deque([start])
-        best_goal: tuple[Assignment, float] | None = None
         while frontier:
             choices = frontier.popleft()
             expanded += 1
             index = len(choices)
             if index == len(prices):
-                cost = path_cost(choices)
-                if best_goal is None or cost < best_goal[1]:
-                    best_goal = (choices, cost)
+                return choices, path_cost(choices), expanded
             else:
                 for store in sorted(prices[index]):
                     frontier.append((*choices, store))
-        if best_goal is not None:
-            return best_goal[0], best_goal[1], expanded
-    else:
+    elif strategy in {"ucs", "astar"}:
         frontier: list[tuple[float, int, Assignment]] = []
         serial = 0
         heapq.heappush(frontier, (heuristic(0) if strategy == "astar" else 0, serial, start))
@@ -79,13 +74,55 @@ def _search(
                 serial += 1
                 estimate = cost + (heuristic(index + 1) if strategy == "astar" else 0)
                 heapq.heappush(frontier, (estimate, serial, child))
+    elif strategy == "greedy":
+        frontier = [(heuristic(0), 0, start)]
+        serial = 0
+        while frontier:
+            _, _, choices = heapq.heappop(frontier)
+            expanded += 1
+            index = len(choices)
+            if index == len(prices):
+                return choices, path_cost(choices), expanded
+            for store in sorted(prices[index]):
+                serial += 1
+                heapq.heappush(frontier, (heuristic(index + 1), serial, (*choices, store)))
+    elif strategy == "dfs":
+        frontier = [start]
+        while frontier:
+            choices = frontier.pop()
+            expanded += 1
+            index = len(choices)
+            if index == len(prices):
+                return choices, path_cost(choices), expanded
+            for store in reversed(sorted(prices[index])):
+                frontier.append((*choices, store))
+    elif strategy == "iddfs":
+        def depth_limited(limit: int) -> tuple[Assignment, float, int] | None:
+            nonlocal expanded
+            stack = [start]
+            while stack:
+                choices = stack.pop()
+                expanded += 1
+                if len(choices) == len(prices):
+                    return choices, path_cost(choices), expanded
+                if len(choices) < limit:
+                    for store in reversed(sorted(prices[len(choices)])):
+                        stack.append((*choices, store))
+            return None
+
+        for depth in range(len(prices) + 1):
+            result = depth_limited(depth)
+            if result is not None:
+                return result
+    else:
+        raise ValueError(f"unknown search strategy: {strategy}")
     raise RuntimeError("search frontier exhausted")
 
 
 def breadth_first_search(
     prices: PriceOptions, trip_cost: float = 0.0
 ) -> tuple[Assignment, float, int]:
-    """Breadth-first traversal; returns the best leaf in the first goal depth."""
+    """Return the first goal at the shallowest depth; costs may be nonuniform."""
     return _search(prices, "bfs", trip_cost)
 
 
@@ -101,3 +138,24 @@ def a_star_search(
 ) -> tuple[Assignment, float, int]:
     """Expand by accumulated cost plus the admissible remaining-item bound."""
     return _search(prices, "astar", trip_cost)
+
+
+def depth_first_search(
+    prices: PriceOptions, trip_cost: float = 0.0
+) -> tuple[Assignment, float, int]:
+    """Return the first goal in depth-first traversal order."""
+    return _search(prices, "dfs", trip_cost)
+
+
+def greedy_best_first_search(
+    prices: PriceOptions, trip_cost: float = 0.0
+) -> tuple[Assignment, float, int]:
+    """Prioritize only the estimated remaining item price; not guaranteed optimal."""
+    return _search(prices, "greedy", trip_cost)
+
+
+def iterative_deepening_search(
+    prices: PriceOptions, trip_cost: float = 0.0
+) -> tuple[Assignment, float, int]:
+    """Repeat depth-limited search with increasing depth limits."""
+    return _search(prices, "iddfs", trip_cost)
