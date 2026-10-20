@@ -35,6 +35,8 @@ fun BasketScreen(
     onBrowse: () -> Unit,
     onShare: () -> Unit,
     total: Int,
+    lowestPerItemTotal: Int,
+    singleStoreTotal: Int?,
     bestSingleStore: String?,
 ) {
     val basketProducts = state.preferences.basket.mapNotNull { (id, quantity) ->
@@ -125,6 +127,10 @@ fun BasketScreen(
                             Text(stringResource(R.string.lowest_item_total_disclaimer))
                         }
                         Text(stringResource(R.string.weekly_budget_amount, state.preferences.weeklyBudget))
+                        Text(stringResource(R.string.basket_lowest_item_summary, lowestPerItemTotal))
+                        if (bestSingleStore != null && singleStoreTotal != null) {
+                            Text(stringResource(R.string.basket_single_store_summary, bestSingleStore, singleStoreTotal))
+                        }
                         TextButton(onClick = onShare) { Text(stringResource(R.string.share_basket)) }
                     }
                 }
