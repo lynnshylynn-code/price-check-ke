@@ -51,3 +51,6 @@ local.properties
 **/.ruff_cache/
 *.py[cod]
 *.egg-info/
+
+# generated notebook exports
+notebooks/output/
