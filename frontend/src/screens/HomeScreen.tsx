@@ -11,6 +11,7 @@ import { Category, Product } from '../types';
 
 export function HomeScreen({
   shoppingArea,
+  displayName,
   onChangeArea,
   basketCount,
   products,
@@ -21,6 +22,7 @@ export function HomeScreen({
   onTrends,
 }: {
   shoppingArea: string;
+  displayName: string;
   onChangeArea: () => void;
   basketCount: number;
   products: Product[];
@@ -56,7 +58,7 @@ export function HomeScreen({
   return (
     <ScrollView contentContainerStyle={styles.screenContent} showsVerticalScrollIndicator={false}>
       <ScreenHeader
-        title={greeting}
+        title={`${greeting}, ${displayName.trim().split(/\s+/)[0]}`}
         shoppingArea={shoppingArea}
         onChangeArea={onChangeArea}
       />
