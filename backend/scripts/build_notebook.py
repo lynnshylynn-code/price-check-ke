@@ -32,37 +32,30 @@ This notebook studies the World Bank Kenya Monthly Food Price Estimates by Produ
 The business questions are: (1) which counties with recorded maize observations have similar mean-price and volatility profiles? (2) based on past county-month observations, is the trailing average currently rising, stable, or falling? (3) what linear trend rate describes each selected county's observed maize series? The last quantity is descriptive and is not a forecast or shopping recommendation.
 """),
     code("""from pathlib import Path
+import json
 import os
-import warnings
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix,
-                             mean_squared_error, r2_score, silhouette_score)
+from sklearn.dummy import DummyClassifier
+from sklearn.metrics import (accuracy_score, confusion_matrix, mean_squared_error,
+                             precision_recall_fscore_support, r2_score, silhouette_score)
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.linear_model import LinearRegression
 
-# Local path defaults to this repository's dataset; in Colab, upload/mount the CSV
-# and set RTFP_CSV to its path before running.
-filename = "rtfp_kenya_market_2007_2026-08.csv"
-configured_path = os.environ.get("RTFP_CSV")
-candidate_paths = ([Path(configured_path)] if configured_path else []) + [
-    Path.cwd() / "backend" / "data" / filename,
-    Path.cwd().parent / "backend" / "data" / filename,
-    Path.cwd() / "data" / filename,
-    Path.cwd() / filename,
-]
-DATA_PATH = next((candidate for candidate in candidate_paths if candidate.exists()), candidate_paths[0])
+DATA_PATH = Path(os.environ.get(
+    "RTFP_CSV", "../backend/data/rtfp_kenya_market_2007_2026-08.csv"
+))
 if not DATA_PATH.exists():
-    raise FileNotFoundError(f"Set RTFP_CSV to the supplied dataset; not found: {DATA_PATH}")
+    raise FileNotFoundError("Set RTFP_CSV to the supplied RTFP CSV file.")
 
 df = pd.read_csv(DATA_PATH)
 df["price_date"] = pd.to_datetime(df["price_date"], errors="coerce")
-print(f"Dataset: {DATA_PATH}")
+print(f"Dataset file: {DATA_PATH.name}")
 print(f"Rows: {len(df):,}; columns: {len(df.columns)}")
 """),
     markdown("""## 2. Data understanding
@@ -94,7 +87,7 @@ print("Counties with at least one price:", long_prices["adm2_name"].nunique())
 
 Missingness is not plausibly MCAR: which data are absent depends on county and commodity coverage and survey availability, so the pattern is at least MAR. Entirely unsurveyed county/commodity combinations (including Kisumu and Nakuru in this file) are also consistent with MNAR/coverage selection: they were not observed by this survey. We drop missing prices for the relevant task rather than impute unobserved markets or imply measured prices. This means all model results describe observed records only.
 
-The IQR rule flags extreme observations for inspection. We report the count and retain flagged values: high and low food prices may be valid economic conditions, and automatic deletion would erase meaningful variation. MinMax scaling is applied to clustering and kNN features because those methods depend on distances. `clean_data.csv` is written outside the repository by default to avoid treating generated artifacts as source data.
+The IQR rule flags extreme observations for inspection. We report the count and retain flagged values: high and low food prices may be valid economic conditions, and automatic deletion would erase meaningful variation. MinMax scaling is applied to clustering and kNN features because those methods depend on distances. `clean_data.csv` is written under the ignored relative `notebooks/output/` directory.
 """),
     code("""q1 = long_prices.groupby("commodity")["price"].transform(lambda s: s.quantile(.25))
 q3 = long_prices.groupby("commodity")["price"].transform(lambda s: s.quantile(.75))
@@ -103,21 +96,23 @@ outlier_mask = (long_prices["price"] < q1 - 1.5 * iqr) | (long_prices["price"] >
 print("IQR flagged rows retained:", int(outlier_mask.sum()), "of", len(long_prices))
 clean_data = long_prices.copy()
 clean_data["month"] = clean_data["price_date"].dt.to_period("M").dt.to_timestamp()
-export_path = Path(os.environ.get("RTFP_CLEAN_EXPORT", "/tmp/rtfp_clean_data.csv"))
+export_path = Path("output/clean_data.csv")
+export_path.parent.mkdir(parents=True, exist_ok=True)
 clean_data.to_csv(export_path, index=False)
-print("Clean data export:", export_path)
+print("Clean data export:", export_path.as_posix())
 """),
     markdown("""## 4. Modelling
 
 ### 4a. Unsupervised county profiles: K-Means
 
-We aggregate observed maize prices to county means and standard deviations to describe profile similarities. This county-month aggregation is an analytical summary only; the API returns observed source-market records and does not average a county. K-Means minimizes squared Euclidean distance, so feature scaling matters. Manhattan distance can be more robust to a single large coordinate difference, but vanilla K-Means optimizes Euclidean squared distance; for Manhattan objectives a medoid-based method would be a better fit.
+We aggregate observed maize prices to county means and coefficients of variation (standard deviation divided by mean) to describe profile similarities without letting the price scale dominate volatility. This county aggregation is an analytical summary only; the API returns observed source-market records and does not average a county. K-Means minimizes squared Euclidean distance, so MinMax scaling is applied to mean price and coefficient of variation. Manhattan distance can be more robust to a single large coordinate difference, but vanilla K-Means optimizes Euclidean squared distance; for a Manhattan objective a medoid-based method would be a better fit. We compare the inertia elbow with silhouette scores and choose the elbow candidate when its silhouette is within 10% of the best score; otherwise we choose the best-silhouette candidate.
 """),
     code("""maize = clean_data[clean_data["commodity"].eq("maize_fao")]
 county_profile = (maize.groupby("adm2_name")["price"]
-                  .agg(mean_price="mean", price_volatility="std", observations="size")
-                  .dropna(subset=["mean_price", "price_volatility"]))
-profile_features = county_profile[["mean_price", "price_volatility"]]
+                  .agg(mean_price="mean", price_std="std", observations="size")
+                  .dropna(subset=["mean_price", "price_std"]))
+county_profile["coefficient_of_variation"] = county_profile["price_std"] / county_profile["mean_price"]
+profile_features = county_profile[["mean_price", "coefficient_of_variation"]]
 scaler_cluster = MinMaxScaler()
 X_cluster = scaler_cluster.fit_transform(profile_features)
 k_values = range(2, min(8, len(profile_features)))
@@ -126,22 +121,47 @@ for k in k_values:
     model = KMeans(n_clusters=k, random_state=42, n_init=20).fit(X_cluster)
     inertias.append(model.inertia_)
     silhouettes.append(silhouette_score(X_cluster, model.labels_))
-best_k = list(k_values)[int(np.argmax(silhouettes))]
-cluster_model = KMeans(n_clusters=best_k, random_state=42, n_init=20)
+normalized_inertia = (np.asarray(inertias) - min(inertias)) / (max(inertias) - min(inertias))
+normalized_k = np.linspace(0, 1, len(inertias))
+line_distance = np.abs(normalized_inertia - (1 - normalized_k)) / np.sqrt(2)
+elbow_k = list(k_values)[int(np.argmax(line_distance))]
+best_silhouette_k = list(k_values)[int(np.argmax(silhouettes))]
+silhouette_by_k = dict(zip(k_values, silhouettes))
+selected_k = elbow_k if silhouette_by_k[elbow_k] >= .9 * max(silhouettes) else best_silhouette_k
+cluster_model = KMeans(n_clusters=selected_k, random_state=42, n_init=20)
 county_profile["cluster"] = cluster_model.fit_predict(X_cluster)
 fig, axes = plt.subplots(1, 2, figsize=(10, 4))
 axes[0].plot(list(k_values), inertias, marker="o"); axes[0].set(title="Elbow: inertia", xlabel="k")
 axes[1].plot(list(k_values), silhouettes, marker="o"); axes[1].set(title="Silhouette", xlabel="k")
 plt.tight_layout(); plt.show()
-print("Selected k by maximum silhouette:", best_k)
-print("Silhouette at selected k:", round(max(silhouettes), 4))
+selected_silhouette = silhouette_by_k[selected_k]
+print("Elbow candidate k:", elbow_k)
+print("Best silhouette candidate k:", best_silhouette_k)
+print("Selected k after elbow/silhouette comparison:", selected_k)
+print("Silhouette at selected k:", round(selected_silhouette, 4))
 display(county_profile.sort_values("cluster"))
+"""),
+    code("""cluster_output_path = Path("output/county_clusters.json")
+cluster_output_path.parent.mkdir(parents=True, exist_ok=True)
+cluster_payload = {
+    "county_clusters": {
+        county: int(cluster) for county, cluster in county_profile["cluster"].items()
+    },
+    "k": int(selected_k),
+    "silhouette": round(float(selected_silhouette), 4),
+    "training_date_range": {
+        "start": maize["month"].min().strftime("%Y-%m"),
+        "end": maize["month"].max().strftime("%Y-%m"),
+    },
+}
+cluster_output_path.write_text(json.dumps(cluster_payload, indent=2), encoding="utf-8")
+print("Cluster labels artifact:", cluster_output_path.as_posix())
 """),
     markdown("""### 4b. Supervised county-month trend class
 
 For each county, monthly maize prices are averaged across that month's observed source markets solely for this analysis. We compute a trailing three-month average, then label its change from the preceding trailing average: rising above +2%, falling below −2%, and stable otherwise. The 2% deadband reduces labels driven by tiny month-to-month movement; it is a transparent analytical threshold, not a policy threshold.
 
-Features use only information available before the labeled month: prior monthly price, prior trailing average, and prior one-month percentage change. We use a chronological split so later months are held out; random splitting would leak adjacent time patterns. kNN distance features are MinMax scaled. A decision tree is compared at several depths to show train/test behavior.
+Features use only information available before the labeled month: prior monthly price, prior trailing average, and prior one-month percentage change. The latest 20% of months are held out for a final chronological test. Earlier months are split into fit and validation periods; validation selects kNN k and tree depth. The selected models are refit on all training months and evaluated once on the untouched test period. A most-frequent-class DummyClassifier is the baseline. kNN distance features are MinMax scaled.
 """),
     code("""monthly = (maize.groupby(["adm2_name", "month"], as_index=False)["price"].mean()
            .sort_values(["adm2_name", "month"]))
@@ -160,43 +180,70 @@ model_data = (monthly.dropna(subset=["prior_price", "prior_trailing_mean", "prio
               .sort_values(["month", "adm2_name"]).copy())
 feature_cols = ["prior_price", "prior_trailing_mean", "prior_pct_change"]
 unique_months = sorted(model_data["month"].unique())
-split_month = unique_months[int(len(unique_months) * .8)]
-train, test = model_data[model_data["month"] < split_month], model_data[model_data["month"] >= split_month]
-X_train, X_test = train[feature_cols], test[feature_cols]
-y_train, y_test = train["trend"], test["trend"]
-print("Chronological train rows:", len(train), "test rows:", len(test))
-print("Train last month:", train["month"].max(), "test first month:", test["month"].min())
+test_month = unique_months[int(len(unique_months) * .8)]
+train, test = model_data[model_data["month"] < test_month], model_data[model_data["month"] >= test_month]
+train_months = sorted(train["month"].unique())
+validation_month = train_months[int(len(train_months) * .8)]
+fit_train, validation = train[train["month"] < validation_month], train[train["month"] >= validation_month]
+print("Fit rows:", len(fit_train), "validation rows:", len(validation), "final test rows:", len(test))
+print("Fit ends:", fit_train["month"].max(), "validation:", validation["month"].min(), "to", validation["month"].max())
+print("Final train ends:", train["month"].max(), "test starts:", test["month"].min())
 """),
-    code("""knn_scaler = MinMaxScaler()
-X_train_scaled = knn_scaler.fit_transform(X_train)
-X_test_scaled = knn_scaler.transform(X_test)
-knn = KNeighborsClassifier(n_neighbors=5)
-knn.fit(X_train_scaled, y_train)
-knn_pred = knn.predict(X_test_scaled)
-print("kNN train accuracy:", round(accuracy_score(y_train, knn.predict(X_train_scaled)), 4))
-print("kNN test accuracy:", round(accuracy_score(y_test, knn_pred), 4))
-print("kNN confusion matrix (labels falling, stable, rising):")
-print(confusion_matrix(y_test, knn_pred, labels=["falling", "stable", "rising"]))
-print(classification_report(y_test, knn_pred, labels=["falling", "stable", "rising"], zero_division=0))
+    code("""validation_rows = []
+for k in [3, 5, 7, 9, 11]:
+    if k > len(fit_train):
+        continue
+    scaler = MinMaxScaler().fit(fit_train[feature_cols])
+    model = KNeighborsClassifier(n_neighbors=k).fit(
+        scaler.transform(fit_train[feature_cols]), fit_train["trend"]
+    )
+    predicted = model.predict(scaler.transform(validation[feature_cols]))
+    validation_rows.append({"model": "kNN", "parameter": f"k={k}",
+                            "validation_accuracy": accuracy_score(validation["trend"], predicted)})
+for depth in [2, 3, 4, 6, None]:
+    model = DecisionTreeClassifier(max_depth=depth, random_state=42, class_weight="balanced")
+    model.fit(fit_train[feature_cols], fit_train["trend"])
+    predicted = model.predict(validation[feature_cols])
+    validation_rows.append({"model": "Decision tree", "parameter": f"depth={depth}",
+                            "validation_accuracy": accuracy_score(validation["trend"], predicted)})
+validation_results = pd.DataFrame(validation_rows)
+display(validation_results)
+best_knn = validation_results[validation_results["model"].eq("kNN")].sort_values(
+    ["validation_accuracy", "parameter"], ascending=[False, True]
+).iloc[0]
+best_tree = validation_results[validation_results["model"].eq("Decision tree")].sort_values(
+    ["validation_accuracy", "parameter"], ascending=[False, True]
+).iloc[0]
+best_k = int(best_knn["parameter"].split("=")[1])
+depth_text = best_tree["parameter"].split("=")[1]
+best_depth = None if depth_text == "None" else int(depth_text)
 
-tree_results = []
-for depth in [2, 4, 8, None]:
-    tree = DecisionTreeClassifier(max_depth=depth, random_state=42, class_weight="balanced")
-    tree.fit(X_train, y_train)
-    tree_results.append({"max_depth": str(depth),
-                         "train_accuracy": accuracy_score(y_train, tree.predict(X_train)),
-                         "test_accuracy": accuracy_score(y_test, tree.predict(X_test))})
-tree_results = pd.DataFrame(tree_results)
-display(tree_results)
-best_depth = tree_results.iloc[tree_results["test_accuracy"].argmax()]["max_depth"]
-chosen_depth = None if best_depth == "None" else int(best_depth)
-tree = DecisionTreeClassifier(max_depth=chosen_depth, random_state=42, class_weight="balanced")
-tree.fit(X_train, y_train)
-tree_pred = tree.predict(X_test)
-print("Selected max_depth by held-out accuracy:", best_depth)
-print("Decision tree confusion matrix (labels falling, stable, rising):")
-print(confusion_matrix(y_test, tree_pred, labels=["falling", "stable", "rising"]))
-print(classification_report(y_test, tree_pred, labels=["falling", "stable", "rising"], zero_division=0))
+final_scaler = MinMaxScaler().fit(train[feature_cols])
+knn = KNeighborsClassifier(n_neighbors=best_k).fit(
+    final_scaler.transform(train[feature_cols]), train["trend"]
+)
+knn_pred = knn.predict(final_scaler.transform(test[feature_cols]))
+tree = DecisionTreeClassifier(max_depth=best_depth, random_state=42, class_weight="balanced")
+tree.fit(train[feature_cols], train["trend"])
+tree_pred = tree.predict(test[feature_cols])
+baseline = DummyClassifier(strategy="most_frequent").fit(train[feature_cols], train["trend"])
+baseline_pred = baseline.predict(test[feature_cols])
+test_accuracy = {
+    "Most frequent baseline": accuracy_score(test["trend"], baseline_pred),
+    f"kNN (k={best_k})": accuracy_score(test["trend"], knn_pred),
+    f"Decision tree (depth={best_depth})": accuracy_score(test["trend"], tree_pred),
+}
+print("Final untouched chronological test accuracy:",
+      {name: round(float(value), 4) for name, value in test_accuracy.items()})
+print("Baseline majority class:", baseline.classes_[np.argmax(baseline.class_prior_)])
+for name, prediction in [("kNN", knn_pred), ("Decision tree", tree_pred)]:
+    print(name, "confusion matrix (labels falling, stable, rising):")
+    print(confusion_matrix(test["trend"], prediction, labels=["falling", "stable", "rising"]))
+    precision, recall, f1, support = precision_recall_fscore_support(
+        test["trend"], prediction, labels=["falling", "stable", "rising"], zero_division=0
+    )
+    display(pd.DataFrame({"precision": precision, "recall": recall, "f1": f1, "support": support},
+                         index=["falling", "stable", "rising"]))
 """),
     markdown("""### 4c. Regression trend lines
 
