@@ -12,6 +12,12 @@ _lock = threading.Lock()
 
 def enforce_ai_rate_limit(request: Request) -> None:
     client_ip = request.client.host if request.client else "unknown"
+    # Forwarded headers are client-controlled unless the deployment explicitly
+    # confirms that a trusted reverse proxy overwrites them.
+    if os.getenv("PRICE_CHECK_TRUST_PROXY") == "1":
+        forwarded_for = request.headers.get("x-forwarded-for", "").split(",", 1)[0].strip()
+        if forwarded_for:
+            client_ip = forwarded_for
     now = time.monotonic()
     window_seconds = int(os.getenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60"))
     request_limit = int(os.getenv("PRICE_CHECK_AI_RATE_LIMIT", "8"))

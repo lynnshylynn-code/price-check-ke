@@ -375,6 +375,29 @@ def test_market_question_applies_per_ip_rate_limit(
         ai_rate_limit._requests_by_ip.clear()
 
 
+def test_rate_limiter_trusts_forwarded_ip_only_when_enabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from starlette.requests import Request
+
+    ai_rate_limit._requests_by_ip.clear()
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_LIMIT", "1")
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60")
+    monkeypatch.setenv("PRICE_CHECK_TRUST_PROXY", "1")
+    request = Request({
+        "type": "http", "method": "GET", "path": "/",
+        "headers": [(b"x-forwarded-for", b"203.0.113.5, 10.0.0.2")],
+        "client": ("10.0.0.1", 1234), "server": ("test", 80),
+        "scheme": "http", "query_string": b"",
+    })
+    try:
+        ai_rate_limit.enforce_ai_rate_limit(request)
+        assert "203.0.113.5" in ai_rate_limit._requests_by_ip
+        assert "10.0.0.1" not in ai_rate_limit._requests_by_ip
+    finally:
+        ai_rate_limit._requests_by_ip.clear()
+
+
 def test_market_question_endpoint_returns_answer_and_source(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
