@@ -16,6 +16,7 @@ import { BasketScreen } from './screens/BasketScreen';
 import { HomeScreen } from './screens/HomeScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { SearchScreen } from './screens/SearchScreen';
+import { SignInScreen } from './screens/SignInScreen';
 import { TrendsScreen } from './screens/TrendsScreen';
 
 export default function App() {
@@ -40,7 +41,7 @@ function PriceCheckApp() {
   const [budgetError, setBudgetError] = useState('');
   const [savedNotice, setSavedNotice] = useState(false);
   const [basketNotice, setBasketNotice] = useState('');
-  const { basket, watchedIds, weeklyBudget, savedBudget, shoppingArea } =
+  const { displayName, basket, watchedIds, weeklyBudget, savedBudget, shoppingArea } =
     preferences;
   const products = productCatalog.products;
 
@@ -162,6 +163,19 @@ function PriceCheckApp() {
     );
   }
 
+  if (!displayName.trim()) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+        <StatusBar style="dark" />
+        <SignInScreen
+          onContinue={(name) =>
+            setPreferences((current) => ({ ...current, displayName: name }))
+          }
+        />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <StatusBar style="dark" />
@@ -169,6 +183,7 @@ function PriceCheckApp() {
         {tab === 'Home' && (
           <HomeScreen
             shoppingArea={shoppingArea}
+            displayName={displayName}
             onChangeArea={changeShoppingArea}
             basketCount={basketCount}
             products={products}
@@ -242,6 +257,11 @@ function PriceCheckApp() {
             storageError={storageError}
             savedNotice={savedNotice}
             savedBudget={savedBudget}
+            displayName={displayName}
+            onSignOut={() => {
+              setPreferences((current) => ({ ...current, displayName: '' }));
+              setTab('Home');
+            }}
           />
         )}
         <BottomNavigation

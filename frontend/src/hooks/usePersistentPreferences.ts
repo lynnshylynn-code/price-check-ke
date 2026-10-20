@@ -5,6 +5,7 @@ import { BasketLine } from '../types';
 const STORAGE_KEY = 'price-check-ke.preferences.v1';
 
 export type AppPreferences = {
+  displayName: string;
   basket: BasketLine[];
   watchedIds: string[];
   weeklyBudget: string;
@@ -13,6 +14,7 @@ export type AppPreferences = {
 };
 
 const DEFAULT_PREFERENCES: AppPreferences = {
+  displayName: '',
   basket: [{ productId: 'bread', quantity: 1, strategy: 'lowest' }],
   watchedIds: ['brookside-milk'],
   weeklyBudget: '700',
@@ -51,6 +53,7 @@ function parsePreferences(serialized: string): AppPreferences {
   }
 
   return {
+    displayName: typeof value.displayName === 'string' ? value.displayName : '',
     basket: value.basket,
     watchedIds: value.watchedIds,
     weeklyBudget: value.weeklyBudget,
