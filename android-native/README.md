@@ -39,8 +39,11 @@ the web application in `../frontend/`.
   schemes, typography, shapes, animations, and previews.
 - Compose `LazyColumn` / `LazyRow` for Compose content and View-system
   `RecyclerView` specifically for the watchlist.
-- A top-bar Compose options menu and product contextual menu, plus the
-  watchlist XML sort menu and View-system context `PopupMenu`.
+- A top-bar Compose options menu, XML watchlist sort and layout menu, persistent
+  list/grid view using `LinearLayoutManager` and `GridLayoutManager`, and a true
+  long-press context menu for watchlist actions.
+- An XML `AboutActivity` layout with an Up button connected to its declared
+  `MainActivity` parent and lifecycle logging for the Android activity callbacks.
 - Separate UI, application/state-holder, and data/repository layers.
 - Resource-backed UI strings and a mipmap adaptive launcher icon.
 - The Home screen area picker is populated from `GET /api/markets` and includes
