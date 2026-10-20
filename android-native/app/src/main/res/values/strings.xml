@@ -119,6 +119,8 @@
     <string name="try_again">Try again</string>
     <string name="watchlist_title">Watchlist</string>
     <string name="watchlist_sort">Sort by</string>
+    <string name="watchlist_grid_view">Grid view</string>
+    <string name="watchlist_list_view">List view</string>
     <string name="watchlist_empty">No watched products yet.</string>
     <string name="watchlist_product_name_size">%1$s · %2$s</string>
     <string name="watchlist_best_price">Best illustrative price: KSh %1$d at %2$s</string>
