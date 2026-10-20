@@ -36,3 +36,39 @@ data class FoodInflationData(
     val summary: MarketSummary,
     val observations: List<MarketObservation>,
 )
+
+data class MarketPricePoint(
+    val market: String,
+    val county: String,
+    val date: String,
+    val commodity: String,
+    val price: Double,
+    val currency: String,
+    val unit: String,
+)
+
+data class AreaMarketData(
+    val area: ShoppingArea,
+    val sourceName: String,
+    val sourceUrl: String,
+    val coverageStart: String,
+    val coverageEnd: String,
+    val latestMonth: String,
+    val prices: List<MarketPricePoint>,
+)
+
+data class MarketPriceSeries(
+    val sourceName: String,
+    val sourceUrl: String,
+    val coverageStart: String?,
+    val coverageEnd: String?,
+    val prices: List<MarketPricePoint>,
+)
+
+data class MarketQuestionAnswer(
+    val answer: String,
+    val sourceName: String,
+    val sourceUrl: String,
+    val coverageStart: String,
+    val coverageEnd: String,
+)

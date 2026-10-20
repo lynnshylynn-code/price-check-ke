@@ -26,8 +26,10 @@ the web application in `../frontend/`.
   repository, and the Preferences DataStore repository.
 - `domain/` contains pure basket-pricing functions and the local
   dataset-question response rules.
-- The backend supplies the RTFP dataset and optional OpenAI answer. User
-  preferences and basket data are saved locally with DataStore.
+- The backend supplies the RTFP historical index, available beans and maize
+  market observations, and optional OpenAI answers with source and coverage.
+  User preferences, shopping area, and basket data are saved locally with
+  DataStore.
 
 ## Lecture topics demonstrated
 
@@ -41,9 +43,11 @@ the web application in `../frontend/`.
   watchlist XML sort menu and View-system context `PopupMenu`.
 - Separate UI, application/state-holder, and data/repository layers.
 - Resource-backed UI strings and a mipmap adaptive launcher icon.
-- Honest controls: no sample-person identity, shopping-area picker, or inactive
-  price-alert switch is shown. Shopping area remains an enum in the preference
-  model but does not imply that prices vary by location.
+- The Home screen area picker selects the matching Nairobi, Mombasa, Kisumu,
+  or Nakuru county in the backend market dataset. Some county/commodity pairs
+  have no recorded prices; the app displays that gap instead of estimating.
+- Supermarket product prices are labelled demo data and do not vary with the
+  selected area. Market observations come from the World Bank RTFP dataset.
 
 ## Run on an Android emulator
 

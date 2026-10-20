@@ -1,9 +1,10 @@
 package ke.pricecheck.app
 
 import android.app.Application
-import android.content.res.Resources
 import ke.pricecheck.app.data.MarketRepository
+import ke.pricecheck.app.data.MarketDataSource
 import ke.pricecheck.app.data.PreferenceRepository
+import ke.pricecheck.app.data.PreferencesStore
 import ke.pricecheck.app.data.InMemoryProductRepository
 import ke.pricecheck.app.data.ProductRepository
 
@@ -17,14 +18,14 @@ class PriceCheckApplication : Application() {
             preferences = PreferenceRepository(this),
             market = MarketRepository(BuildConfig.API_BASE_URL),
             products = InMemoryProductRepository(),
-            resources = resources,
+            strings = resources::getString,
         )
     }
 }
 
 data class AppContainer(
-    val preferences: PreferenceRepository,
-    val market: MarketRepository,
+    val preferences: PreferencesStore,
+    val market: MarketDataSource,
     val products: ProductRepository,
-    val resources: Resources,
+    val strings: (Int) -> String,
 )
