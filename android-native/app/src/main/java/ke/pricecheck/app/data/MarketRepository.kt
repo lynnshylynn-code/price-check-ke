@@ -6,9 +6,61 @@ import org.json.JSONObject
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
-class MarketRepository(private val baseUrl: String) {
-    suspend fun loadFoodInflation(): FoodInflationData = withContext(Dispatchers.IO) {
+interface MarketDataSource {
+    suspend fun loadFoodInflation(): FoodInflationData
+    suspend fun loadAreaPrices(area: ShoppingArea): AreaMarketData
+    suspend fun askQuestion(question: String): MarketQuestionAnswer
+}
+
+class MarketRepository(private val baseUrl: String) : MarketDataSource {
+    override suspend fun loadAreaPrices(area: ShoppingArea): AreaMarketData = withContext(Dispatchers.IO) {
+        val county = area.name.lowercase().replaceFirstChar(Char::uppercase)
+        val maize = parsePriceSeries(request("/api/prices?market=$county&commodity=maize").toString(), "maize")
+        val beans = parsePriceSeries(request("/api/prices?market=$county&commodity=beans").toString(), "beans")
+        val combined = maize.prices + beans.prices
+        val latestDate = combined.maxOfOrNull { it.date }
+        AreaMarketData(
+            area = area,
+            sourceName = maize.sourceName,
+            sourceUrl = maize.sourceUrl,
+            coverageStart = listOfNotNull(maize.coverageStart, beans.coverageStart).minOrNull().orEmpty(),
+            coverageEnd = listOfNotNull(maize.coverageEnd, beans.coverageEnd).maxOrNull().orEmpty(),
+            latestMonth = latestDate?.let {
+                LocalDate.parse(it).format(DateTimeFormatter.ofPattern("MMM yyyy", Locale.getDefault()))
+            }.orEmpty(),
+            prices = combined.groupBy { it.market to it.commodity }.values.mapNotNull { points ->
+                points.maxByOrNull { it.date }
+            },
+        )
+    }
+    internal fun parsePriceSeries(payload: String, expectedCommodity: String): MarketPriceSeries {
+        val response = JSONObject(payload)
+        val observations = response.getJSONArray("observations")
+        val prices = List(observations.length()) { index ->
+            val item = observations.getJSONObject(index)
+            MarketPricePoint(
+                market = item.getString("market"),
+                county = item.getString("county"),
+                date = item.getString("date"),
+                commodity = item.getString("commodity"),
+                price = item.getDouble("price"),
+                currency = item.getString("currency"),
+                unit = item.getString("unit"),
+            ).also { require(it.commodity == expectedCommodity) }
+        }
+        return MarketPriceSeries(
+            sourceName = response.getString("source_name"),
+            sourceUrl = response.getString("source_url"),
+            coverageStart = response.optString("coverage_start").takeIf(String::isNotBlank),
+            coverageEnd = response.optString("coverage_end").takeIf(String::isNotBlank),
+            prices = prices,
+        )
+    }
+    override suspend fun loadFoodInflation(): FoodInflationData = withContext(Dispatchers.IO) {
         val payload = request("/api/v1/market/food-inflation")
         val seriesJson = payload.getJSONObject("series")
         val summaryJson = payload.getJSONObject("summary")
@@ -51,9 +103,16 @@ class MarketRepository(private val baseUrl: String) {
         )
     }
 
-    suspend fun askQuestion(question: String): String = withContext(Dispatchers.IO) {
+    override suspend fun askQuestion(question: String): MarketQuestionAnswer = withContext(Dispatchers.IO) {
         val payload = JSONObject().put("question", question)
-        request("/api/v1/ai/market-question", payload).getString("answer")
+        val response = request("/api/v1/ai/market-question", payload)
+        MarketQuestionAnswer(
+            answer = response.getString("answer"),
+            sourceName = response.getString("source_name"),
+            sourceUrl = response.getString("source_url"),
+            coverageStart = response.getString("coverage_start"),
+            coverageEnd = response.getString("coverage_end"),
+        )
     }
 
     private fun request(path: String, body: JSONObject? = null): JSONObject {

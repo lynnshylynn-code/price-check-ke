@@ -15,8 +15,6 @@ private val Context.priceCheckDataStore: DataStore<Preferences> by preferencesDa
     name = "price_check_preferences",
 )
 
-data class BasketEntry(val productId: String, val quantity: Int)
-
 data class AppPreferences(
     val basket: Map<String, Int> = emptyMap(),
     val watchedProductIds: Set<String> = emptySet(),
@@ -37,10 +35,19 @@ enum class BasketStrategy {
     SINGLE_STORE,
 }
 
-class PreferenceRepository(context: Context) {
+interface PreferencesStore {
+    val preferences: Flow<AppPreferences>
+    suspend fun changeBasket(productId: String, amount: Int)
+    suspend fun setWatched(productId: String, watched: Boolean)
+    suspend fun setBudget(amount: Int)
+    suspend fun setBasketStrategy(strategy: BasketStrategy)
+    suspend fun setShoppingArea(area: ShoppingArea)
+}
+
+class PreferenceRepository(context: Context) : PreferencesStore {
     private val dataStore = context.applicationContext.priceCheckDataStore
 
-    val preferences: Flow<AppPreferences> = dataStore.data.map { values ->
+    override val preferences: Flow<AppPreferences> = dataStore.data.map { values ->
         val decodedBasket = JSONObject(values[BASKET] ?: "{}")
         val basket = decodedBasket.keys().asSequence().mapNotNull { productId ->
             val quantity = decodedBasket.optInt(productId, 0)
@@ -68,7 +75,7 @@ class PreferenceRepository(context: Context) {
         )
     }
 
-    suspend fun changeBasket(productId: String, amount: Int) {
+    override suspend fun changeBasket(productId: String, amount: Int) {
         dataStore.edit { values ->
             val basket = JSONObject(values[BASKET] ?: "{}")
             val nextQuantity = basket.optInt(productId, 0) + amount
@@ -77,7 +84,7 @@ class PreferenceRepository(context: Context) {
         }
     }
 
-    suspend fun setWatched(productId: String, watched: Boolean) {
+    override suspend fun setWatched(productId: String, watched: Boolean) {
         dataStore.edit { values ->
             val next = (values[WATCHED] ?: emptySet()).toMutableSet()
             if (watched) next.add(productId) else next.remove(productId)
@@ -85,12 +92,16 @@ class PreferenceRepository(context: Context) {
         }
     }
 
-    suspend fun setBudget(amount: Int) {
+    override suspend fun setBudget(amount: Int) {
         dataStore.edit { it[BUDGET] = amount }
     }
 
-    suspend fun setBasketStrategy(strategy: BasketStrategy) {
+    override suspend fun setBasketStrategy(strategy: BasketStrategy) {
         dataStore.edit { it[STRATEGY] = strategy.name }
+    }
+
+    override suspend fun setShoppingArea(area: ShoppingArea) {
+        dataStore.edit { it[AREA] = area.name }
     }
 
     private companion object {

@@ -285,15 +285,18 @@ private fun AiQuestionCard(
                                 style = MaterialTheme.typography.titleSmall,
                             )
                             Text(answer)
-                            Text(
-                                stringResource(
-                                    R.string.answer_source,
-                                    data.series.sourceName,
-                                    data.series.coverageStart,
-                                    data.series.coverageEnd,
-                                ),
-                                style = MaterialTheme.typography.bodySmall,
-                            )
+                            state.answerSourceName?.let { source ->
+                                Text(
+                                    stringResource(
+                                        R.string.answer_source_details,
+                                        source,
+                                        state.answerCoverageStart.orEmpty(),
+                                        state.answerCoverageEnd.orEmpty(),
+                                        state.answerSourceUrl.orEmpty(),
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
                         }
                     }
                 }

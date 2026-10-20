@@ -9,7 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
@@ -23,7 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import ke.pricecheck.app.data.Product
-import ke.pricecheck.app.data.ProductCatalog
+import ke.pricecheck.app.data.ShoppingArea
 import ke.pricecheck.app.R
 import ke.pricecheck.app.ui.PriceCheckUiState
 import ke.pricecheck.app.ui.PriceCheckTheme
@@ -38,6 +38,7 @@ import ke.pricecheck.app.ui.components.SectionTitle
 fun HomeScreen(
     state: PriceCheckUiState,
     products: List<Product>,
+    categories: List<String>,
     onSearch: () -> Unit,
     onCategory: (String) -> Unit,
     onOpenProduct: (Product) -> Unit,
@@ -45,6 +46,7 @@ fun HomeScreen(
     onTrends: () -> Unit,
     onRefresh: () -> Unit,
     onToggleWatched: (String) -> Unit,
+    onArea: (ShoppingArea) -> Unit,
 ) {
     LazyColumn(
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
@@ -84,7 +86,7 @@ fun HomeScreen(
         item { SectionTitle(stringResource(R.string.browse_categories)) }
         item {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(ProductCatalog.categories.drop(1)) { category ->
+                items(categories.drop(1)) { category ->
                     FilterChip(
                         selected = false,
                         onClick = { onCategory(category) },
@@ -94,6 +96,21 @@ fun HomeScreen(
             }
         }
         item { DemoNotice(stringResource(R.string.demo_prices_notice)) }
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.shopping_area), style = MaterialTheme.typography.titleMedium)
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(ShoppingArea.entries) { area ->
+                        FilterChip(
+                            selected = state.preferences.shoppingArea == area,
+                            onClick = { onArea(area) },
+                            label = { Text(stringResource(area.labelResource)) },
+                        )
+                    }
+                }
+                Text(stringResource(R.string.demo_area_disclaimer), style = MaterialTheme.typography.bodySmall)
+            }
+        }
         items(products, key = Product::id) { product ->
             ProductCard(
                 product = product,
@@ -104,34 +121,66 @@ fun HomeScreen(
             )
         }
         item {
-            MarketLoadState(
-                loading = state.marketLoading,
-                error = state.marketError,
-                onRetry = onRefresh,
-            )
+            MarketLoadState(loading = state.areaMarketLoading, error = state.areaMarketError, onRetry = onRefresh)
         }
-        state.marketData?.let { data ->
+        state.areaMarketData?.let { data ->
             item {
                 InfoCard(
-                    title = stringResource(R.string.home_market_signal),
-                    body = stringResource(
-                        R.string.home_market_signal_body,
-                        data.summary.latestValue,
-                        data.summary.latestMonth,
-                    ),
+                    title = stringResource(R.string.market_data_title),
+                    body = buildString {
+                        append(stringResource(R.string.market_data_source, data.sourceName))
+                        append('\n')
+                        if (data.coverageStart.isNotBlank() && data.coverageEnd.isNotBlank()) {
+                            append(stringResource(R.string.market_data_coverage, data.coverageStart, data.coverageEnd))
+                        } else {
+                            append(stringResource(R.string.market_no_coverage))
+                        }
+                        append('\n')
+                        if (data.latestMonth.isNotBlank()) {
+                            append(stringResource(R.string.market_data_latest_month, data.latestMonth))
+                        } else {
+                            append(stringResource(R.string.market_no_latest))
+                        }
+                        listOf("maize", "beans").forEach { commodity ->
+                            if (data.prices.none { it.commodity == commodity }) {
+                                append('\n')
+                                append(stringResource(R.string.market_commodity_empty, stringResource(marketCommodityLabel(commodity))))
+                            }
+                        }
+                        data.prices.forEach { price ->
+                            append('\n')
+                            val commodityLabel = stringResource(
+                                marketCommodityLabel(price.commodity),
+                            )
+                            append(stringResource(R.string.market_price_line, price.market, commodityLabel, price.price, price.currency, price.unit))
+                        }
+                    },
                 )
             }
         }
         item {
             Button(onClick = onTrends, modifier = Modifier.fillMaxWidth()) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    androidx.compose.material3.Icon(Icons.AutoMirrored.Filled.TrendingUp, contentDescription = null)
+                    androidx.compose.material3.Icon(Icons.Filled.Add, contentDescription = null)
                     Text(stringResource(R.string.explore_trends_ai))
                 }
 
             }
         }
     }
+}
+
+private val ShoppingArea.labelResource: Int
+    get() = when (this) {
+        ShoppingArea.NAIROBI -> R.string.area_nairobi
+        ShoppingArea.MOMBASA -> R.string.area_mombasa
+        ShoppingArea.KISUMU -> R.string.area_kisumu
+        ShoppingArea.NAKURU -> R.string.area_nakuru
+    }
+
+private fun marketCommodityLabel(commodity: String): Int = when (commodity) {
+    "maize" -> R.string.market_maize
+    else -> R.string.market_beans
 }
 
 @Preview(showBackground = true)
