@@ -9,8 +9,9 @@ import ke.pricecheck.app.data.AppPreferences
 import ke.pricecheck.app.data.AreaMarketData
 import ke.pricecheck.app.data.BasketStrategy
 import ke.pricecheck.app.data.FoodInflationData
+import ke.pricecheck.app.data.MarketArea
 import ke.pricecheck.app.data.Product
-import ke.pricecheck.app.data.ShoppingArea
+import ke.pricecheck.app.data.defaultMarketCounty
 import ke.pricecheck.app.domain.answerFromDataset
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -19,10 +20,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import java.io.IOException
 import org.json.JSONException
 
@@ -55,6 +58,9 @@ data class PriceCheckUiState(
     val areaMarketLoading: Boolean = true,
     val areaMarketError: String? = null,
     val areaMarketEmpty: Boolean = false,
+    val marketAreas: List<MarketArea> = emptyList(),
+    val marketDirectoryLoading: Boolean = true,
+    val marketDirectoryError: String? = null,
     val question: String = "",
     val answer: String? = null,
     val answerIsOffline: Boolean = false,
@@ -75,6 +81,7 @@ class PriceCheckViewModel(
     val categories: List<String> = container.products.categories
 
     private val mutableState = MutableStateFlow(PriceCheckUiState())
+    private var areaPreferenceJob: Job? = null
 
     val uiState: StateFlow<PriceCheckUiState> = combine(
         mutableState,
@@ -86,13 +93,8 @@ class PriceCheckViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PriceCheckUiState())
 
     init {
-        refreshMarket()
-        viewModelScope.launch {
-            container.preferences.preferences
-                .map { it.shoppingArea }
-                .distinctUntilChanged()
-                .collect(::refreshAreaMarket)
-        }
+        refreshFoodInflation()
+        refreshMarketAreas()
     }
 
     fun selectTab(tab: PriceCheckTab) = mutableState.update { it.copy(selectedTab = tab) }
@@ -164,17 +166,20 @@ class PriceCheckViewModel(
         it.copy(budgetInput = value.filter(Char::isDigit), budgetError = null)
     }
 
-    fun setShoppingArea(area: ShoppingArea) {
-        viewModelScope.launch { container.preferences.setShoppingArea(area) }
+    fun setShoppingArea(county: String) {
+        val canonicalCounty = mutableState.value.marketAreas
+            .firstOrNull { it.county.equals(county, ignoreCase = true) }
+            ?.county ?: return
+        viewModelScope.launch { container.preferences.setShoppingArea(canonicalCounty) }
     }
 
-    private fun refreshAreaMarket(area: ShoppingArea) {
+    private fun refreshAreaMarket(county: String) {
         mutableState.update {
             it.copy(areaMarketData = null, areaMarketLoading = true, areaMarketError = null, areaMarketEmpty = false)
         }
         viewModelScope.launch {
             try {
-                val data = container.market.loadAreaPrices(area)
+                val data = container.market.loadAreaPrices(county)
                 mutableState.update {
                     it.copy(areaMarketData = data, areaMarketLoading = false, areaMarketEmpty = data.prices.isEmpty())
                 }
@@ -203,7 +208,55 @@ class PriceCheckViewModel(
     }
 
     fun refreshMarket() {
-        refreshAreaMarket(uiState.value.preferences.shoppingArea)
+        refreshFoodInflation()
+        refreshMarketAreas()
+    }
+
+    private fun refreshMarketAreas() {
+        mutableState.update { it.copy(marketDirectoryLoading = true, marketDirectoryError = null) }
+        viewModelScope.launch {
+            try {
+                val areas = container.market.loadMarketAreas()
+                val storedCounty = container.preferences.preferences.first().shoppingArea
+                val selectedCounty = defaultMarketCounty(areas, storedCounty)
+                mutableState.update {
+                    it.copy(marketAreas = areas, marketDirectoryLoading = false, marketDirectoryError = null)
+                }
+                if (selectedCounty == null) {
+                    mutableState.update {
+                        it.copy(marketDirectoryError = container.strings(R.string.market_areas_unavailable))
+                    }
+                    return@launch
+                }
+                if (selectedCounty != storedCounty) {
+                    container.preferences.setShoppingArea(selectedCounty)
+                }
+                areaPreferenceJob?.cancel()
+                areaPreferenceJob = launch {
+                    container.preferences.preferences
+                        .map { it.shoppingArea }
+                        .distinctUntilChanged()
+                        .collect { savedCounty ->
+                            val county = defaultMarketCounty(areas, savedCounty) ?: return@collect
+                            if (county != savedCounty) {
+                                container.preferences.setShoppingArea(county)
+                            } else {
+                                refreshAreaMarket(county)
+                            }
+                        }
+                }
+            } catch (error: Exception) {
+                mutableState.update {
+                    it.copy(
+                        marketDirectoryLoading = false,
+                        marketDirectoryError = error.message ?: container.strings(R.string.market_areas_unavailable),
+                    )
+                }
+            }
+        }
+    }
+
+    private fun refreshFoodInflation() {
         mutableState.update { it.copy(marketLoading = true, marketError = null) }
         viewModelScope.launch {
             try {
