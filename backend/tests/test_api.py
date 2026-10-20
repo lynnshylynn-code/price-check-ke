@@ -88,6 +88,56 @@ def test_prices_endpoint_returns_observed_kes_prices_without_filling_gaps() -> N
     assert "not averaged" in payload["source_note"]
 
 
+def test_fuzzy_price_position_reports_source_and_historical_context() -> None:
+    response = client.get("/api/v1/market/price-position", params={
+        "market": "Garissa", "commodity": "maize",
+    })
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["market"] == "Garissa"
+    assert payload["source_name"]
+    assert payload["aggregation"] == "monthly mean across observed source-market prices"
+    assert payload["label"] in {"low", "typical", "high"}
+    assert payload["p10"] <= payload["p50"] <= payload["p90"]
+
+
+def test_fuzzy_price_position_keeps_empty_coverage_unscored() -> None:
+    response = client.get("/api/v1/market/price-position", params={
+        "market": "Kisumu", "commodity": "maize",
+    })
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["score"] is None
+    assert payload["label"] is None
+    assert "No observed" in payload["reason"]
+
+
+def test_basket_optimize_endpoint_returns_labeled_demo_search_result() -> None:
+    response = client.post("/api/v1/basket/optimize", json={
+        "product_ids": ["bread", "sugar"], "strategy": "astar", "trip_cost": 0,
+    })
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["is_demo_data"] is True
+    assert "Demo" in payload["disclaimer"]
+    assert payload["strategy"] == "astar"
+    assert payload["total_cost"] > 0
+    assert len(payload["assignments"]) == 2
+    assert payload["nodes_expanded"] > 0
+
+
+@pytest.mark.parametrize("body", [
+    {"product_ids": []},
+    {"product_ids": ["bread", "bread"]},
+    {"product_ids": ["unknown-product"]},
+    {"product_ids": ["bread"], "trip_cost": -1},
+    {"product_ids": ["bread"], "strategy": "greedy"},
+])
+def test_basket_optimize_validates_input(body: dict) -> None:
+    response = client.post("/api/v1/basket/optimize", json=body)
+    assert response.status_code in {404, 422}
+
+
 @pytest.mark.parametrize(
     ("county", "commodity", "expected_count"),
     [
