@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/watchlist_sort"
+        android:title="@string/watchlist_sort"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/watchlist_sort_name"
+                android:title="@string/sort_name"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/watchlist_sort_lowest_price"
+                android:title="@string/sort_lowest_price"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/watchlist_sort_highest_price"
+                android:title="@string/sort_highest_price"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+</menu>
