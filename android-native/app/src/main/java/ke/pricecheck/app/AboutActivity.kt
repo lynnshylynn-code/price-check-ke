@@ -1,48 +1,40 @@
 package ke.pricecheck.app
 
-import android.app.Activity
 import android.os.Bundle
-import android.view.Gravity
-import android.widget.Button
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NavUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 
-class AboutActivity : Activity() {
+class AboutActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val padding = (resources.displayMetrics.density * 24).toInt()
-        val root = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padding, padding, padding, padding)
-            gravity = Gravity.TOP
-            addView(
-                TextView(context).apply {
-                    text = getString(R.string.about_title)
-                    textSize = 24f
-                },
-            )
-            addView(
-                TextView(context).apply {
-                    text = getString(R.string.about_description)
-                    textSize = 16f
-                    setPadding(0, padding / 2, 0, padding)
-                },
-            )
-            addView(
-                Button(context).apply {
-                    text = getString(R.string.close)
-                    setOnClickListener { finish() }
-                },
-            )
-        }
+        Log.d(TAG, "onCreate: inflate About layout")
+        setContentView(R.layout.activity_about)
+        setSupportActionBar(findViewById(R.id.about_toolbar))
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        findViewById<android.view.View>(R.id.about_close).setOnClickListener { finish() }
+        val root = findViewById<android.view.View>(R.id.about_root)
         ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.updatePadding(top = padding + systemBars.top, bottom = padding + systemBars.bottom)
+            view.updatePadding(top = systemBars.top, bottom = systemBars.bottom)
             insets
         }
-        setContentView(root)
     }
+
+    override fun onStart() { super.onStart(); Log.d(TAG, "onStart: activity is visible") }
+    override fun onResume() { super.onResume(); Log.d(TAG, "onResume: activity is ready") }
+    override fun onPause() { Log.d(TAG, "onPause: activity is losing focus"); super.onPause() }
+    override fun onStop() { Log.d(TAG, "onStop: activity is no longer visible"); super.onStop() }
+    override fun onRestart() { super.onRestart(); Log.d(TAG, "onRestart: activity is returning") }
+    override fun onDestroy() { Log.d(TAG, "onDestroy: release activity resources"); super.onDestroy() }
+
+    override fun onSupportNavigateUp(): Boolean {
+        NavUtils.navigateUpFromSameTask(this)
+        return true
+    }
+
+    private companion object { const val TAG = "PriceCheckLifecycle" }
 }

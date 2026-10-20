@@ -2,6 +2,7 @@ package ke.pricecheck.app.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -23,16 +24,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import android.widget.PopupMenu
 import ke.pricecheck.app.PriceCheckApplication
 import ke.pricecheck.app.R
 import ke.pricecheck.app.data.Product
 import kotlinx.coroutines.launch
 
 class WatchlistFragment : Fragment() {
+    private var gridLayout = false
+    private var contextProduct: Product? = null
     private val viewModel: PriceCheckViewModel by activityViewModels {
         PriceCheckViewModel.Factory(
             (requireActivity().application as PriceCheckApplication).container,
@@ -43,6 +46,16 @@ class WatchlistFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyState: TextView
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        gridLayout = savedInstanceState?.getBoolean(STATE_GRID_LAYOUT) ?: false
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(STATE_GRID_LAYOUT, gridLayout)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -51,6 +64,11 @@ class WatchlistFragment : Fragment() {
         adapter = WatchlistAdapter(
             onAddToBasket = { product -> viewModel.changeBasket(product.id, 1) },
             onRemoveFromWatchlist = { product -> viewModel.toggleWatched(product.id) },
+            onContextMenu = { anchor, product ->
+                contextProduct = product
+                registerForContextMenu(anchor)
+                anchor.showContextMenu()
+            },
         )
         toolbar = Toolbar(requireContext()).apply {
             title = getString(R.string.watchlist_title)
@@ -59,7 +77,8 @@ class WatchlistFragment : Fragment() {
             setNavigationOnClickListener { parentFragmentManager.popBackStack() }
         }
         recyclerView = RecyclerView(requireContext()).apply {
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = if (gridLayout) GridLayoutManager(requireContext(), 2)
+                else LinearLayoutManager(requireContext())
             adapter = this@WatchlistFragment.adapter
             setHasFixedSize(true)
         }
@@ -117,6 +136,9 @@ class WatchlistFragment : Fragment() {
                 object : MenuProvider {
                     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                         menuInflater.inflate(R.menu.watchlist_menu, menu)
+                        menu.findItem(R.id.watchlist_toggle_layout).title = getString(
+                            if (gridLayout) R.string.watchlist_list_view else R.string.watchlist_grid_view,
+                        )
                     }
 
                     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -124,6 +146,16 @@ class WatchlistFragment : Fragment() {
                             R.id.watchlist_sort_name -> WatchlistSort.NAME
                             R.id.watchlist_sort_lowest_price -> WatchlistSort.LOWEST_PRICE
                             R.id.watchlist_sort_highest_price -> WatchlistSort.HIGHEST_PRICE
+                            R.id.watchlist_toggle_layout -> {
+                                gridLayout = !gridLayout
+                                recyclerView.layoutManager = if (gridLayout) {
+                                    GridLayoutManager(requireContext(), 2)
+                                } else LinearLayoutManager(requireContext())
+                                menuItem.title = getString(
+                                    if (gridLayout) R.string.watchlist_list_view else R.string.watchlist_grid_view,
+                                )
+                                return true
+                            }
                             else -> return false
                         }
                         adapter.sortBy(sort)
@@ -153,6 +185,20 @@ class WatchlistFragment : Fragment() {
         }
     }
 
+    override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: android.view.ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, view, menuInfo)
+        requireActivity().menuInflater.inflate(R.menu.watchlist_context_menu, menu)
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val product = contextProduct ?: return super.onContextItemSelected(item)
+        return when (item.itemId) {
+            R.id.watchlist_context_add -> { viewModel.changeBasket(product.id, 1); true }
+            R.id.watchlist_context_remove -> { viewModel.toggleWatched(product.id); true }
+            else -> super.onContextItemSelected(item)
+        }
+    }
+
     override fun onDestroyView() {
         (activity as? AppCompatActivity)?.setSupportActionBar(null)
         super.onDestroyView()
@@ -164,6 +210,7 @@ private enum class WatchlistSort { NAME, LOWEST_PRICE, HIGHEST_PRICE }
 private class WatchlistAdapter(
     private val onAddToBasket: (Product) -> Unit,
     private val onRemoveFromWatchlist: (Product) -> Unit,
+    private val onContextMenu: (View, Product) -> Unit,
 ) : ListAdapter<Product, WatchlistViewHolder>(ProductDiffCallback) {
     private var sort = WatchlistSort.NAME
 
@@ -184,7 +231,7 @@ private class WatchlistAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchlistViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.watchlist_product_item, parent, false)
-        return WatchlistViewHolder(view, onAddToBasket, onRemoveFromWatchlist)
+        return WatchlistViewHolder(view, onAddToBasket, onRemoveFromWatchlist, onContextMenu)
     }
 
     override fun onBindViewHolder(holder: WatchlistViewHolder, position: Int) {
@@ -196,6 +243,7 @@ private class WatchlistViewHolder(
     itemView: View,
     private val onAddToBasket: (Product) -> Unit,
     private val onRemoveFromWatchlist: (Product) -> Unit,
+    private val onContextMenu: (View, Product) -> Unit,
 ) : RecyclerView.ViewHolder(itemView) {
     private val name: TextView = itemView.findViewById(R.id.watchlist_product_name)
     private val price: TextView = itemView.findViewById(R.id.watchlist_product_price)
@@ -206,17 +254,7 @@ private class WatchlistViewHolder(
     init {
         itemView.setOnLongClickListener { anchor ->
             val product = boundProduct ?: return@setOnLongClickListener false
-            PopupMenu(anchor.context, anchor).apply {
-                menu.add(R.string.add_to_basket).setOnMenuItemClickListener {
-                    onAddToBasket(product)
-                    true
-                }
-                menu.add(R.string.remove_from_watchlist).setOnMenuItemClickListener {
-                    onRemoveFromWatchlist(product)
-                    true
-                }
-                show()
-            }
+            onContextMenu(anchor, product)
             true
         }
     }
@@ -237,6 +275,8 @@ private class WatchlistViewHolder(
         removeButton.setOnClickListener { onRemoveFromWatchlist(product) }
     }
 }
+
+private const val STATE_GRID_LAYOUT = "watchlist_grid_layout"
 
 private object ProductDiffCallback : DiffUtil.ItemCallback<Product>() {
     override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean =
