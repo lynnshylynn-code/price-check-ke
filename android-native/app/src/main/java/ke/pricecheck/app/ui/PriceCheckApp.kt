@@ -9,8 +9,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingBasket
-import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Add
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -106,6 +106,7 @@ fun PriceCheckApp(viewModel: PriceCheckViewModel, onOpenWatchlist: () -> Unit) {
                     PriceCheckTab.HOME -> HomeScreen(
                         state = state,
                         products = viewModel.products.take(3),
+                        categories = viewModel.categories,
                         onSearch = {
                             viewModel.setSearchQuery("")
                             viewModel.selectTab(PriceCheckTab.SEARCH)
@@ -119,10 +120,12 @@ fun PriceCheckApp(viewModel: PriceCheckViewModel, onOpenWatchlist: () -> Unit) {
                         onTrends = { viewModel.selectTab(PriceCheckTab.TRENDS) },
                         onRefresh = viewModel::refreshMarket,
                         onToggleWatched = viewModel::toggleWatched,
+                        onArea = viewModel::setShoppingArea,
                     )
                     PriceCheckTab.SEARCH -> SearchScreen(
                         state = state,
                         products = viewModel.visibleProducts(state),
+                        categories = viewModel.categories,
                         onSearch = viewModel::setSearchQuery,
                         onCategory = viewModel::setCategory,
                         onSort = viewModel::cycleSort,
@@ -146,6 +149,8 @@ fun PriceCheckApp(viewModel: PriceCheckViewModel, onOpenWatchlist: () -> Unit) {
                             )
                         },
                         total = viewModel.basketTotal(state),
+                        lowestPerItemTotal = viewModel.basketTotal(state, ke.pricecheck.app.data.BasketStrategy.LOWEST_PER_ITEM),
+                        singleStoreTotal = viewModel.bestSingleStoreTotal(state)?.total,
                         bestSingleStore = viewModel.bestSingleStoreTotal(state)?.store,
                     )
                     PriceCheckTab.TRENDS -> TrendsScreen(
@@ -246,9 +251,9 @@ private fun AppNavigationBar(
         val destinations: List<Pair<PriceCheckTab, ImageVector>> = listOf(
             PriceCheckTab.HOME to Icons.Filled.Home,
             PriceCheckTab.SEARCH to Icons.Filled.Search,
-            PriceCheckTab.BASKET to Icons.Filled.ShoppingBasket,
+            PriceCheckTab.BASKET to Icons.Filled.ShoppingCart,
             PriceCheckTab.WATCHLIST to Icons.Filled.Favorite,
-            PriceCheckTab.TRENDS to Icons.AutoMirrored.Filled.ShowChart,
+            PriceCheckTab.TRENDS to Icons.Filled.Add,
             PriceCheckTab.PROFILE to Icons.Filled.Person,
         )
         destinations.forEach { (tab, icon) ->

@@ -8,7 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +21,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.unit.dp
 import ke.pricecheck.app.R
 import ke.pricecheck.app.data.Product
-import ke.pricecheck.app.data.ProductCatalog
 import ke.pricecheck.app.ui.PriceCheckUiState
 import ke.pricecheck.app.ui.ProductSort
 import ke.pricecheck.app.ui.components.DemoNotice
@@ -32,6 +31,7 @@ import ke.pricecheck.app.ui.components.SectionTitle
 fun SearchScreen(
     state: PriceCheckUiState,
     products: List<Product>,
+    categories: List<String>,
     onSearch: (String) -> Unit,
     onCategory: (String) -> Unit,
     onSort: () -> Unit,
@@ -61,7 +61,7 @@ fun SearchScreen(
         }
         item {
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(ProductCatalog.categories) { category ->
+                items(categories) { category ->
                     FilterChip(
                         selected = state.selectedCategory == category,
                         onClick = { onCategory(category) },
@@ -80,7 +80,7 @@ fun SearchScreen(
                     style = MaterialTheme.typography.titleMedium,
                 )
                 Button(onClick = onSort) {
-                    androidx.compose.material3.Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = null)
+                    androidx.compose.material3.Icon(Icons.Filled.MoreVert, contentDescription = null)
                     val label = when (state.productSort) {
                         ProductSort.LOWEST_PRICE -> stringResource(R.string.sort_lowest_price)
                         ProductSort.HIGHEST_PRICE -> stringResource(R.string.sort_highest_price)
