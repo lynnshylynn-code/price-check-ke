@@ -123,6 +123,26 @@ class PriceSeriesResponse(BaseModel):
     observations: list[PriceObservation]
 
 
+class PricePositionResponse(BaseModel):
+    market: str
+    commodity: str
+    source_name: str
+    source_url: HttpUrl
+    coverage_start: str | None
+    coverage_end: str | None
+    aggregation: str
+    latest_date: date | None
+    latest_price: float | None
+    recent_trend: Literal["rising", "stable", "falling"] | None
+    score: float | None
+    label: Literal["low", "typical", "high"] | None
+    reason: str
+    p10: float | None
+    p50: float | None
+    p90: float | None
+    memberships: dict[str, float] | None
+
+
 class DemoStorePrice(BaseModel):
     store: str
     price: float
@@ -176,6 +196,33 @@ class BasketPricingResponse(BaseModel):
     store_totals: list[BasketStoreTotal]
     total: float
     lines: list[BasketPricedLine]
+
+
+class BasketOptimizeRequest(BaseModel):
+    product_ids: list[str] = Field(min_length=1, max_length=8)
+    trip_cost: float = Field(default=0, ge=0, allow_inf_nan=False)
+    strategy: Literal["bfs", "ucs", "astar"] = "astar"
+
+    @field_validator("product_ids")
+    @classmethod
+    def unique_product_ids(cls, value: list[str]) -> list[str]:
+        if len(set(value)) != len(value):
+            raise ValueError("product_ids must be unique")
+        return value
+
+
+class BasketSearchAssignment(BaseModel):
+    product_id: str
+    store: str
+
+
+class BasketOptimizeResponse(BaseModel):
+    is_demo_data: Literal[True] = True
+    disclaimer: str
+    strategy: Literal["bfs", "ucs", "astar"]
+    total_cost: float
+    nodes_expanded: int
+    assignments: list[BasketSearchAssignment]
 
 
 class ToolGetSeriesArgs(BaseModel):

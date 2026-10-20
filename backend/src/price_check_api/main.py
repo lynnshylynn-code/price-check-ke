@@ -7,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .ai_insights import answer_market_question
 from .ai_rate_limit import enforce_ai_rate_limit
+from .basket_search import a_star_search, breadth_first_search, uniform_cost_search
+from .fuzzy_price import price_position
 from .market_data import (
     COMMODITIES,
     SOURCE_NAME,
@@ -16,14 +18,18 @@ from .market_data import (
     get_market_prices,
 )
 from .offline_answers import answer_question_offline
-from .product_catalog import get_product_catalog, price_basket
+from .product_catalog import PRODUCT_CATALOG, get_product_catalog, price_basket
 from .schemas import (
+    BasketOptimizeRequest,
+    BasketOptimizeResponse,
     BasketPricingRequest,
     BasketPricingResponse,
+    BasketSearchAssignment,
     FoodInflationResponse,
     MarketDirectoryResponse,
     MarketQuestionRequest,
     MarketQuestionResponse,
+    PricePositionResponse,
     PriceSeriesResponse,
     ProductCatalogResponse,
 )
@@ -94,6 +100,57 @@ def prices(
         raise HTTPException(status_code=422, detail=str(error)) from error
 
 
+@app.get(
+    "/api/v1/market/price-position",
+    response_model=PricePositionResponse,
+    tags=["market data"],
+)
+def market_price_position(
+    market: Annotated[str, Query(min_length=1, max_length=120)],
+    commodity: Annotated[Literal["beans", "maize", "goat"], Query()],
+) -> PricePositionResponse:
+    try:
+        series = get_market_prices(market, commodity)
+    except KeyError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    monthly: dict[date, list[float]] = {}
+    for observation in series.observations:
+        monthly.setdefault(observation.date, []).append(observation.price)
+    monthly_means = [
+        (month, sum(values) / len(values)) for month, values in sorted(monthly.items())
+    ]
+    history = [value for _, value in monthly_means]
+    trend = None
+    if len(history) >= 2:
+        change = (history[-1] - history[-2]) / history[-2] if history[-2] else 0.0
+        trend = "rising" if change > .02 else "falling" if change < -.02 else "stable"
+    latest_date, latest_price = monthly_means[-1] if monthly_means else (None, None)
+    position = (
+        price_position(history[:-1], latest_price, trend)
+        if latest_price is not None
+        else price_position([], 0)
+    )
+    return PricePositionResponse(
+        market=market,
+        commodity=commodity,
+        source_name=series.source_name,
+        source_url=series.source_url,
+        coverage_start=series.coverage_start,
+        coverage_end=series.coverage_end,
+        aggregation="monthly mean across observed source-market prices",
+        latest_date=latest_date,
+        latest_price=latest_price,
+        recent_trend=trend,
+        score=position.score,
+        label=position.label,
+        reason=position.reason,
+        p10=position.p10,
+        p50=position.p50,
+        p90=position.p90,
+        memberships=position.memberships,
+    )
+
+
 @app.get("/api/v1/products", response_model=ProductCatalogResponse, tags=["products"])
 def products() -> ProductCatalogResponse:
     return get_product_catalog()
@@ -111,6 +168,36 @@ def basket_pricing(request: BasketPricingRequest) -> BasketPricingResponse:
         raise HTTPException(status_code=404, detail=str(error)) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.post(
+    "/api/v1/basket/optimize",
+    response_model=BasketOptimizeResponse,
+    tags=["products"],
+)
+def basket_optimize(request: BasketOptimizeRequest) -> BasketOptimizeResponse:
+    products_by_id = {product.id: product for product in PRODUCT_CATALOG}
+    unknown = [product_id for product_id in request.product_ids if product_id not in products_by_id]
+    if unknown:
+        raise HTTPException(status_code=404, detail=f"Unknown product id: {unknown[0]}")
+    selected = [products_by_id[product_id] for product_id in request.product_ids]
+    options = [{price.store: price.price for price in product.prices} for product in selected]
+    algorithm = {
+        "bfs": breadth_first_search,
+        "ucs": uniform_cost_search,
+        "astar": a_star_search,
+    }[request.strategy]
+    assignment, cost, nodes = algorithm(options, trip_cost=request.trip_cost)
+    return BasketOptimizeResponse(
+        disclaimer="Demo supermarket prices only; not live retailer data.",
+        strategy=request.strategy,
+        total_cost=cost,
+        nodes_expanded=nodes,
+        assignments=[
+            BasketSearchAssignment(product_id=product.id, store=store)
+            for product, store in zip(selected, assignment, strict=True)
+        ],
+    )
 
 
 @app.post(
