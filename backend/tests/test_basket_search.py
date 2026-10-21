@@ -56,3 +56,15 @@ def test_greedy_can_return_a_nonoptimal_basket():
     prices = [{"A": 10.0, "B": 1.0}, {"A": 10.0, "B": 1.0}]
     assert greedy_best_first_search(prices)[1] == 20.0
     assert uniform_cost_search(prices)[1] == a_star_search(prices)[1] == 2.0
+
+
+def test_store_availability_prunes_unavailable_assignments():
+    prices = [{"Naivas": 20.0, "Carrefour": 18.0}, {"Naivas": 10.0}]
+    assignment, cost, _ = uniform_cost_search(prices)
+    assert assignment == ("Carrefour", "Naivas")
+    assert cost == 28.0
+
+
+def test_search_rejects_an_item_unavailable_everywhere():
+    with pytest.raises(ValueError, match="at least one store"):
+        a_star_search([{}])

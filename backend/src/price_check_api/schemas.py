@@ -68,14 +68,21 @@ class MarketQuestionRequest(BaseModel):
         return question
 
 
+class MarketAnswerSource(BaseModel):
+    name: str
+    url: HttpUrl
+    note: str
+
+
 class MarketQuestionResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     answer: str
     source_name: str
-    source_url: HttpUrl
-    coverage_start: str
-    coverage_end: str
+    source_url: HttpUrl | None
+    coverage_start: str | None
+    coverage_end: str | None
+    sources: list[MarketAnswerSource] = Field(default_factory=list)
 
 
 class Commodity(BaseModel):
@@ -199,16 +206,25 @@ class BasketPricingResponse(BaseModel):
 
 
 class BasketOptimizeRequest(BaseModel):
-    product_ids: list[str] = Field(min_length=1, max_length=8)
+    product_ids: list[str] | None = Field(default=None, min_length=1, max_length=8)
+    group_ids: list[str] | None = Field(default=None, min_length=1, max_length=20)
+    quantities: list[int] | None = None
     trip_cost: float = Field(default=0, ge=0, allow_inf_nan=False)
     strategy: Literal["bfs", "ucs", "astar"] = "astar"
 
-    @field_validator("product_ids")
-    @classmethod
-    def unique_product_ids(cls, value: list[str]) -> list[str]:
-        if len(set(value)) != len(value):
-            raise ValueError("product_ids must be unique")
-        return value
+    @model_validator(mode="after")
+    def validate_selection(self) -> "BasketOptimizeRequest":
+        if bool(self.product_ids) == bool(self.group_ids):
+            raise ValueError("provide exactly one of product_ids or group_ids")
+        identifiers = self.product_ids or self.group_ids or []
+        if len(set(identifiers)) != len(identifiers):
+            raise ValueError("selected identifiers must be unique")
+        if self.quantities is not None:
+            if self.group_ids is None or len(self.quantities) != len(self.group_ids):
+                raise ValueError("quantities must match group_ids")
+            if any(quantity < 1 or quantity > 20 for quantity in self.quantities):
+                raise ValueError("quantities must be between 1 and 20")
+        return self
 
 
 class BasketSearchAssignment(BaseModel):
@@ -216,13 +232,134 @@ class BasketSearchAssignment(BaseModel):
     store: str
 
 
+class BasketOptimizedLine(BaseModel):
+    group_id: str
+    item_name: str
+    listing_id: str
+    store: str
+    quantity: int
+    price_kes: float
+    unit_price: float | None
+    line_total_kes: float
+    product_url: HttpUrl
+    missing_at_stores: list[str]
+
+
+class BasketSingleStoreOption(BaseModel):
+    store: str
+    total_kes: float | None
+    missing_items: list[str]
+
+
 class BasketOptimizeResponse(BaseModel):
-    is_demo_data: Literal[True] = True
-    disclaimer: str
+    is_demo_data: bool = True
+    disclaimer: str | None = None
+    data_label: str | None = None
     strategy: Literal["bfs", "ucs", "astar"]
     total_cost: float
     nodes_expanded: int
     assignments: list[BasketSearchAssignment]
+    lines: list[BasketOptimizedLine] = Field(default_factory=list)
+    best_single_store: str | None = None
+    best_single_store_total: float | None = None
+    best_single_store_missing: list[str] = Field(default_factory=list)
+    single_store_options: list[BasketSingleStoreOption] = Field(default_factory=list)
+
+
+class ListingItem(BaseModel):
+    id: str
+    supermarket: str
+    item_name: str
+    price_kes: float
+    regular_price_kes: float | None
+    pack_size: str | None
+    quantity: float | None
+    unit: Literal["kg", "l", "pcs"] | None
+    unit_price: float | None
+    discount_pct: float | None
+    category: str
+    category_source: str
+    grocery: bool
+    product_url: HttpUrl
+    listing_url: str
+    location_context: str | None
+    collected_at: str
+    collection_method: str
+    pack_size_source: str | None
+    data_notes: str | None
+
+
+class ListingCollectionResponse(BaseModel):
+    data_label: str
+    caveats: str
+    total: int
+    limit: int
+    offset: int
+    items: list[ListingItem]
+
+
+class ListingDetailResponse(BaseModel):
+    data_label: str
+    caveats: str
+    item: ListingItem
+
+
+class ListingDealPositionResponse(BaseModel):
+    data_label: str
+    listing_id: str
+    group_id: str | None
+    score: float | None
+    label: Literal["low", "typical", "high"] | None
+    reason: str
+    discount_memberships: dict[str, float] | None
+    price_memberships: dict[str, float] | None
+    group_percentiles: dict[str, float] | None
+
+
+class ListingGroup(BaseModel):
+    group_id: str
+    label: str
+    basis: str
+    stores: list[str]
+    missing_at_stores: list[str]
+    items: list[ListingItem]
+
+
+class ListingGroupCollectionResponse(BaseModel):
+    data_label: str
+    caveats: str
+    groups: list[ListingGroup]
+
+
+class OrderLineRequest(BaseModel):
+    listing_id: str = Field(min_length=1, max_length=80)
+    quantity: int = Field(ge=1, le=20)
+
+
+class OrderCreateRequest(BaseModel):
+    store: str = Field(min_length=1, max_length=80)
+    items: list[OrderLineRequest] = Field(min_length=1, max_length=30)
+    delivery_address: str = Field(min_length=10, max_length=200)
+    phone: str = Field(min_length=9, max_length=24)
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+
+
+class OrderResponse(BaseModel):
+    id: str
+    store: str
+    lines: list[dict]
+    subtotal: float
+    delivery_address: str
+    latitude: float | None
+    longitude: float | None
+    phone: str
+    status: str
+    created_at: str
+    payment_reference: str | None
+    delivery_fee: None
+    delivery_fee_note: str
+    prototype_disclaimer: str
 
 
 class ToolGetSeriesArgs(BaseModel):
@@ -251,3 +388,30 @@ class ToolCompareMarketsArgs(BaseModel):
         if self.from_date and self.to_date and self.to_date < self.from_date:
             raise ValueError("'to' must be on or after 'from'.")
         return self
+
+
+class ToolSearchListingsArgs(BaseModel):
+    q: str = Field(min_length=1, max_length=120)
+    store: str | None
+    grocery_only: bool
+    max_price: float | None = Field(ge=0, allow_inf_nan=False)
+    limit: int = Field(ge=1, le=10)
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    @field_validator("q")
+    @classmethod
+    def clean_query(cls, value: str) -> str:
+        query = value.strip()
+        if not query:
+            raise ValueError("q must not be blank")
+        return query
+
+
+class ToolGetListingArgs(BaseModel):
+    id: str = Field(min_length=1, max_length=40)
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class ToolCompareGroupArgs(BaseModel):
+    group_id: str = Field(min_length=1, max_length=80)
+    model_config = ConfigDict(frozen=True, extra="forbid")

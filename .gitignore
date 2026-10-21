@@ -52,5 +52,9 @@ local.properties
 *.py[cod]
 *.egg-info/
 
+# Unlicensed APHRC reference workbook; keep local only
+backend/data/listings/private/
+backend/data/runtime/
+
 # generated notebook exports
 notebooks/output/

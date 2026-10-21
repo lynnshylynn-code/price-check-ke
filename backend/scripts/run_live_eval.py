@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 
 from price_check_api.ai_insights import answer_market_question
+from price_check_api.listing_evals import listing_eval_cases
 from price_check_api.market_data import get_market_directory, get_market_prices
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "evals" / "market_qa.json"
@@ -46,7 +47,7 @@ async def run() -> int:
     live_cases = [
         {"id": case["id"], "question": case["question"], "expected_fact": case["expected_fact"]}
         for case in fixtures
-    ] + cases_from_csv()
+    ] + cases_from_csv() + listing_eval_cases()
     failures = []
     for case in live_cases:
         response = await answer_market_question(case["question"])

@@ -1,0 +1,47 @@
+Kenyan supermarket public listing snapshot
+Collection date: 20 October 2026 (Africa/Nairobi, UTC+03:00)
+
+File: kenya_supermarket_public_listings.csv
+239 unique supermarket/product listings: Naivas 176, Carrefour 25, Quickmart 38.
+This is a partial public catalogue snapshot, not an exhaustive catalogue, sales dataset, or historical price series.
+
+Columns
+supermarket: retailer publishing the listing.
+item_name: advertised name, with original wording retained.
+price_kes: advertised selling price in Kenyan shillings; numeric decimal.
+pack_size: explicit listing size where available, otherwise extracted literally from the item name. Multipacks and per-kg/per-bunch price bases are preserved where identifiable. Appliance capacities are not treated as pack sizes.
+units_sold: empty for every row; no sales volumes were publicly available.
+currency: KES.
+regular_price_kes: crossed-out comparison price when present, otherwise empty.
+product_url: public product URL, without tracking/offer query parameters.
+listing_url: public listing page where the record was collected.
+location_context: store context when verified; blank means unknown. Carrefour displayed Westlands - Nairobi. Quickmart store view 7 is marked separately because its branch name was not verified.
+collected_at: collection timestamp with UTC+03:00 offset. For saved initial pages, this records processing time within the same collection session.
+collection_method: direct_public_html or rendered_public_html.
+pack_size_source: explicit_listing_field or item_name; blank when no clear size.
+data_notes: missing-size or other record-specific notes.
+
+Quality and collection notes
+- All 239 rows have non-empty item names, product URLs, and positive numeric prices.
+- Duplicates were removed using supermarket and canonical product URL.
+- All units_sold cells are empty, not zero and not inferred from a shopping-cart quantity control.
+- 26 pack_size cells are empty rather than guessed.
+- Crossed-out prices are kept separate from the current advertised price.
+- Product-name spelling and retailer size descriptions have not been silently corrected.
+- Size text is not normalized to grams or millilitres. It may describe a physical pack, multipack, or loose-item price basis.
+- Catalogue completeness, stock availability, checkout price, and eligibility for promotions have not been verified.
+- Prices can vary by store, location, session, and promotion.
+- Quickmart anonymous category links redirected to the homepage. Those repeated offers were deduplicated; additional public listings were collected from rendered homepage/store views.
+- Carrefour direct requests timed out. Its rows were collected from product cards rendered in a browser, across dairy/eggs, food cupboard, and beverages.
+- Naivas rows were collected from the homepage and publicly linked category/offer pages. One beverage category URL returned 404 and contributed no rows.
+- This file contains factual public listing observations. No separate dataset licence or permission for a particular model-training use was obtained or asserted.
+
+Primary source sites
+https://naivas.online/
+https://www.quickmart.co.ke/home/
+https://www.quickmart.co.ke/home/index/7
+https://www.carrefour.ke/mafken/en/c/FKEN1630000
+https://www.carrefour.ke/mafken/en/c/FKEN1700000
+https://www.carrefour.ke/mafken/en/c/FKEN1500000
+
+For training: split by product identity to avoid the same product leaking across training and evaluation sets. This snapshot supplies no evidence about units sold, demand, or price changes over time.
