@@ -72,10 +72,16 @@ shift from retailer names and abbreviations.
 The ordering API is a prototype actuator: it stores an order request locally,
 opens no supermarket order channel, and transfers no real money. The payment
 mock can produce a `paid_sandbox` demonstration state. The optional Daraja
-provider is restricted to the sandbox host and requires server environment
-credentials; the sandbox has not been verified. Delivery fee remains unknown.
-Order deletion removes the local record. Android ordering screens and this
-interface are not production checkout.
+provider uses the sandbox OAuth and STK Push requests, persists merchant and
+checkout request IDs, authenticates callbacks with a path token, checks the
+callback amount against the server-computed subtotal, and handles duplicate
+callbacks idempotently. It is restricted to the sandbox host and requires
+server environment credentials plus a public HTTPS callback URL. `GET order`
+can be polled for callback-updated state; without a reachable callback, state
+remains `payment_pending` because an STK Query fallback is not implemented.
+Daraja sandbox payment has not been verified with live credentials. Delivery
+fee remains unknown. Order deletion removes the local record. Android ordering
+screens and this interface are not production checkout.
 
 ## Updated supermarket notebook results
 

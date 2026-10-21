@@ -1,4 +1,6 @@
+import logging
 import os
+import re
 from datetime import date
 from typing import Annotated, Literal
 
@@ -52,6 +54,24 @@ app = FastAPI(
     description="Kenya food-market data, summaries, and source-grounded AI exploration.",
     version="0.1.0",
 )
+
+
+class CallbackSecretLogFilter(logging.Filter):
+    """Redact the callback token from the standard Uvicorn access log record."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        secret = os.getenv("PRICE_CHECK_CALLBACK_SECRET")
+        if secret and isinstance(record.args, tuple):
+            record.args = tuple(
+                re.sub(re.escape(secret), "[redacted]", value)
+                if isinstance(value, str)
+                else value
+                for value in record.args
+            )
+        return True
+
+
+logging.getLogger("uvicorn.access").addFilter(CallbackSecretLogFilter())
 
 default_origins = (
     "http://localhost:8081,http://localhost:8082,http://localhost:8083,http://localhost:8084,"
@@ -450,7 +470,10 @@ def order_status(order_id: str) -> OrderResponse:
     tags=["prototype orders"],
 )
 def order_cancel(order_id: str) -> OrderResponse:
-    result = orders.update_order(order_id, "cancelled")
+    try:
+        result = orders.update_order(order_id, "cancelled")
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
     if result is None:
         raise HTTPException(status_code=404, detail="Order not found.")
     return result
@@ -468,6 +491,11 @@ def order_pay(order_id: str) -> OrderResponse:
     current = orders.get_order(order_id)
     if current is None:
         raise HTTPException(status_code=404, detail="Order not found.")
+    if current["status"] not in {"created", "failed"}:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Order cannot be paid while it is {current['status']}.",
+        )
     try:
         provider = (
             orders.DarajaSandboxProvider()
@@ -475,21 +503,40 @@ def order_pay(order_id: str) -> OrderResponse:
             else orders.MockPaymentProvider()
         )
         status, reference = provider.pay(order_id)
-        return orders.update_order(order_id, status, reference)  # type: ignore[return-value]
+        if isinstance(provider, orders.DarajaSandboxProvider):
+            # The provider atomically persisted both Daraja request identifiers.
+            return orders.get_order(order_id)  # type: ignore[return-value]
+        if status == "paid_sandbox" and current["status"] == "failed":
+            orders.update_order(order_id, "payment_pending")
+        result = orders.update_order(order_id, status, reference)
+        return result  # type: ignore[return-value]
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
     except RuntimeError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
 
 
-@app.post("/api/v1/payments/mpesa/callback", tags=["prototype orders"])
-def mpesa_callback(payload: dict) -> dict[str, str]:
+@app.post("/api/v1/payments/mpesa/callback/{secret}", tags=["prototype orders"])
+def mpesa_callback(secret: str, payload: dict) -> dict[str, str]:
+    expected = os.getenv("PRICE_CHECK_CALLBACK_SECRET")
+    if not orders.callback_secret_matches(secret, expected):
+        raise HTTPException(status_code=403, detail="Invalid callback token.")
     callback = payload.get("Body", {}).get("stkCallback", {})
     checkout_id = callback.get("CheckoutRequestID")
     result_code = callback.get("ResultCode")
     if not checkout_id or result_code is None:
         raise HTTPException(status_code=422, detail="Invalid Daraja callback payload.")
-    # Sandbox provider returns the app order id as the account reference in the
-    # prepared prototype contract; unmatched references are deliberately ignored.
-    order_id = str(callback.get("AccountReference", ""))
-    status = "paid_sandbox" if result_code == 0 else "failed"
-    result = orders.update_order(order_id, status, str(checkout_id)) if order_id else None
-    return {"result": "accepted" if result else "ignored"}
+    metadata = callback.get("CallbackMetadata", {}).get("Item", [])
+    values = {row.get("Name"): row.get("Value") for row in metadata if isinstance(row, dict)}
+    try:
+        outcome, order = orders.apply_mpesa_callback(
+            str(checkout_id), int(result_code), values.get("Amount"),
+            str(values["MpesaReceiptNumber"]) if values.get("MpesaReceiptNumber") else None,
+        )
+    except LookupError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+    return {"result": outcome, "order_id": order["id"] if order else ""}

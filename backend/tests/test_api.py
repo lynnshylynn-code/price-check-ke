@@ -9,7 +9,8 @@ from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from openai import AuthenticationError
 
-from price_check_api import ai_insights, ai_rate_limit, market_tools
+from price_check_api import ai_insights, ai_rate_limit, market_tools, orders
+from price_check_api.listings import get_listings
 from price_check_api.main import app
 from price_check_api.schemas import MarketQuestionResponse
 
@@ -24,6 +25,24 @@ def test_health_check() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_mpesa_callback_route_rejects_wrong_path_secret(tmp_path, monkeypatch):
+    monkeypatch.setenv("PRICE_CHECK_ORDERS_DB", str(tmp_path / "orders.sqlite3"))
+    monkeypatch.setenv("PRICE_CHECK_CALLBACK_SECRET", "right-secret")
+    listing = get_listings()[0]
+    order = orders.create_order({
+        "store": listing.supermarket,
+        "items": [{"listing_id": listing.id, "quantity": 1}],
+        "delivery_address": "123 Example Road Nairobi",
+        "phone": "0712345678",
+    })
+    response = client.post(
+        "/api/v1/payments/mpesa/callback/wrong-secret",
+        json={"Body": {"stkCallback": {"CheckoutRequestID": "unknown", "ResultCode": 0}}},
+    )
+    assert response.status_code == 403
+    assert orders.get_order(order["id"])["status"] == "created"
 
 
 def test_food_inflation_endpoint_returns_source_data_and_summary() -> None:

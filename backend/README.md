@@ -135,6 +135,18 @@ The payment default is a deterministic local mock. Daraja configuration uses
 `PRICE_CHECK_PAYMENTS=daraja_sandbox`, `DARAJA_BASE_URL` (must be
 `https://sandbox.safaricom.co.ke`), `DARAJA_CONSUMER_KEY`,
 `DARAJA_CONSUMER_SECRET`, `DARAJA_SHORTCODE`, `DARAJA_PASSKEY`, and
-`DARAJA_CALLBACK_URL`. Credentials are server-only and production URLs are
-rejected. Daraja sandbox calls have not been verified without merchant
-credentials and a reachable callback URL.
+`DARAJA_CALLBACK_URL`, `DARAJA_PARTY_B`, `DARAJA_TRANSACTION_TYPE`, and
+`PRICE_CHECK_CALLBACK_SECRET`. Credentials are server-only and production URLs
+are rejected. The callback URL must be public HTTPS and end in
+`/callback/{PRICE_CHECK_CALLBACK_SECRET}`. For local sandbox work, expose the
+backend with a trusted HTTPS tunnel and set `DARAJA_CALLBACK_URL` to the
+tunnel's callback path. The secret token in that URL is redacted from the
+standard Uvicorn access log. `GET /api/v1/orders/{id}` can be polled to observe
+the callback-updated state. Without a reachable callback the order stays
+`payment_pending`; a Daraja STK query fallback is not implemented. Daraja
+sandbox calls have not been verified without merchant credentials and a
+reachable callback URL.
+
+Set `OPENAI_API_KEY` in the backend process environment to enable the live model
+evaluation; then run `python scripts/run_live_eval.py` from `backend/`. The
+evaluation is not run automatically and may incur model usage.
