@@ -357,6 +357,8 @@ class OrderResponse(BaseModel):
     status: str
     created_at: str
     payment_reference: str | None
+    merchant_request_id: str | None
+    checkout_request_id: str | None
     delivery_fee: None
     delivery_fee_note: str
     prototype_disclaimer: str
