@@ -77,6 +77,31 @@ credentials; the sandbox has not been verified. Delivery fee remains unknown.
 Order deletion removes the local record. Android ordering screens and this
 interface are not production checkout.
 
+## Updated supermarket notebook results
+
+The executed listings notebook trains food-group and NOVA classifiers with
+GroupShuffleSplit by normalized catalogue description (4,833 train rows,
+1,208 holdout rows). For food group, majority Dummy accuracy is 0.1275,
+MultinomialNB accuracy is 0.8849 (macro F1 0.70; weighted F1 0.87), and the
+decision tree accuracy is 0.6026 (macro F1 0.51; weighted F1 0.65). For NOVA,
+the majority baseline accuracy is 0.6142 (macro F1 0.19; weighted F1 0.47),
+MultinomialNB accuracy is 0.9321 (macro F1 0.87; weighted F1 0.93), and the
+decision tree accuracy is 0.8510 (macro F1 0.78; weighted F1 0.85). The
+notebook contains the per-class precision, recall, F1, and confusion matrices.
+Retailer predictions are saved per store in the ignored output directory, but
+should be read as shifted catalogue predictions, not verified product labels.
+
+Matching was measured on a controlled synthetic test only: 47 held-out pairs,
+31 positive pairs, threshold 0.59, precision 1.0000, recall 0.9677, and F1
+0.9836. This tests noisy copies and deliberately distinct product pairs; it is
+not an estimate of real-world matching quality. The canonical sheets
+`backend/data/labels/match_pairs.csv` and
+`backend/data/labels/category_sample.csv` each have 60 rows and currently 0
+human-reviewed labels. `label_status.py` therefore reports no agreement or
+kappa yet. Suggestions are separate heuristic AI suggestions with evidence;
+they are not training or evaluation labels. The APHRC-to-retailer prediction
+has domain shift from till-style catalogue wording to retailer listing names.
+
 ## Ethics, coverage, and bias
 
 Using the bias categories of Suresh and Guttag:

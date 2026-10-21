@@ -5,9 +5,10 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import math
 import re
+from collections import Counter
 from dataclasses import dataclass
-from difflib import SequenceMatcher
 from functools import lru_cache
 from pathlib import Path
 
@@ -30,19 +31,37 @@ def _size_signature(value: str | None) -> tuple[float, str] | None:
     return parse_pack_size(value, get_uom_map())
 
 
-def _token_set_ratio(left: str, right: str) -> float:
-    a = set(normalize_name(left).split())
-    b = set(normalize_name(right).split())
-    if not a or not b:
-        return 0.0
-    common = " ".join(sorted(a & b))
-    a_joined = " ".join(sorted(a))
-    b_joined = " ".join(sorted(b))
-    return max(
-        SequenceMatcher(None, common, a_joined).ratio(),
-        SequenceMatcher(None, common, b_joined).ratio(),
-        SequenceMatcher(None, a_joined, b_joined).ratio(),
+def _match_score(left: str, right: str) -> float:
+    def normalize_sizes(value: str) -> str:
+        return re.sub(r"(\d)\s+(kg|g|ml|l)\b", r"\1\2", value.casefold())
+
+    def terms(value: str) -> list[str]:
+        words = re.findall(r"(?u)\b\w\w+\b", normalize_sizes(value))
+        return words + [f"{a} {b}" for a, b in zip(words, words[1:], strict=False)]
+
+    left_terms, right_terms = terms(left), terms(right)
+    left_counts, right_counts = Counter(left_terms), Counter(right_terms)
+    vocabulary = set(left_counts) | set(right_counts)
+    left_vector, right_vector = [], []
+    for term in vocabulary:
+        document_frequency = int(term in left_counts) + int(term in right_counts)
+        inverse_frequency = math.log(3 / (document_frequency + 1)) + 1
+        left_vector.append(left_counts[term] * inverse_frequency)
+        right_vector.append(right_counts[term] * inverse_frequency)
+    left_norm = math.sqrt(sum(value * value for value in left_vector))
+    right_norm = math.sqrt(sum(value * value for value in right_vector))
+    cosine = (
+        sum(a * b for a, b in zip(left_vector, right_vector, strict=True))
+        / (left_norm * right_norm)
+        if left_norm and right_norm
+        else 0.0
     )
+    left_words = set(re.findall(r"[a-z0-9]+", normalize_sizes(left)))
+    right_words = set(re.findall(r"[a-z0-9]+", normalize_sizes(right)))
+    if not left_words or not right_words:
+        return 0.0
+    dice = 2 * len(left_words & right_words) / (len(left_words) + len(right_words))
+    return (cosine + dice) / 2
 
 
 def _groups_from_matches(items: tuple[Listing, ...]) -> list[ComparableGroup]:
@@ -68,7 +87,7 @@ def _groups_from_matches(items: tuple[Listing, ...]) -> list[ComparableGroup]:
         for item in group[1:]:
             union(group[0].id, item.id)
 
-    labels_path = Path(__file__).resolve().parents[2] / "data/labels/match_pairs_to_label.csv"
+    labels_path = Path(__file__).resolve().parents[2] / "data/labels/match_pairs.csv"
     if labels_path.is_file():
         by_id = {item.id: item for item in items}
         with labels_path.open(encoding="utf-8", newline="") as source:
@@ -83,7 +102,14 @@ def _groups_from_matches(items: tuple[Listing, ...]) -> list[ComparableGroup]:
     threshold_path = Path(__file__).resolve().parents[3] / "notebooks/output/match_threshold.json"
     if threshold_path.is_file():
         try:
-            threshold = float(json.loads(threshold_path.read_text(encoding="utf-8"))["threshold"])
+            artifact = json.loads(threshold_path.read_text(encoding="utf-8"))
+            # Synthetic scores validate the notebook pipeline only. They cannot
+            # broaden production grouping before the human pair labels are reviewed.
+            threshold = (
+                float(artifact["threshold"])
+                if artifact.get("source") == "human_review"
+                else None
+            )
         except (OSError, ValueError, KeyError, TypeError):
             threshold = None
         if threshold is not None:
@@ -94,7 +120,7 @@ def _groups_from_matches(items: tuple[Listing, ...]) -> list[ComparableGroup]:
                 for right in items[index + 1:]:
                     if left.supermarket == right.supermarket:
                         continue
-                    if left_size == _size_signature(right.pack_size) and _token_set_ratio(
+                    if left_size == _size_signature(right.pack_size) and _match_score(
                         left.item_name, right.item_name
                     ) >= threshold:
                         union(left.id, right.id)
