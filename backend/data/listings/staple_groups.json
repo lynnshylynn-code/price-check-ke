@@ -1,0 +1,37 @@
+[
+  {
+    "id": "maize-meal-2kg",
+    "label": "Maize meal, 2 kg pack",
+    "name_regex": "maize meal|maize flour",
+    "quantity": 2,
+    "unit": "kg"
+  },
+  {
+    "id": "sugar-2kg",
+    "label": "Sugar, 2 kg pack",
+    "name_regex": "sugar",
+    "quantity": 2,
+    "unit": "kg"
+  },
+  {
+    "id": "cooking-oil-1l",
+    "label": "Cooking oil, 1 L pack",
+    "name_regex": "cooking oil|vegetable oil",
+    "quantity": 1,
+    "unit": "l"
+  },
+  {
+    "id": "eggs-tray-15",
+    "label": "Eggs, 15 pieces",
+    "name_regex": "eggs?",
+    "quantity": 15,
+    "unit": "pcs"
+  },
+  {
+    "id": "milk-1l",
+    "label": "Milk, 1 L pack",
+    "name_regex": "milk",
+    "quantity": 1,
+    "unit": "l"
+  }
+]

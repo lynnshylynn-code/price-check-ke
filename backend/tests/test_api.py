@@ -126,6 +126,40 @@ def test_basket_optimize_endpoint_returns_labeled_demo_search_result() -> None:
     assert payload["nodes_expanded"] > 0
 
 
+def test_listing_groups_expose_real_store_availability() -> None:
+    response = client.get("/api/v1/listing-groups")
+    assert response.status_code == 200
+    payload = response.json()
+    assert "snapshot 2026-10-20" in payload["data_label"]
+    oil = next(group for group in payload["groups"] if group["group_id"] == "cooking-oil-1l")
+    assert oil["stores"] == ["Naivas"]
+    assert set(oil["missing_at_stores"]) == {"Carrefour", "Quickmart"}
+
+
+def test_basket_optimize_uses_group_prices_and_reports_gaps() -> None:
+    response = client.post("/api/v1/basket/optimize", json={
+        "group_ids": ["cooking-oil-1l"], "strategy": "astar",
+    })
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["is_demo_data"] is False
+    assert payload["lines"][0]["store"] == "Naivas"
+    assert payload["lines"][0]["product_url"].startswith("https://")
+    assert set(payload["lines"][0]["missing_at_stores"]) == {"Carrefour", "Quickmart"}
+    assert payload["best_single_store"] == "Naivas"
+
+
+def test_basket_optimize_rejects_unavailable_group_and_unknown_group() -> None:
+    unavailable = client.post("/api/v1/basket/optimize", json={
+        "group_ids": ["milk-1l"], "strategy": "ucs",
+    })
+    assert unavailable.status_code == 422
+    unknown = client.post("/api/v1/basket/optimize", json={
+        "group_ids": ["made-up-group"],
+    })
+    assert unknown.status_code == 404
+
+
 @pytest.mark.parametrize("body", [
     {"product_ids": []},
     {"product_ids": ["bread", "bread"]},
@@ -474,6 +508,7 @@ def test_market_question_endpoint_returns_answer_and_source(
         "source_url": "https://microdata.worldbank.org/index.php/catalog/6167",
         "coverage_start": "Jan 2007",
         "coverage_end": "Aug 2026",
+        "sources": [],
     }
 
 

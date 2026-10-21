@@ -113,3 +113,28 @@ docker run --rm -p 8000:8000 price-check-ke-api
 No hosting target, credentials, production origin, or deployment has been
 configured. Set `PRICE_CHECK_CORS_ORIGINS` to the deployed frontend's exact
 origin before publishing the API.
+
+## Supermarket listings and prototype ordering
+
+The separate `/api/v1/listings` endpoints read the supplied 239-row advertised
+listing snapshot, collected 20 Oct 2026. It is partial, offer-skewed, and does
+not verify stock or checkout prices. Locations are missing or unverified for
+most rows. No dataset licence was obtained or asserted. The optional APHRC
+workbook remains ignored in `data/listings/private/`. Unit prices are returned
+only for unambiguous parsed pack sizes. These listings are not a sales dataset
+or price history.
+
+`POST /api/v1/orders` is a local prototype: it does not submit orders to a
+supermarket and does not move money. Delivery fees are unknown and returned as
+null. SQLite records are under `data/runtime/`; set `PRICE_CHECK_ORDERS_DB` to
+change the path. Delete prototype records with `DELETE /api/v1/orders/{id}`.
+Delete demo records after demonstrations; no production retention policy or
+checkout is configured.
+
+The payment default is a deterministic local mock. Daraja configuration uses
+`PRICE_CHECK_PAYMENTS=daraja_sandbox`, `DARAJA_BASE_URL` (must be
+`https://sandbox.safaricom.co.ke`), `DARAJA_CONSUMER_KEY`,
+`DARAJA_CONSUMER_SECRET`, `DARAJA_SHORTCODE`, `DARAJA_PASSKEY`, and
+`DARAJA_CALLBACK_URL`. Credentials are server-only and production URLs are
+rejected. Daraja sandbox calls have not been verified without merchant
+credentials and a reachable callback URL.
