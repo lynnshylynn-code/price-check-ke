@@ -160,7 +160,7 @@ Each target uses the same grouped holdout split by normalized description to red
     """, 6),
     markdown("""### 4b. Same-product matching
 
-Blocking requires cross-store records with shared name tokens. Similarity averages TF-IDF cosine and token-set Dice overlap. A deterministic synthetic set is built from noisy copies of real listing descriptions and distinct real products; it is explicitly synthetic and does not estimate real-world matching performance. Human-label threshold and holdout metrics are computed only from the human `label` column, never `suggested_label`.
+Blocking requires cross-store records with shared name tokens. Similarity averages TF-IDF cosine and token-set Dice overlap. The synthetic test adds dropped-brand, reordered-word, equivalent-size, promotional-word, abbreviation, and same-store near-duplicate cases. This is a software check on generated pairs, not accuracy on real products. Human-label threshold and holdout metrics use only the human `label` column, never `suggested_label`.
 """, 7),
     code("""
         from sklearn.feature_extraction.text import TfidfVectorizer
@@ -168,7 +168,13 @@ Blocking requires cross-store records with shared name tokens. Similarity averag
         from difflib import SequenceMatcher
 
         def normalize_sizes(value):
-            return re.sub(r'(\\d)\\s+(kg|g|ml|l)\\b',r'\\1\\2',str(value).casefold())
+            def canonical_size(match):
+                amount=float(match.group(1)); unit=match.group(2).casefold()
+                if unit in {'g','ml'} and amount >= 1000 and amount % 1000 == 0:
+                    return f'{amount/1000:g}'+('kg' if unit=='g' else 'l')
+                return f'{amount:g}'+unit
+            text=re.sub(r'(\\d+(?:\\.\\d+)?)\\s*(kg|g|ml|l)\\b',canonical_size,str(value).casefold())
+            return re.sub(r'\\s+',' ',text).strip()
         def token_set_ratio(a,b):
             A=set(re.findall(r'[a-z0-9]+',normalize_sizes(a))); B=set(re.findall(r'[a-z0-9]+',normalize_sizes(b)))
             return 2*len(A&B)/max(1,len(A)+len(B))
@@ -178,32 +184,65 @@ Blocking requires cross-store records with shared name tokens. Similarity averag
             return .5*cosine + .5*token_set_ratio(a,b)
         pair_df=pd.read_csv(ROOT/'backend/data/labels/match_pairs.csv')
         listing_by_id={x.id:x for x in listings}
-        synthetic=[]
+        noise_types=['dropped_brand_word','reordered_words','equivalent_size_format',
+                     'promotional_words','abbreviations','combined_noise']
         def noisy_name(name,kind):
-            if kind==0: return re.sub(r'(\\d)(ml|l|g|kg)\\b',r'\\1 \\2',name.lower())
-            if kind==1: return ' '.join(reversed(name.split()))
-            if kind==2: return re.sub(r'[^A-Za-z0-9 ]','',name)
-            if len(name)>5: return name[:2]+name[3:]
-            return name+' item'
-        for i,item in enumerate(listings[:100]):
-            synthetic.append((item.item_name,noisy_name(item.item_name,i%4),1))
-        negatives=[]
-        for _,row in pair_df.iterrows():
-            a,b=listing_by_id.get(row.id_a),listing_by_id.get(row.id_b)
-            if a and b and a.item_name.casefold()!=b.item_name.casefold():
-                negatives.append((a.item_name,b.item_name,0))
-        synthetic.extend(negatives[:len(synthetic)])
+            words=name.split()
+            if kind=='dropped_brand_word': return ' '.join(words[1:]) if len(words)>1 else name
+            if kind=='reordered_words': return ' '.join(reversed(words))
+            if kind=='equivalent_size_format':
+                def reformat_size(match):
+                    amount=float(match.group(1)); unit=match.group(2).casefold()
+                    if unit=='kg': return f'{amount*1000:g} g'
+                    if unit=='l': return f'{amount*1000:g} ml'
+                    return f'{amount:g} {unit}'
+                return re.sub(r'(\\d+(?:\\.\\d+)?)(kg|g|ml|l)\\b',reformat_size,name,flags=re.I)
+            if kind=='promotional_words': return name+' special offer promo'
+            if kind=='abbreviations':
+                replacements={'milk':'mlk','biscuit':'bisc','chocolate':'choc','tomato':'tom','fresh':'frsh','super':'sup'}
+                return ' '.join(replacements.get(word.casefold(),word) for word in words)
+            if kind=='combined_noise': return ' '.join(words[1:])+' promo'
+            return name
+        synthetic=[]
+        positive_items=listings[:60]
+        size_items=[item for item in listings if re.search(r'\\d+(?:\\.\\d+)?\\s*(?:kg|g|ml|l)\\b',item.item_name,re.I)][:60]
+        for kind in noise_types:
+            source_items=size_items if kind=='equivalent_size_format' else positive_items
+            for item in source_items:
+                synthetic.append((item.item_name,noisy_name(item.item_name,kind),1,kind))
+        near_duplicates=[]
+        for index,left in enumerate(listings):
+            left_tokens=set(re.findall(r'[a-z0-9]+',left.item_name.casefold()))
+            for right in listings[index+1:]:
+                if left.supermarket!=right.supermarket or left.item_name.casefold()==right.item_name.casefold(): continue
+                if left.item_name.split()[0].casefold()!=right.item_name.split()[0].casefold(): continue
+                right_tokens=set(re.findall(r'[a-z0-9]+',right.item_name.casefold()))
+                if not (left_tokens & right_tokens): continue
+                overlap=len(left_tokens & right_tokens)/max(1,len(left_tokens | right_tokens))
+                near_duplicates.append((overlap,left.item_name,right.item_name))
+        near_duplicates.sort(key=lambda item:(-item[0],item[1],item[2]))
+        negatives=[(a,b,0,'same_store_near_duplicate_negative') for _,a,b in near_duplicates[:120]]
+        synthetic.extend(negatives)
+        print('SYNTHETIC same-store near-duplicate negatives generated:',len(negatives))
         sy=np.asarray([r[2] for r in synthetic])
+        types=np.asarray([r[3] for r in synthetic])
         ss=np.asarray([pair_score(r[0],r[1]) for r in synthetic])
         indexes=np.arange(len(sy))
         tr,te=train_test_split(indexes,test_size=.3,random_state=42,stratify=sy)
         candidate_thresholds=np.linspace(0,1,101)
         synthetic_threshold=max(candidate_thresholds,key=lambda t:f1_score(sy[tr],ss[tr]>=t,zero_division=0))
         synthetic_pred=ss[te]>=synthetic_threshold
-        print('SYNTHETIC only | train rows:',len(tr),'| test rows:',len(te),'| test positives:',int(sy[te].sum()))
-        print('Synthetic threshold:',round(float(synthetic_threshold),3),'| precision/recall/F1:',
-              precision_recall_fscore_support(sy[te],synthetic_pred,average='binary',zero_division=0)[:3])
-        print('Synthetic confusion matrix [0,1]:\\n',confusion_matrix(sy[te],synthetic_pred,labels=[0,1]))
+        overall=precision_recall_fscore_support(sy[te],synthetic_pred,average='binary',zero_division=0)[:3]
+        print('SYNTHETIC overall | train rows:',len(tr),'| test rows:',len(te),'| positives:',int(sy[te].sum()),'| negatives:',int((sy[te]==0).sum()))
+        print('SYNTHETIC overall threshold:',round(float(synthetic_threshold),3),'| precision/recall/F1:',tuple(round(float(x),4) for x in overall))
+        for kind in noise_types:
+            subset=(types[te]==kind)|(sy[te]==0)
+            kind_truth=sy[te][subset]; kind_pred=synthetic_pred[subset]
+            metrics=precision_recall_fscore_support(kind_truth,kind_pred,average='binary',zero_division=0)[:3]
+            print('SYNTHETIC noise type:',kind,'| test rows:',int(subset.sum()),'| positives:',int((types[te]==kind).sum()),'| negatives:',int((sy[te][subset]==0).sum()),'| precision/recall/F1:',tuple(round(float(x),4) for x in metrics))
+        negative_mask=(types[te]=='same_store_near_duplicate_negative')
+        print('SYNTHETIC same-store near-duplicate negatives | test rows:',int(negative_mask.sum()),'| false matches:',int(synthetic_pred[negative_mask].sum()))
+        print('SYNTHETIC confusion matrix [0,1]:\\n',confusion_matrix(sy[te],synthetic_pred,labels=[0,1]))
         human=pair_df[pair_df.label.fillna('').astype(str).str.strip().ne('')].copy()
         human_threshold=None
         if human.empty or human.label.astype(str).nunique()<2:
