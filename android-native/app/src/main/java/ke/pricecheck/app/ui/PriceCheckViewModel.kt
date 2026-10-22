@@ -13,6 +13,9 @@ import ke.pricecheck.app.data.MarketArea
 import ke.pricecheck.app.data.Product
 import ke.pricecheck.app.data.defaultMarketCounty
 import ke.pricecheck.app.domain.answerFromDataset
+import ke.pricecheck.app.domain.BasketLine
+import ke.pricecheck.app.domain.BasketPricing
+import ke.pricecheck.app.domain.StoreAvailability
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -72,15 +75,24 @@ data class PriceCheckUiState(
     val aiError: String? = null,
     val budgetInput: String? = null,
     val budgetError: Int? = null,
+    val productsAreDemo: Boolean = true,
+    val productDataLabel: String = "",
+    val productsLoading: Boolean = true,
+    val productsError: String? = null,
 )
 
 class PriceCheckViewModel(
     private val container: AppContainer,
 ) : ViewModel() {
-    val products: List<Product> = container.products.products
-    val categories: List<String> = container.products.categories
+    val products: List<Product> get() = container.products.products
+    val categories: List<String> get() = container.products.categories
 
-    private val mutableState = MutableStateFlow(PriceCheckUiState())
+    private val mutableState = MutableStateFlow(
+        PriceCheckUiState(
+            productsAreDemo = container.products.isDemoData,
+            productDataLabel = container.products.dataLabel,
+        ),
+    )
     private var areaPreferenceJob: Job? = null
 
     val uiState: StateFlow<PriceCheckUiState> = combine(
@@ -93,8 +105,24 @@ class PriceCheckViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PriceCheckUiState())
 
     init {
+        refreshListings()
         refreshFoodInflation()
         refreshMarketAreas()
+    }
+
+    fun refreshListings() {
+        viewModelScope.launch {
+            val loaded = container.products.refresh()
+            mutableState.update {
+                it.copy(
+                    productsAreDemo = container.products.isDemoData,
+                    productDataLabel = container.products.dataLabel,
+                    productsLoading = false,
+                    productsError = if (loaded || !container.products.isDemoData) null
+                    else container.strings(R.string.listing_snapshot_offline),
+                )
+            }
+        }
     }
 
     fun selectTab(tab: PriceCheckTab) = mutableState.update { it.copy(selectedTab = tab) }
@@ -189,6 +217,13 @@ class PriceCheckViewModel(
                         areaMarketLoading = false,
                         areaMarketError = error.message ?: container.strings(R.string.market_load_failed),
                     )
+
+    fun storeAvailability(state: PriceCheckUiState = uiState.value): List<StoreAvailability> =
+        BasketPricing.storeAvailability(
+            state.preferences.basket.mapNotNull { (id, quantity) ->
+                container.products.findById(id)?.let { BasketLine(it, quantity) }
+            },
+        )
                 }
             }
         }

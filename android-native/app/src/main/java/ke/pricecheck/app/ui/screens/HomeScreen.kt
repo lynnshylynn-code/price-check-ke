@@ -55,7 +55,12 @@ fun HomeScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Text(stringResource(R.string.home_welcome), style = MaterialTheme.typography.headlineMedium)
-                Text(stringResource(R.string.home_subtitle))
+                Text(
+                    stringResource(
+                        if (state.productsAreDemo) R.string.home_subtitle
+                        else R.string.home_subtitle_snapshot,
+                    ),
+                )
             }
         }
         item {
@@ -66,7 +71,12 @@ fun HomeScreen(
                 ) {
                     Text(stringResource(R.string.weekly_budget), style = MaterialTheme.typography.titleMedium)
                     Text(stringResource(R.string.ksh_amount, state.preferences.weeklyBudget), style = MaterialTheme.typography.headlineSmall)
-                    Text(stringResource(R.string.budget_saved_demo_prices))
+                    Text(
+                        stringResource(
+                            if (state.productsAreDemo) R.string.budget_saved_demo_prices
+                            else R.string.budget_saved_snapshot,
+                        ),
+                    )
                 }
             }
         }
@@ -95,7 +105,14 @@ fun HomeScreen(
                 }
             }
         }
-        item { DemoNotice(stringResource(R.string.demo_prices_notice)) }
+        item {
+            DemoNotice(
+                stringResource(
+                    if (state.productsAreDemo) R.string.demo_prices_notice
+                    else R.string.snapshot_listing_notice,
+                ),
+            )
+        }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.shopping_area), style = MaterialTheme.typography.titleMedium)

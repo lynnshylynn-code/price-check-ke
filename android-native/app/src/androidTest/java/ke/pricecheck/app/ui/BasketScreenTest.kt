@@ -35,6 +35,8 @@ class BasketScreenTest {
                     lowestPerItemTotal = 175,
                     singleStoreTotal = 180,
                     bestSingleStore = "Naivas",
+                    storeOptions = emptyList(),
+                    onOrderFromStore = {},
                 )
             }
         }

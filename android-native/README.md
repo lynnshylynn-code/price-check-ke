@@ -82,6 +82,43 @@ Replace the sample LAN address with the computer's actual address. Use HTTPS
 for a deployed API. Cleartext traffic is enabled only when the configured
 development API URL uses HTTP.
 
+## Retailer listings and prototype ordering
+
+The app loads `/api/v1/listings` from the backend and groups exact normalized
+item-name and pack-size matches for comparison. If the API is unavailable, the
+bundled `snapshot 20 Oct 2026` JSON asset is used. Demo catalog prices are a
+last-resort fallback and remain visibly labelled as demo data. Retailer values
+are advertised snapshot prices; stock and checkout prices are not verified.
+
+The checkout flow is a prototype. It creates a local backend order record and
+uses the mock payment provider by default; it does not submit an order to a
+supermarket or move real money. Listing hand-off buttons open the retailer URL
+in a browser. Delivery fee is set by the retailer at its own checkout and is
+not estimated here. Address and phone data are sent to the local backend for
+the prototype order and can be erased from the status screen.
+
+### Lecture topics mapped to code
+
+| Topic | Code location | Demonstration |
+| --- | --- | --- |
+| Fragments and back stack | `PriceCheckFragment`, `StoreHandoffFragment`, `CheckoutFragment`, `OrderStatusFragment` | Each step replaces the content fragment and is added to the back stack; checkout state is shared with `activityViewModels`. |
+| Implicit intents | `StoreHandoffFragment` | `ACTION_VIEW` opens each listing URL; `ACTION_SEND` shares the basket as plain text. Missing browser apps are handled. |
+| Runtime permissions | `CheckoutFragment`, `OrderStatusFragment` | Optional coarse location and Android 13+ notification permission are requested at runtime; denial leaves the main flow available. |
+| Notifications | `OrderStatusFragment` | Creates a notification channel and notifies when the order reaches `paid_sandbox`, subject to notification permission. |
+| Forms and validation | `CheckoutScreen`, `CheckoutViewModel` | Address and Kenyan phone fields show inline validation before the order request. |
+| Offline data | `ListingsRepository`, `generate_android_listings_snapshot.py` | The backend snapshot asset supplies listings when the API cannot be reached. |
+
+Generate the bundled snapshot after changing the source CSV:
+
+```powershell
+cd backend
+python scripts/generate_android_listings_snapshot.py
+```
+
+For the optional Daraja sandbox, configure the backend-only environment
+variables documented in `../backend/README.md` and expose a public HTTPS
+callback URL. No Daraja credentials are stored in this Android app.
+
 ## Verify
 
 ```powershell

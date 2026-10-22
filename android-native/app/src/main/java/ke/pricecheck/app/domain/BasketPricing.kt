@@ -6,8 +6,22 @@ import ke.pricecheck.app.data.Product
 data class BasketLine(val product: Product, val quantity: Int)
 
 data class StoreTotal(val store: String, val total: Int)
+data class StoreAvailability(val store: String, val total: Int?, val missingItems: List<String>)
 
 object BasketPricing {
+    fun storeAvailability(lines: List<BasketLine>): List<StoreAvailability> {
+        if (lines.isEmpty()) return emptyList()
+        val stores = lines.flatMap { line -> line.product.prices.map { it.store } }.toSet().sorted()
+        return stores.map { store ->
+            val missing = lines.filter { line -> line.product.prices.none { it.store == store } }
+                .map { it.product.name }
+            val total = if (missing.isEmpty()) lines.sumOf { line ->
+                line.product.prices.first { it.store == store }.price * line.quantity
+            } else null
+            StoreAvailability(store, total, missing)
+        }.sortedWith(compareBy<StoreAvailability> { it.total == null }.thenBy { it.total ?: Int.MAX_VALUE })
+    }
+
     fun eligibleStoreTotals(lines: List<BasketLine>): List<StoreTotal> {
         if (lines.isEmpty()) return emptyList()
         val stores = lines.first().product.prices.map { it.store }

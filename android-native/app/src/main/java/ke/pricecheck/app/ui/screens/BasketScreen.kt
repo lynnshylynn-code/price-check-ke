@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import ke.pricecheck.app.R
 import ke.pricecheck.app.data.BasketStrategy
 import ke.pricecheck.app.data.Product
+import ke.pricecheck.app.domain.StoreAvailability
 import ke.pricecheck.app.ui.PriceCheckUiState
 import ke.pricecheck.app.ui.components.DemoNotice
 import ke.pricecheck.app.ui.components.SectionTitle
@@ -38,6 +39,8 @@ fun BasketScreen(
     lowestPerItemTotal: Int,
     singleStoreTotal: Int?,
     bestSingleStore: String?,
+    storeOptions: List<StoreAvailability>,
+    onOrderFromStore: (String) -> Unit,
 ) {
     val basketProducts = state.preferences.basket.mapNotNull { (id, quantity) ->
         products.find { it.id == id }?.let { it to quantity }
@@ -57,7 +60,14 @@ fun BasketScreen(
                 ),
             )
         }
-        item { DemoNotice(stringResource(R.string.demo_prices_notice)) }
+        item {
+            DemoNotice(
+                stringResource(
+                    if (state.productsAreDemo) R.string.demo_prices_notice
+                    else R.string.snapshot_listing_notice,
+                ),
+            )
+        }
         item {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
@@ -90,7 +100,8 @@ fun BasketScreen(
                         Text(product.name, style = MaterialTheme.typography.titleMedium)
                         Text(
                             stringResource(
-                                R.string.basket_product_price,
+                                if (state.productsAreDemo) R.string.basket_product_price
+                                else R.string.basket_snapshot_price,
                                 product.size,
                                 product.lowestPrice.price,
                             ),
@@ -119,7 +130,13 @@ fun BasketScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Text(stringResource(R.string.estimated_demo_total), style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            stringResource(
+                                if (state.productsAreDemo) R.string.estimated_demo_total
+                                else R.string.basket_snapshot_total,
+                            ),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
                         Text(stringResource(R.string.ksh_amount, total), style = MaterialTheme.typography.headlineMedium)
                         if (state.preferences.basketStrategy == BasketStrategy.SINGLE_STORE && bestSingleStore != null) {
                             Text(stringResource(R.string.single_store_total, bestSingleStore))
@@ -132,6 +149,31 @@ fun BasketScreen(
                             Text(stringResource(R.string.basket_single_store_summary, bestSingleStore, singleStoreTotal))
                         }
                         TextButton(onClick = onShare) { Text(stringResource(R.string.share_basket)) }
+                    }
+                }
+            }
+            if (!state.productsAreDemo) items(storeOptions, key = StoreAvailability::store) { option ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (option.missingItems.isEmpty()) {
+                            Button(onClick = { onOrderFromStore(option.store) }) {
+                                Text(stringResource(R.string.order_from_store, option.store))
+                            }
+                            if (option.total != null) {
+                                Text(stringResource(R.string.ksh_amount, option.total))
+                            }
+                        } else {
+                            Text(
+                                stringResource(
+                                    R.string.store_missing_items,
+                                    option.store,
+                                    option.missingItems.joinToString(),
+                                ),
+                            )
+                        }
                     }
                 }
             }

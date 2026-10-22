@@ -46,7 +46,10 @@ fun SearchScreen(
         item {
             SectionTitle(
                 stringResource(R.string.find_best_price),
-                stringResource(R.string.search_subtitle),
+                stringResource(
+                    if (state.productsAreDemo) R.string.search_subtitle
+                    else R.string.search_snapshot_subtitle,
+                ),
             )
         }
         item {
@@ -90,7 +93,14 @@ fun SearchScreen(
                 }
             }
         }
-        item { DemoNotice(stringResource(R.string.demo_prices_notice)) }
+        item {
+            DemoNotice(
+                stringResource(
+                    if (state.productsAreDemo) R.string.demo_prices_notice
+                    else R.string.snapshot_listing_notice,
+                ),
+            )
+        }
         if (products.isEmpty()) {
             item {
                 Text(
