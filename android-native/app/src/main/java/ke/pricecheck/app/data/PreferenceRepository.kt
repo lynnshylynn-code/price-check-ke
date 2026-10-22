@@ -21,6 +21,7 @@ data class AppPreferences(
     val weeklyBudget: Int = 700,
     val shoppingArea: String = "Kitui",
     val basketStrategy: BasketStrategy = BasketStrategy.LOWEST_PER_ITEM,
+    val lastOrderId: String? = null,
 )
 
 enum class BasketStrategy {
@@ -35,6 +36,7 @@ interface PreferencesStore {
     suspend fun setBudget(amount: Int)
     suspend fun setBasketStrategy(strategy: BasketStrategy)
     suspend fun setShoppingArea(county: String)
+    suspend fun setLastOrderId(orderId: String?) = Unit
 }
 
 class PreferenceRepository(context: Context) : PreferencesStore {
@@ -63,6 +65,7 @@ class PreferenceRepository(context: Context) : PreferencesStore {
                     }
                 }
                 ?: BasketStrategy.LOWEST_PER_ITEM,
+            lastOrderId = values[LAST_ORDER_ID],
         )
     }
 
@@ -95,11 +98,18 @@ class PreferenceRepository(context: Context) : PreferencesStore {
         dataStore.edit { it[AREA] = county }
     }
 
+    override suspend fun setLastOrderId(orderId: String?) {
+        dataStore.edit { values ->
+            if (orderId == null) values.remove(LAST_ORDER_ID) else values[LAST_ORDER_ID] = orderId
+        }
+    }
+
     private companion object {
         val BASKET = stringPreferencesKey("basket")
         val WATCHED = androidx.datastore.preferences.core.stringSetPreferencesKey("watched")
         val BUDGET = intPreferencesKey("weekly_budget")
         val AREA = stringPreferencesKey("shopping_area")
         val STRATEGY = stringPreferencesKey("basket_strategy")
+        val LAST_ORDER_ID = stringPreferencesKey("last_order_id")
     }
 }

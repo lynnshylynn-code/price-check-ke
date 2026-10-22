@@ -71,7 +71,8 @@ fun ProductCard(
                     Text(product.description, style = MaterialTheme.typography.bodySmall)
                     Text(
                         stringResource(
-                            R.string.best_illustrative_price,
+                            if (product.isDemoData) R.string.best_illustrative_price
+                            else R.string.best_snapshot_price,
                             product.lowestPrice.price,
                             product.lowestPrice.store,
                         ),

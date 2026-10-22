@@ -18,6 +18,11 @@ class PriceCheckFragment : Fragment() {
             (requireActivity().application as PriceCheckApplication).container,
         )
     }
+    private val checkoutViewModel: CheckoutViewModel by activityViewModels {
+        CheckoutViewModel.Factory(
+            (requireActivity().application as PriceCheckApplication).container,
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +43,14 @@ class PriceCheckFragment : Fragment() {
                         setReorderingAllowed(true)
                         replace(android.R.id.content, WatchlistFragment())
                         addToBackStack("watchlist")
+                    }
+                },
+                onOrderFromStore = { store, basket ->
+                    checkoutViewModel.prepareOrder(store, viewModel.products, basket)
+                    parentFragmentManager.commit {
+                        setReorderingAllowed(true)
+                        replace(android.R.id.content, StoreHandoffFragment())
+                        addToBackStack("store-handoff")
                     }
                 },
             )
