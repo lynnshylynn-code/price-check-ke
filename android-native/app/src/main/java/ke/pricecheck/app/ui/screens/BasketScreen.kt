@@ -34,6 +34,7 @@ fun BasketScreen(
     onChangeQuantity: (String, Int) -> Unit,
     onChangeStrategy: (BasketStrategy) -> Unit,
     onBrowse: () -> Unit,
+    onStoreHandoff: (String) -> Unit,
     onShare: () -> Unit,
     total: Int,
     lowestPerItemTotal: Int,
@@ -147,6 +148,11 @@ fun BasketScreen(
                         Text(stringResource(R.string.basket_lowest_item_summary, lowestPerItemTotal))
                         if (bestSingleStore != null && singleStoreTotal != null) {
                             Text(stringResource(R.string.basket_single_store_summary, bestSingleStore, singleStoreTotal))
+                        }
+                        if (bestSingleStore != null) {
+                            Button(onClick = { onStoreHandoff(bestSingleStore) }) {
+                                Text(stringResource(R.string.basket_store_handoff))
+                            }
                         }
                         TextButton(onClick = onShare) { Text(stringResource(R.string.share_basket)) }
                     }

@@ -12,8 +12,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
-import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.fragment.findNavController
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -42,7 +41,6 @@ class WatchlistFragment : Fragment() {
         )
     }
     private lateinit var adapter: WatchlistAdapter
-    private lateinit var toolbar: Toolbar
     private lateinit var recyclerView: RecyclerView
     private lateinit var emptyState: TextView
 
@@ -70,12 +68,6 @@ class WatchlistFragment : Fragment() {
                 anchor.showContextMenu()
             },
         )
-        toolbar = Toolbar(requireContext()).apply {
-            title = getString(R.string.watchlist_title)
-            setNavigationIcon(android.R.drawable.ic_menu_revert)
-            setNavigationContentDescription(R.string.navigate_back)
-            setNavigationOnClickListener { parentFragmentManager.popBackStack() }
-        }
         recyclerView = RecyclerView(requireContext()).apply {
             layoutManager = if (gridLayout) GridLayoutManager(requireContext(), 2)
                 else LinearLayoutManager(requireContext())
@@ -106,13 +98,6 @@ class WatchlistFragment : Fragment() {
         val root = LinearLayout(requireContext()).apply {
             orientation = LinearLayout.VERTICAL
             addView(
-                toolbar,
-                LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                ),
-            )
-            addView(
                 listContainer,
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -131,8 +116,7 @@ class WatchlistFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
-        (requireActivity() as AppCompatActivity).addMenuProvider(
+        requireActivity().addMenuProvider(
                 object : MenuProvider {
                     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                         menuInflater.inflate(R.menu.watchlist_menu, menu)
@@ -199,10 +183,6 @@ class WatchlistFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        (activity as? AppCompatActivity)?.setSupportActionBar(null)
-        super.onDestroyView()
-    }
 }
 
 private enum class WatchlistSort { NAME, LOWEST_PRICE, HIGHEST_PRICE }
