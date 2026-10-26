@@ -28,9 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
+import ke.pricecheck.app.navigation.NavArgs
 import ke.pricecheck.app.R
 
 class StoreHandoffFragment : Fragment() {
@@ -51,11 +53,10 @@ class StoreHandoffFragment : Fragment() {
                 onOpen = { url -> openListing(url) },
                 onShare = { shareBasket(state) },
                 onCheckout = {
-                    parentFragmentManager.commit {
-                        setReorderingAllowed(true)
-                        replace(android.R.id.content, CheckoutFragment())
-                        addToBackStack("checkout")
-                    }
+                    findNavController().navigate(
+                        R.id.action_storeHandoffFragment_to_checkoutFragment,
+                        bundleOf(NavArgs.STORE_NAME to state.store),
+                    )
                 },
             )
         }

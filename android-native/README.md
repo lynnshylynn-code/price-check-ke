@@ -20,12 +20,17 @@ the web application in `../frontend/`.
 
 ## Architecture
 
-- After the splash, `MainActivity` hosts the navigation graph starting at
-  `PriceCheckFragment`.
-  Activity lifecycle callbacks, including `onRestart`, log under the
-  `PriceCheckLifecycle` Logcat tag.
-- `PriceCheckFragment` hosts the Compose shopping screens and opens
-  `WatchlistFragment` through a `FragmentManager` transaction on the back stack.
+- After the splash, `MainActivity` hosts a `NavHostFragment` (`nav_graph.xml`)
+  starting at `PriceCheckFragment`, with a Material toolbar wired through
+  `setupActionBarWithNavController` (hidden on the home destination). Activity
+  lifecycle callbacks, including `onRestart`, log under the `PriceCheckLifecycle`
+  Logcat tag.
+- `PriceCheckFragment` hosts the Compose shopping screens and navigates to
+  `WatchlistFragment`, the store hand-off / checkout / order-status demo flow,
+  and `AboutActivity` through the Navigation Component. Fragment arguments use
+  `Bundle` keys in `NavArgs` instead of the Safe Args Gradle plugin so this
+  project stays compatible with the current AGP/Kotlin toolchain without an
+  extra code-generation plugin.
   Both fragments share the Activity-scoped `PriceCheckViewModel`.
 - `WatchlistFragment` uses a View-system `RecyclerView`, `LinearLayoutManager`,
   `ListAdapter`, `DiffUtil`, and a `ViewHolder`. It inflates its XML sorting

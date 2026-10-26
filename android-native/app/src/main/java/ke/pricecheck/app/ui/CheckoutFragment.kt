@@ -37,11 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import ke.pricecheck.app.PriceCheckApplication
 import ke.pricecheck.app.R
+import ke.pricecheck.app.navigation.NavArgs
 
 class CheckoutFragment : Fragment() {
     private val viewModel: CheckoutViewModel by activityViewModels {
@@ -69,11 +71,13 @@ class CheckoutFragment : Fragment() {
             LaunchedEffect(state.orderId) {
                 if (state.orderId != null && !navigated) {
                     navigated = true
-                    parentFragmentManager.commit {
-                        setReorderingAllowed(true)
-                        replace(android.R.id.content, OrderStatusFragment())
-                        addToBackStack("order-status")
-                    }
+                    findNavController().navigate(
+                        R.id.action_checkoutFragment_to_orderStatusFragment,
+                        bundleOf(
+                            NavArgs.ORDER_ID to state.orderId,
+                            NavArgs.STORE_NAME to state.store,
+                        ),
+                    )
                 }
             }
             CheckoutScreen(

@@ -51,6 +51,7 @@ fun PriceCheckApp(
     viewModel: PriceCheckViewModel,
     onOpenWatchlist: () -> Unit,
     onOrderFromStore: (String, Map<String, Int>) -> Unit,
+    onStoreHandoff: (String, Map<String, Int>) -> Unit,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -143,6 +144,7 @@ fun PriceCheckApp(
                         onChangeQuantity = viewModel::changeBasket,
                         onChangeStrategy = viewModel::setBasketStrategy,
                         onBrowse = { viewModel.selectTab(PriceCheckTab.SEARCH) },
+                        onStoreHandoff = { store -> onStoreHandoff(store, state.preferences.basket) },
                         onShare = {
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"

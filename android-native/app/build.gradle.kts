@@ -59,6 +59,11 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation("androidx.fragment:fragment-ktx:1.9.1")
+    val navVersion = "2.10.2"
+    implementation("androidx.navigation:navigation-fragment:$navVersion")
+    implementation("androidx.navigation:navigation-ui:$navVersion")
+    implementation("com.google.android.material:material:1.13.0")
+    androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
