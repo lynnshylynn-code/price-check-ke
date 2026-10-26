@@ -4,9 +4,24 @@ This is the native Android client, implemented in Kotlin and Jetpack Compose to
 match the mobile-development lecture topics. The existing Expo client remains
 the web application in `../frontend/`.
 
+## Splash screen
+
+- `SplashActivity` is the launcher activity (lecture-style delayed hand-off to
+  `MainActivity` with a `Handler` on the main looper). The delay is a named
+  constant in `SplashActivity`; pending callbacks are removed in `onDestroy`,
+  and Back cancels the timer and finishes the splash.
+- On Android 12 and later, the system shows its own splash screen before any
+  activity layout. `Theme.PriceCheck` sets `android:windowSplashScreenBackground`
+  so that system splash matches the in-app splash background colour.
+- Google discourages artificial splash delays in production apps; the
+  recommended approach is [`androidx.core:core-splashscreen`](https://developer.android.com/develop/ui/views/launch/splash-screen)
+  to keep the system splash visible only until the app is ready, without an
+  extra timed screen.
+
 ## Architecture
 
-- `MainActivity` is the Android entry Activity; it hosts `PriceCheckFragment`.
+- After the splash, `MainActivity` hosts the navigation graph starting at
+  `PriceCheckFragment`.
   Activity lifecycle callbacks, including `onRestart`, log under the
   `PriceCheckLifecycle` Logcat tag.
 - `PriceCheckFragment` hosts the Compose shopping screens and opens

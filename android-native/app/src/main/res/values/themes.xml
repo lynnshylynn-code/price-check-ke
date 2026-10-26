@@ -6,5 +6,10 @@
         <item name="android:statusBarColor">#F6F8F5</item>
         <item name="android:navigationBarColor">#F6F8F5</item>
         <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
+    </style>
+
+    <style name="Theme.PriceCheck.Splash" parent="Theme.PriceCheck">
+        <item name="android:windowBackground">@color/splash_background</item>
     </style>
 </resources>
