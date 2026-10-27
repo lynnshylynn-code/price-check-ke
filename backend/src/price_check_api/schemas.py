@@ -57,11 +57,27 @@ class FoodInflationResponse(BaseModel):
 
 
 class MarketQuestionRequest(BaseModel):
-    question: str = Field(min_length=3, max_length=500)
+    question: str = Field(min_length=3, max_length=300)
 
     @field_validator("question")
     @classmethod
     def strip_question(cls, value: str) -> str:
+        if any(ord(char) < 32 and char not in "\t\n\r" for char in value):
+            raise ValueError("Question must not contain control characters.")
+        question = value.strip()
+        if not question:
+            raise ValueError("Question must not be blank.")
+        return question
+
+
+class AssistantAskRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=300)
+
+    @field_validator("question")
+    @classmethod
+    def validate_question(cls, value: str) -> str:
+        if any(ord(char) < 32 and char not in "\t\n\r" for char in value):
+            raise ValueError("Question must not contain control characters.")
         question = value.strip()
         if not question:
             raise ValueError("Question must not be blank.")
@@ -83,6 +99,10 @@ class MarketQuestionResponse(BaseModel):
     coverage_start: str | None
     coverage_end: str | None
     sources: list[MarketAnswerSource] = Field(default_factory=list)
+    intent: str = "out_of_scope"
+    intent_confidence: float = 0.0
+    entities: dict[str, object] = Field(default_factory=dict)
+    model_version: str = "unavailable"
 
 
 class Commodity(BaseModel):

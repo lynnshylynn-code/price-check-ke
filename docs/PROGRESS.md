@@ -1,25 +1,45 @@
-# Progress
+# Project progress
 
-Parts 1 and 2 were already implemented on this checkout before this continuation. I am preserving those commits and continuing with Part 3 next.
+Part 1 — Splash screen: complete (commit `fd4a697`).
+Changed: Added the lecture-style splash activity, launcher layout, theme color, and Android documentation.
+Tests: Android Gradle verification was attempted in this pass but returned no output before cancellation; pass count unverified.
 
-Part 1 — Splash screen: complete in commit `8722025`.
-Changed: Added lecture-style splash activity, vector-derived logo layout, theme color, Android documentation, and launch test.
-Tests: Prior run count not captured in commit history; re-run attempted during this continuation but Gradle did not return output.
+Part 2 — Navigation Component: complete (commit `e402e70`).
+Changed: Added the fragment navigation graph, toolbar integration, destinations, arguments, and navigation tests.
+Tests: Android Gradle verification was attempted in this pass but returned no output before cancellation; pass count unverified.
 
-Part 2 — Navigation Component: complete in commit `c5196f0`.
-Changed: Added NavHost graph, navigation actions/arguments, toolbar integration, and navigation instrumentation tests.
-Tests: Prior run count not captured in commit history; re-run attempted during this continuation but Gradle did not return output.
+Part 3 — Menu polish: complete (commit `4d42d83`).
+Changed: Added vector menu icons, an always-visible watchlist action, and About/Exit actions through MenuProvider.
+Tests: Android Gradle verification was attempted in this pass but returned no output before cancellation; pass count unverified.
 
-Part 3 — Menu polish: complete; local commit pending.
-Changed: Added vector menu icons, watchlist layout action, and MainActivity About/Exit actions via MenuProvider.
-Tests: 0 tests run in this pass; prior local report lists 16 unit test cases but is stale/unverified. XML resources parsed successfully.
+Part 4 — Synthetic assistant dataset: complete (commit `467e6da`).
+Changed: Generated 4,030 synthetic questions with family-based splits; kept the 91-row AI-written held-out file separate.
+Tests: Generator reported 2,900/433/697 rows across 48/8/12 families; dataset tests 3 passed; Ruff clean.
 
-Parts 4–11 — Not started or audited yet.
+Part 5 — Intent model: complete (commit `fa7c0cd`).
+Changed: Trained and evaluated word/character TF-IDF intent models and saved ignored model artifacts and metadata.
+Tests: Selected calibrated LinearSVC at threshold 0.4200; synthetic test 0.6026 accuracy/0.5652 macro-F1, held-out 0.7912/0.8115.
 
-Part 4 — Synthetic assistant dataset: complete; local commit pending.
-Changed: Added seeded 15–20 fillings/template generation, 20% character noise, canonical-distinct paired slots, family-only splits, saved family lists/counts, and kept the 91-row AI-written held-out file separate.
-Tests: Dataset generator printed 4,030 rows (48 train / 8 validation / 12 test families); `pytest tests/test_assistant_dataset.py` — 3 passed; Ruff — clean.
+Part 6 — Entity linking and deterministic answers: complete (local commit pending).
+Changed: Added the fitted product linker, store/county resolution, deterministic answers, and unknown/out-of-snapshot handling.
+Tests: Entity accuracy 0.7722 validation, 0.9492 synthetic test, 0.6630 AI-written held-out; two unknown held-out entities resolved correctly.
 
-Part 5 — Intent model: complete; local commit pending.
-Changed: Added word+character TF-IDF with LogisticRegression, calibrated LinearSVC, MultinomialNB and Dummy baselines; selected CalibratedLinearSVC and threshold 0.4200 from validation; saved ignored model/metadata artifacts and pinned runtime scikit-learn/joblib.
-Tests: Training command completed; synthetic test 697 rows accuracy 0.6026 / macro-F1 0.5652 vs Dummy 0.2568 / 0.0511; AI-written held-out 91 rows 0.7912 / 0.8115 vs Dummy 0.2198 / 0.0450. `pytest tests/test_assistant_model.py` — 2 passed; Ruff — clean.
+Part 7 — Trained listing matcher: complete (local commit pending).
+Changed: Added synthetic-bootstrap LogisticRegression pair matcher, threshold fallback, evaluation, and regenerated label suggestions.
+Tests: Synthetic 77-pair evaluation (63 positive): model P/R/F1 1.0000/1.0000/1.0000; old threshold P/R/F1 0.9844/1.0000/0.9921.
+
+Part 8 — Model API and OpenAI removal: complete (local commit pending).
+Changed: Added trained assistant/model-info endpoints and optional predicted listing categories; removed OpenAI code, dependency, environment switches, and LLM tool wiring.
+Tests: Final backend suite 128 passed; Ruff clean. Tracked active-repository search has only the permitted sentence in AI_REPORT.md.
+
+Part 9 — Android and frontend wiring: complete (local commit pending).
+Changed: Wired source/intent metadata and predicted listing badges into Android and the existing frontend API client.
+Tests: Frontend `npx tsc --noEmit` passed; Android has 21 unit and 5 instrumented test annotations, but Gradle verification did not finish.
+
+Part 10 — Reports and verification: complete (local commit pending).
+Changed: Updated PEAS, provenance, metrics, model cards, limitations, READMEs, and this progress log.
+Tests: Backend 127 passed before the CSV-derived golden test; final backend suite 128 passed and Ruff clean. Android build remains unverified.
+
+Part 11 — Optional product images: skipped.
+Changed: Not started because the prior parts' Android build verification and human review remain incomplete.
+Tests: No image suggestions or image integration tests were run.
