@@ -187,6 +187,54 @@ def _base_response(
     )
 
 
+def _lookup_rows(
+    intent: str,
+    entities: dict[str, Any],
+    product: str | None,
+    product_label: str | None,
+    product_score: float,
+    group_term: str | None = None,
+) -> list[Any]:
+    """Find the listings to answer from.
+
+    Group ids such as "milk-1l" are identifiers, not text, so they must never be used as a search
+    query (search_listings needs every query word inside the listing name). Specific products are
+    searched by name; generic questions use the comparable group's own listings.
+    """
+    store = str(entities["store"]) if entities.get("store") else None
+    group_id = entities.get("group")
+
+    def by_name() -> list[Any]:
+        for query in dict.fromkeys(q for q in (product, product_label) if q):
+            found = list(search_listings(str(query), store, False, None, 8))
+            if found:
+                return found
+        return []
+
+    def by_group() -> list[Any]:
+        if not group_id:
+            return []
+        group = next((g for g in get_comparable_groups() if g.id == group_id), None)
+        if group is None:
+            return []
+        members = [
+            item
+            for item in group.listings
+            if not store or item.supermarket.casefold() == store.casefold()
+        ]
+        return sorted(members, key=lambda item: (item.price_kes, item.supermarket))[:8]
+
+    def by_term() -> list[Any]:
+        if not group_term:
+            return []
+        return list(search_listings(group_term, store, False, None, 8))
+
+    specific = product is not None and product_score >= 0.999
+    if intent == "price_at_store" or specific:
+        return by_name() or by_group() or by_term()
+    return by_group() or by_name() or by_term()
+
+
 def answer_trained_question(question: str) -> MarketQuestionResponse:
     text = question.strip()
     intent, confidence, load_error = _classify(text)
@@ -262,7 +310,11 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
             entities["group"] = group_row["canonical"] or None
         elif product:
             entities["group"] = None
-        if entities.get("store") == "not in the snapshot" or product is None:
+        group_term = group_row["surface_form"] if group_row else None
+        identified = (
+            product is not None or bool(entities.get("group")) or bool(group_term)
+        ) and not unknown_product
+        if entities.get("store") == "not in the snapshot" or not identified:
             return _base_response(
                 text,
                 intent,
@@ -271,7 +323,6 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
                 f"That product or store is not in the snapshot. {DATA_LABEL}.",
                 [],
             )
-        query = str(entities.get("group") or product_label or "")
         if intent == "biggest_discount":
             rows = sorted(
                 (item for item in get_listings() if item.discount_pct is not None),
@@ -284,10 +335,8 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
             )
             rows = list(group.listings) if group else []
         else:
-            rows = list(
-                search_listings(
-                    query, str(entities["store"]) if entities.get("store") else None, False, None, 8
-                )
+            rows = _lookup_rows(
+                intent, entities, product, product_label, product_score, group_term
             )
         if intent == "unit_price":
             rows = sorted(
