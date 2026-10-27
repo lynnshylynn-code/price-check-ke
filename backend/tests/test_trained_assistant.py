@@ -186,6 +186,18 @@ def test_generic_cheapest_question_uses_group_listings(monkeypatch: pytest.Monke
     assert "KES" in response.answer
 
 
+def test_generic_cheapest_milk_uses_matching_listings_before_fuzzy_product(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("cheapest_item", 0.9, None),
+    )
+    response = answer_trained_question("where can i find the cheapest milk?")
+    assert "Brookside UHT Whole Milk 250ml: KES 46 at Carrefour" in response.answer
+    assert "White Cap" not in response.answer
+
+
 @pytest.mark.parametrize(
     "question", ["cheapest milk", "cheapest rice", "what is the cheapest sugar"]
 )

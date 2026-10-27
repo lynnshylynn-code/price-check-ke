@@ -232,7 +232,7 @@ def _lookup_rows(
     specific = product is not None and product_score >= 0.999
     if intent == "price_at_store" or specific:
         return by_name() or by_group() or by_term()
-    return by_group() or by_name() or by_term()
+    return by_group() or by_term() or by_name()
 
 
 def answer_trained_question(question: str) -> MarketQuestionResponse:
