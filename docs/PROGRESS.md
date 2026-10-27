@@ -20,7 +20,7 @@ Part 5 — Intent model: complete (commit `fa7c0cd`).
 Changed: Trained and evaluated word/character TF-IDF intent models and saved ignored model artifacts and metadata.
 Tests: Selected calibrated LinearSVC at threshold 0.4200; synthetic test 0.6026 accuracy/0.5652 macro-F1, held-out 0.7912/0.8115.
 
-Part 6 — Entity linking and deterministic answers: complete (local commit pending).
+Part 6 — Entity linking and deterministic answers: complete (commit `4003a84`).
 Changed: Added the fitted product linker, store/county resolution, deterministic answers, and unknown/out-of-snapshot handling.
 Tests: Entity accuracy 0.7722 validation, 0.9492 synthetic test, 0.6630 AI-written held-out; two unknown held-out entities resolved correctly.
 
@@ -43,3 +43,4 @@ Tests: Backend 127 passed before the CSV-derived golden test; final backend suit
 Part 11 — Optional product images: skipped.
 Changed: Not started because the prior parts' Android build verification and human review remain incomplete.
 Tests: No image suggestions or image integration tests were run.
+
