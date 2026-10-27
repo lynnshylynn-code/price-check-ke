@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import os
 import re
 from dataclasses import asdict, dataclass
@@ -78,7 +79,8 @@ def _load_uom(path_text: str) -> dict[str, tuple[float, str]]:
     for row in frame.to_dict("records"):
         try:
             result[_unit_key(str(row["uom_criteria"]))] = (
-                float(row["conversion"]), str(row["standard_uom_criteria"]).casefold()
+                float(row["conversion"]),
+                str(row["standard_uom_criteria"]).casefold(),
             )
         except (KeyError, TypeError, ValueError):
             continue
@@ -90,20 +92,43 @@ def get_uom_map() -> dict[str, tuple[float, str]]:
         Path(__file__).resolve().parents[2]
         / "data/listings/private/APHRC_supermarket_item_catalogue_and_dictionary.xlsx"
     )
-    path = Path(os.getenv(
-        "PRICE_CHECK_APHRC_XLSX",
-        str(workbook),
-    ))
+    path = Path(
+        os.getenv(
+            "PRICE_CHECK_APHRC_XLSX",
+            str(workbook),
+        )
+    )
     return _load_uom(str(path))
 
 
 _UNIT_ALIASES = {
-    "kg": "kg", "kgs": "kg", "kilogram": "kg", "kilograms": "kg",
-    "g": "g", "gr": "g", "gram": "g", "grams": "g",
-    "l": "l", "lt": "l", "ltr": "l", "ltrs": "l", "liter": "l", "liters": "l",
-    "litre": "l", "litres": "l", "ml": "ml", "milliliter": "ml", "milliliters": "ml",
-    "millilitre": "ml", "millilitres": "ml", "pc": "pcs", "pcs": "pcs",
-    "piece": "pcs", "pieces": "pcs", "ct": "pcs", "count": "pcs",
+    "kg": "kg",
+    "kgs": "kg",
+    "kilogram": "kg",
+    "kilograms": "kg",
+    "g": "g",
+    "gr": "g",
+    "gram": "g",
+    "grams": "g",
+    "l": "l",
+    "lt": "l",
+    "ltr": "l",
+    "ltrs": "l",
+    "liter": "l",
+    "liters": "l",
+    "litre": "l",
+    "litres": "l",
+    "ml": "ml",
+    "milliliter": "ml",
+    "milliliters": "ml",
+    "millilitre": "ml",
+    "millilitres": "ml",
+    "pc": "pcs",
+    "pcs": "pcs",
+    "piece": "pcs",
+    "pieces": "pcs",
+    "ct": "pcs",
+    "count": "pcs",
 }
 
 
@@ -215,13 +240,20 @@ def _parse_row(row: dict[str, str], uom_map: dict[str, tuple[float, str]]) -> Li
     category = _category(name, grocery)
     discount = ((regular - price) / regular * 100) if regular else None
     return Listing(
-        id=_stable_id(store, canonical_url), supermarket=store, item_name=name,
-        price_kes=price, regular_price_kes=regular, pack_size=pack,
-        quantity=quantity, unit=unit,
+        id=_stable_id(store, canonical_url),
+        supermarket=store,
+        item_name=name,
+        price_kes=price,
+        regular_price_kes=regular,
+        pack_size=pack,
+        quantity=quantity,
+        unit=unit,
         unit_price=round(unit_price, 4) if unit_price is not None else None,
         discount_pct=round(discount, 4) if discount is not None else None,
-        category=category, category_source="conservative name rules; not human-verified",
-        grocery=grocery, product_url=canonical_url,
+        category=category,
+        category_source="conservative name rules; not human-verified",
+        grocery=grocery,
+        product_url=canonical_url,
         listing_url=(row.get("listing_url") or "").strip(),
         location_context=(row.get("location_context") or "").strip() or None,
         collected_at=(row.get("collected_at") or "").strip(),
@@ -254,14 +286,20 @@ def _load_listings(csv_path: str, uom_path: str) -> tuple[Listing, ...]:
 
 def get_listings() -> tuple[Listing, ...]:
     root = Path(__file__).resolve().parents[2]
-    csv_path = Path(os.getenv(
-        "PRICE_CHECK_LISTINGS_CSV",
-        str(root / "data/listings/kenya_supermarket_public_listings.csv"),
-    ))
-    xlsx_path = Path(os.getenv(
-        "PRICE_CHECK_APHRC_XLSX",
-        str(root / "data/listings/private/APHRC_supermarket_item_catalogue_and_dictionary.xlsx"),
-    ))
+    csv_path = Path(
+        os.getenv(
+            "PRICE_CHECK_LISTINGS_CSV",
+            str(root / "data/listings/kenya_supermarket_public_listings.csv"),
+        )
+    )
+    xlsx_path = Path(
+        os.getenv(
+            "PRICE_CHECK_APHRC_XLSX",
+            str(
+                root / "data/listings/private/APHRC_supermarket_item_catalogue_and_dictionary.xlsx"
+            ),
+        )
+    )
     return _load_listings(str(csv_path), str(xlsx_path))
 
 
@@ -292,5 +330,26 @@ def search_listings(
     return tuple(sorted(results, key=lambda item: (item.price_kes, item.supermarket))[:limit])
 
 
+@lru_cache(maxsize=1)
+def _listing_predictions() -> dict[str, dict[str, object]]:
+    path = Path(__file__).resolve().parents[2] / "data/listings/listing_predictions.json"
+    if not path.is_file():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
 def listing_dict(listing: Listing) -> dict[str, object]:
-    return asdict(listing)
+    result: dict[str, object] = asdict(listing)
+    prediction = _listing_predictions().get(listing.id)
+    if prediction:
+        for label in ("food_group", "nova"):
+            item = prediction.get(label)
+            if isinstance(item, dict) and item.get("predicted") is True:
+                result[label] = item.get("value")
+                result[f"{label}_confidence"] = item.get("confidence")
+                result[f"{label}_predicted"] = True
+    return result
