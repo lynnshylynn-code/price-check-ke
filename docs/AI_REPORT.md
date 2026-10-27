@@ -1,121 +1,107 @@
-# Price Check KE: AI course design report
+# AI report
 
-## Agent definition
+A pretrained OpenAI language model was considered and not used; this assistant runs a locally trained intent classifier and deterministic data lookups.
 
-| PEAS component | Price Check KE |
-|---|---|
-| Performance measure | Grounded, correctly dated/unit-labelled answers; valid basket assignments; clear missing-data handling; responsive requests. |
-| Environment | Kenyan market observations in the supplied RTFP dataset, illustrative supermarket catalog, user questions, and backend service. |
-| Actuators | Text answer, source and coverage metadata, basket comparison, HTTP response, prototype order record/status, local cancel/delete, and payment sandbox request. |
-| Sensors | User question, validated tool arguments, RTFP CSV observations, advertised listing snapshot, basket/address/phone form fields, and sandbox payment callback. |
+## Task, agent and PEAS
 
-### Environment properties
+The user enters a natural-language question about advertised listings or Kenya food-market data. A trained intent classifier routes it; deterministic Python functions retrieve and format facts. The agent does not generate unsupported numbers or use forecasts or buying advice.
 
-- **Partially observable:** the dataset contains only sampled market observations, not every market, transaction, or current retail price.
-- **Stochastic:** actual prices and survey observations vary over time; a fixed dataset snapshot makes individual tool reads repeatable.
-- **Episodic:** each question is answered independently; user questions are not retained as conversational state.
-- **Static during a request:** the CSV snapshot and catalog do not change while a request is being processed.
-- **Single-agent:** one backend agent answers each request; no other autonomous agent competes or coordinates in this environment.
+- **Performance:** exact data grounding, correct intent/entity routing, explicit refusals for unsupported requests, source attribution, and measured classification/linking/matching metrics.
+- **Environment:** the 20 Oct 2026 public advertised-listing snapshot, the World Bank RTFP Kenya market dataset through Aug 2026, the synthetic/AI-written question files, and the optional ignored APHRC catalogue workbook.
+- **Actuators:** deterministic answers with source, coverage, product URL, entities and model confidence; or a refusal with example questions.
+- **Sensors:** question text, trained intent probabilities, listing snapshot, comparable groups, and RTFP market series.
 
-## Agent structures in the code
+Intent routing is a **model-based/goal-based agent**: it uses a trained model to classify the request and deterministic data functions to reach a source-grounded answer. In the learning-agent mapping, the **learning element** is `train_assistant.py` and the dataset builder, the **performance element** is the API serving path, and the **critic** is the validation/test evaluation scripts and their metrics.
 
-- `offline_answers.py` is a **simple reflex agent**: condition-action rules inspect words and return a response based on matching patterns and market data.
-- `ai_insights.py` with `market_tools.py` is a **goal-based agent**: it seeks a grounded answer, uses `get_series` and `compare_markets` as sensors/actions, validates tool arguments with strict schemas, and caps the tool-call loop at four rounds.
-- `basket_search.py` is a **problem-solving agent**: it searches a finite state space of product-to-store assignments. BFS, DFS, iterative deepening, and greedy best-first return the first goal in their traversal order and can be non-optimal with unequal prices; UCS and A* optimize the stated basket plus optional fixed visit cost. `POST /api/v1/basket/optimize` exposes BFS, UCS, and A* for a small selected basket and marks all catalog prices as demo data.
-- `fuzzy_price.py` is a transparent historical description: p10/p50/p90 thresholds define low, typical, and high memberships; min implication, max aggregation, and centroid defuzzification produce a 0–100 position score. `/api/v1/market/price-position` reports the source and coverage, and returns no score for missing history. This position is not a forecast or recommendation.
-- A **utility-based** version could balance basket cost against trip count, travel burden, stock confidence, and user preferences. The optional fixed store visit cost in the search model illustrates only one such trade-off.
+## Data provenance and splits
 
-### Learning-agent components
+The 228 supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The generator wrote 4,030 rows and split whole families: 2,900 training rows from 48 families, 433 validation rows from 8 families, and 697 synthetic test rows from 12 families. All eight intents occur in every split. The separate 91-row `heldout_test_questions.csv` is an **AI-written held-out set**; it was not used to train or select the classifier. There are no human-authored question metrics.
 
-The **performance element** is the rule/model-driven answer and search behavior. A **learning element** that retrains from feedback is absent. A **critic** that scores answer quality exists only as offline golden fixtures and the opt-in evaluation scripts, not as continuous user feedback. A **problem generator** is also absent: the service does not autonomously seek new data or experiments. The CRISP-DM notebook is an offline educational analysis, not an online model update loop.
+## Intent model results
 
-### Pretrained model and grounding
+Training ran 2026-10-27 with scikit-learn 1.9.1. The selected model was `CalibratedLinearSVC`, using word and character TF-IDF features and a confidence threshold of 0.4200 selected on the synthetic validation split. Its training data SHA-256 is `3e801bee7212dee46dab9c2279b812ae1bff7c7ebad89135728bd9dddd2f88d3`.
 
-The model is selected by `OPENAI_MODEL`, defaulting to `gpt-4.1-mini` in `ai_insights.py`. A pretrained language model is used for natural-language interpretation rather than training a language model from the limited project dataset. The system prompt restricts claims to RTFP evidence and defines units, gaps, and prohibited forecasts. Strict tool schemas constrain calls to known market/commodity/date fields, while the backend tools retrieve the actual rows. The prompt and schemas reduce errors; they do not guarantee that every generated explanation is correct, so source and coverage accompany answers.
+| Evaluation data | Model accuracy | Model macro-F1 | Dummy accuracy | Dummy macro-F1 | Rows |
+|---|---:|---:|---:|---:|---:|
+| Synthetic test split | 0.6026 | 0.5652 | 0.2568 | 0.0511 | 697 |
+| AI-written held-out set | 0.7912 | 0.8115 | 0.2198 | 0.0450 | 91 |
 
-## Evaluation
+The test reports below include abstention as `__abstain__`. Order is `biggest_discount`, `cheapest_item`, `compare_stores`, `food_inflation`, `market_price`, `out_of_scope`, `price_at_store`, `unit_price`, `__abstain__`.
 
-The 17 committed pytest golden cases use a fake OpenAI client and fixture tool outputs. They verify request/tool plumbing and expected answer facts without calling the live model. `scripts/run_live_eval.py` is an opt-in model evaluation: it calls the configured model for all fixture questions plus at least eight questions whose expected numbers are derived from the CSV at runtime. It reports pass rate and failures and skips when `OPENAI_API_KEY` is absent. The live evaluation is not part of CI and can incur API usage.
+**Synthetic test per-intent precision / recall / F1 (support):**
 
-The executed CRISP-DM notebook read 55,224 rows from `rtfp_kenya_market_2007_2026-08.csv`; after filtering, 7,345 observed price rows remained and 191 IQR flags were retained for inspection. County profile clustering selected k=6 (silhouette 0.573; elbow candidate k=4). For the chronological trend-class holdout, which starts in April 2020, the most-frequent baseline accuracy was 0.4712, selected kNN (k=3) was 0.5833, and the selected depth-2 decision tree was 0.5096. These are single-snapshot descriptive results; the small improvement over baseline does not establish robust predictive value. The notebook saved its local cluster-label artifact under the ignored `notebooks/output/` directory.
+| Intent | Precision | Recall | F1 | Support |
+|---|---:|---:|---:|---:|
+| biggest_discount | 0.9796 | 0.4706 | 0.6358 | 102 |
+| cheapest_item | 0.8333 | 0.5000 | 0.6250 | 50 |
+| compare_stores | 0.0000 | 0.0000 | 0.0000 | 53 |
+| food_inflation | 1.0000 | 0.3824 | 0.5532 | 102 |
+| market_price | 0.5233 | 0.9783 | 0.6818 | 46 |
+| out_of_scope | 0.7898 | 0.7765 | 0.7831 | 179 |
+| price_at_store | 0.2500 | 0.6981 | 0.3682 | 53 |
+| unit_price | 1.0000 | 0.7768 | 0.8744 | 112 |
 
-The AI rate limiter is in-memory and keyed by `request.client.host`; all users behind the same proxy therefore share a bucket. `X-Forwarded-For` is trusted only if the deployment sets `PRICE_CHECK_TRUST_PROXY=1` and the proxy overwrites that header. The limiter is process-local and is not a distributed quota.
+**Synthetic test confusion matrix:**
 
-### Live model evaluation status
+```text
+[[48, 3, 0, 0, 0, 19, 15, 0, 17],
+ [0, 25, 0, 0, 6, 0, 8, 0, 11],
+ [0, 0, 0, 0, 0, 0, 50, 0, 3],
+ [0, 0, 0, 39, 17, 18, 13, 0, 15],
+ [0, 0, 0, 0, 45, 0, 0, 0, 1],
+ [1, 1, 17, 0, 18, 139, 0, 0, 3],
+ [0, 1, 15, 0, 0, 0, 37, 0, 0],
+ [0, 0, 0, 0, 0, 0, 25, 87, 0],
+ [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+```
 
-Live evaluation has **not yet been run** as of 2026-10-20. `OPENAI_API_KEY` was not available in the environment, so there are no live pass-rate or failure results to report. After configuring the key, run `python scripts/run_live_eval.py` from `backend/`. The configured model defaults to `gpt-4.1-mini` (override with `OPENAI_MODEL`). Record the date, model, and printed result here after the command completes; the committed pytest golden tests are not a substitute for a live model run.
+The Dummy baseline predicts only `out_of_scope`: precision/recall/F1 are 0/0/0 for the other seven intents and 0.2568/1.0000/0.4087 for `out_of_scope`. Its synthetic confusion matrix has 102, 50, 53, 102, 46, 179, 53 and 112 examples in the `out_of_scope` prediction column, respectively, and zero in other columns.
 
-## Supermarket listing study and ordering prototype
+**AI-written held-out per-intent precision / recall / F1 (support):**
 
-`notebooks/supermarket_listings_crisp_dm.ipynb` is generated by
-`backend/scripts/build_listings_notebook.py` and executed against the supplied
-239-row CSV (20 Oct 2026). GroupShuffleSplit APHRC food-group results:
-majority Dummy accuracy 0.1275, MultinomialNB 0.8849 (macro F1 0.70,
-weighted F1 0.87), and decision tree accuracy 0.6026 (macro F1 0.51,
-weighted F1 0.65). These are catalogue-text holdout metrics, not measured
-accuracy on retailer descriptions. The APHRC catalogue has no prices. The
-category label CSV remains blank, so retailer category accuracy is unavailable.
-The pair-label CSV also remains blank, so no threshold, precision, recall, or
-F1 is reported for matching. Both human-label samples have 60 rows.
+| Intent | Precision | Recall | F1 | Support |
+|---|---:|---:|---:|---:|
+| biggest_discount | 0.8750 | 0.7000 | 0.7778 | 10 |
+| cheapest_item | 0.8750 | 0.7000 | 0.7778 | 10 |
+| compare_stores | 0.6364 | 0.7000 | 0.6667 | 10 |
+| food_inflation | 1.0000 | 0.9000 | 0.9474 | 10 |
+| market_price | 0.7143 | 1.0000 | 0.8333 | 10 |
+| out_of_scope | 0.9333 | 0.7000 | 0.8000 | 20 |
+| price_at_store | 0.7143 | 0.9091 | 0.8000 | 11 |
+| unit_price | 1.0000 | 0.8000 | 0.8889 | 10 |
 
-The snapshot is partial and offer-skewed: 185 rows have regular prices, with
-mean displayed discount 0.2492. Prices vary by store, location, session, and
-promotion; stock and checkout prices were not verified. The data has no sales
-history, and no dataset licence was obtained or asserted. Carrefour location
-context says Westlands/Nairobi by site default; Quickmart's store view is
-unverified; most rows have no location context. Selection bias comes from the
-three stores and advertised homepage offers. Measurement bias arises because
-advertised prices can differ from checkout prices. The tiny human-labelled
-samples create evaluation bias, and APHRC till-style wording creates domain
-shift from retailer names and abbreviations.
+**AI-written held-out confusion matrix:**
 
-The ordering API is a prototype actuator: it stores an order request locally,
-opens no supermarket order channel, and transfers no real money. The payment
-mock can produce a `paid_sandbox` demonstration state. The optional Daraja
-provider uses the sandbox OAuth and STK Push requests, persists merchant and
-checkout request IDs, authenticates callbacks with a path token, checks the
-callback amount against the server-computed subtotal, and handles duplicate
-callbacks idempotently. It is restricted to the sandbox host and requires
-server environment credentials plus a public HTTPS callback URL. `GET order`
-can be polled for callback-updated state; without a reachable callback, state
-remains `payment_pending` because an STK Query fallback is not implemented.
-Daraja sandbox payment has not been verified with live credentials. Delivery
-fee remains unknown. Order deletion removes the local record. Android ordering
-screens and this interface are not production checkout.
+```text
+[[7, 0, 1, 0, 1, 0, 0, 0, 1],
+ [1, 7, 0, 0, 0, 1, 0, 0, 1],
+ [0, 0, 7, 0, 0, 0, 2, 0, 1],
+ [0, 0, 0, 9, 1, 0, 0, 0, 0],
+ [0, 0, 0, 0, 10, 0, 0, 0, 0],
+ [0, 1, 2, 0, 2, 14, 1, 0, 0],
+ [0, 0, 1, 0, 0, 0, 10, 0, 0],
+ [0, 0, 0, 0, 0, 0, 1, 8, 1],
+ [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+```
 
-## Updated supermarket notebook results
+Its Dummy baseline again predicts only `out_of_scope`, giving that class precision/recall/F1 0.2198/1.0000/0.3604 and zero scores for the other classes. Its confusion matrix has 10, 10, 10, 10, 10, 20, 11 and 10 examples in the `out_of_scope` column in the same intent order.
 
-The executed listings notebook trains food-group and NOVA classifiers with
-GroupShuffleSplit by normalized catalogue description (4,833 train rows,
-1,208 holdout rows). For food group, majority Dummy accuracy is 0.1275,
-MultinomialNB accuracy is 0.8849 (macro F1 0.70; weighted F1 0.87), and the
-decision tree accuracy is 0.6026 (macro F1 0.51; weighted F1 0.65). For NOVA,
-the majority baseline accuracy is 0.6142 (macro F1 0.19; weighted F1 0.47),
-MultinomialNB accuracy is 0.9321 (macro F1 0.87; weighted F1 0.93), and the
-decision tree accuracy is 0.8510 (macro F1 0.78; weighted F1 0.85). The
-notebook contains the per-class precision, recall, F1, and confusion matrices.
-Retailer predictions are saved per store in the ignored output directory, but
-should be read as shifted catalogue predictions, not verified product labels.
+## Entity linking and listing matching
 
-Matching was measured on a controlled synthetic test only: 47 held-out pairs,
-31 positive pairs, threshold 0.59, precision 1.0000, recall 0.9677, and F1
-0.9836. This tests noisy copies and deliberately distinct product pairs; it is
-not an estimate of real-world matching quality. The canonical sheets
-`backend/data/labels/match_pairs.csv` and
-`backend/data/labels/category_sample.csv` each have 60 rows and currently 0
-human-reviewed labels. `label_status.py` therefore reports no agreement or
-kappa yet. Suggestions are separate heuristic AI suggestions with evidence;
-they are not training or evaluation labels. The APHRC-to-retailer prediction
-has domain shift from till-style catalogue wording to retailer listing names.
+Entity linking uses a character n-gram TF-IDF nearest-neighbour index over observed listing names and supplied product surface forms. Store, county and commodity resolution uses the supplied slot lexicon, with county/commodity names also checked against the RTFP directory. The product and store thresholds were selected on synthetic validation data: 0.05 product similarity (159 product cases, 0.9937 accuracy) and 0.875 store similarity (validation accuracy 1.0000). These high validation figures are synthetic and should not be read as real-world performance.
 
-## Ethics, coverage, and bias
+The final `python scripts/evaluate_entity_linking.py` run linked 549/711 synthetic validation entities (0.7722), 411/433 synthetic test entities (0.9492), and 61/92 entities in the AI-written held-out set (0.6630). Two deliberately unknown entities occurred in the held-out set; both resolved to “not in the snapshot” (2/2). No deliberately unknown product/store entities occurred in the synthetic validation or test split, so those splits do not measure unknown handling.
 
-Using the bias categories of Suresh and Guttag:
+The listing matcher is `LogisticRegression` over token overlap, word/character cosine, normalized size/unit, brand token, length difference, unit-price ratio, and name similarity. No human `label` entries were filled in `match_pairs.csv`, so the model and its metrics are **synthetic bootstrap** only. It trained on 231 pairs and evaluated on 77 pairs (63 positives): model precision/recall/F1 1.0000/1.0000/1.0000; old 0.70 threshold precision/recall/F1 0.9844/1.0000/0.9921. The model confusion matrix was `[[14, 0], [0, 63]]`; baseline was `[[13, 1], [0, 63]]`. These small synthetic scores do not establish production matching quality.
 
-- **Historical bias:** RTFP records reflect historical market and survey conditions; they cannot be treated as today's retail prices.
-- **Representation bias:** only 21 counties in this supplied file have any beans, maize, or goat price records. Coverage is concentrated in arid and semi-arid areas. Kisumu and Nakuru have no observations; Nairobi beans coverage ends in January 2022 and Mombasa beans in November 2021. Answers for these places must show the gap, not infer a price.
-- **Measurement bias:** these are survey-based market estimates, not supermarket shelf prices or household transaction records. Beans and `maize_fao` are KES/kg, `livestock_goat_s_fao` is KES/unit. Inflation and `*_price_index` columns are index values, not product prices.
-- **Aggregation bias:** county selections return observed market rows; county prices are not silently averaged by the API. Any county-month aggregation in the notebook is analytical and explicitly identified as such.
-- **Evaluation bias:** earlier golden questions concentrated on a few counties. Part 4 broadens coverage with CSV-derived cases across Turkana, Kilifi, Makueni, Marsabit, Mandera, North Imenti, Lamu West, and Voi, and covers all three commodities wherever the source has records. This is a more varied check, not proof of national representativeness.
+## Bias and limitations
 
-The app makes no future-price forecast or purchase recommendation. Supermarket catalog prices are synthetic demo examples, not verified retailer prices. The OpenAI call uses `store=False`; user questions are not persisted by this application. The service does not require personal identity or household financial details for these market queries.
+Question generation comes from AI-written templates and does not represent real user language. Synthetic noise and the AI-written held-out questions are not independent human evaluation. The classifier’s synthetic test missed every `compare_stores` case, so store comparisons need more varied examples and human review. Some product, store and county names are absent from the snapshot; fuzzy matches can still be wrong. Listing prices are a dated advertised snapshot, not checkout prices, stock, or price history. RTFP covers only recorded markets and periods; missing observations are not filled in. APHRC-derived categories are predictions and inherit the catalogue’s coverage and label limitations.
+
+## Not yet done / unverified
+
+- Human-authored assistant test questions and human review of the match-pair labels.
+- The Android Gradle build and device/emulator instrumentation tests; the Gradle command did not return output in this environment.
+- Daraja sandbox transaction and callback with merchant credentials and a reachable HTTPS callback.
+- Human spot-check of the predicted food-group/NOVA badges; the output is local and ignored by Git.
+- Swahili/sheng wording review by a fluent speaker.
