@@ -2,8 +2,13 @@ package ke.pricecheck.app
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -28,6 +33,29 @@ class MainActivity : AppCompatActivity() {
             toolbar.visibility =
                 if (destination.id == R.id.priceCheckFragment) View.GONE else View.VISIBLE
         }
+        addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.main_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.main_menu_about -> {
+                            navController.navigate(R.id.action_global_aboutActivity)
+                            true
+                        }
+                        R.id.main_menu_exit -> {
+                            finish()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            },
+            this,
+            Lifecycle.State.RESUMED,
+        )
     }
 
     override fun onSupportNavigateUp(): Boolean {

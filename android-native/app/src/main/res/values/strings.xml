@@ -14,6 +14,7 @@
     <string name="more_options">More options</string>
     <string name="refresh_market_data">Refresh market data</string>
     <string name="about_menu">About data and demo prices</string>
+    <string name="main_menu_exit">Exit</string>
     <string name="home_welcome">Welcome to Price Check KE</string>
     <string name="home_subtitle">Compare illustrative prices and explore Kenya market trends.</string>
     <string name="weekly_budget">Weekly budget</string>
