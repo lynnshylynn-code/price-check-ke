@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from .listing_matcher import load_matcher, predict_match
 from .listings import Listing, get_listings, get_uom_map, parse_pack_size
 
 
@@ -99,16 +100,26 @@ def _groups_from_matches(items: tuple[Listing, ...]) -> list[ComparableGroup]:
                 ):
                     union(row["id_a"], row["id_b"])
 
+    if load_matcher() is not None:
+        for index, left in enumerate(items):
+            left_size = _size_signature(left.pack_size)
+            if left_size is None:
+                continue
+            for right in items[index + 1 :]:
+                if left.supermarket == right.supermarket or left_size != _size_signature(
+                    right.pack_size
+                ):
+                    continue
+                if predict_match(left, right):
+                    union(left.id, right.id)
     threshold_path = Path(__file__).resolve().parents[3] / "notebooks/output/match_threshold.json"
-    if threshold_path.is_file():
+    if load_matcher() is None and threshold_path.is_file():
         try:
             artifact = json.loads(threshold_path.read_text(encoding="utf-8"))
             # Synthetic scores validate the notebook pipeline only. They cannot
             # broaden production grouping before the human pair labels are reviewed.
             threshold = (
-                float(artifact["threshold"])
-                if artifact.get("source") == "human_review"
-                else None
+                float(artifact["threshold"]) if artifact.get("source") == "human_review" else None
             )
         except (OSError, ValueError, KeyError, TypeError):
             threshold = None
@@ -117,12 +128,13 @@ def _groups_from_matches(items: tuple[Listing, ...]) -> list[ComparableGroup]:
                 left_size = _size_signature(left.pack_size)
                 if left_size is None:
                     continue
-                for right in items[index + 1:]:
+                for right in items[index + 1 :]:
                     if left.supermarket == right.supermarket:
                         continue
-                    if left_size == _size_signature(right.pack_size) and _match_score(
-                        left.item_name, right.item_name
-                    ) >= threshold:
+                    if (
+                        left_size == _size_signature(right.pack_size)
+                        and _match_score(left.item_name, right.item_name) >= threshold
+                    ):
                         union(left.id, right.id)
 
     members: dict[str, list[Listing]] = {}
@@ -165,11 +177,14 @@ def _staple_groups(items: tuple[Listing, ...]) -> list[ComparableGroup]:
             current = by_store.get(item.supermarket)
             if current is None or item.price_kes < current.price_kes:
                 by_store[item.supermarket] = item
-        result.append(ComparableGroup(
-            definition["id"], definition["label"], "staple substitute", tuple(
-                by_store[store] for store in sorted(by_store)
-            ),
-        ))
+        result.append(
+            ComparableGroup(
+                definition["id"],
+                definition["label"],
+                "staple substitute",
+                tuple(by_store[store] for store in sorted(by_store)),
+            )
+        )
     return result
 
 
