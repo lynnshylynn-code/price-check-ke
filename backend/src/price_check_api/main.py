@@ -1,19 +1,22 @@
+import json
 import logging
 import os
 import re
 from datetime import date
+from pathlib import Path
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import orders
-from .ai_insights import answer_market_question
 from .ai_rate_limit import enforce_ai_rate_limit
+from .assistant_model import load_assistant_model
 from .basket_search import a_star_search, breadth_first_search, uniform_cost_search
 from .fuzzy_listings import deal_position as listing_deal_position
 from .fuzzy_price import price_position
 from .listing_groups import get_comparable_group, get_comparable_groups
+from .listing_matcher import load_matcher
 from .listings import DATA_CAVEATS, DATA_LABEL, ListingDataError, get_listings, listing_dict
 from .market_data import (
     COMMODITIES,
@@ -26,6 +29,7 @@ from .market_data import (
 from .offline_answers import answer_question_offline
 from .product_catalog import PRODUCT_CATALOG, get_product_catalog, price_basket
 from .schemas import (
+    AssistantAskRequest,
     BasketOptimizedLine,
     BasketOptimizeRequest,
     BasketOptimizeResponse,
@@ -48,6 +52,7 @@ from .schemas import (
     PriceSeriesResponse,
     ProductCatalogResponse,
 )
+from .trained_assistant import answer_trained_question
 
 app = FastAPI(
     title="Price Check KE API",
@@ -63,9 +68,7 @@ class CallbackSecretLogFilter(logging.Filter):
         secret = os.getenv("PRICE_CHECK_CALLBACK_SECRET")
         if secret and isinstance(record.args, tuple):
             record.args = tuple(
-                re.sub(re.escape(secret), "[redacted]", value)
-                if isinstance(value, str)
-                else value
+                re.sub(re.escape(secret), "[redacted]", value) if isinstance(value, str) else value
                 for value in record.args
             )
         return True
@@ -97,7 +100,7 @@ def _listing_collection(requested: list, limit: int, offset: int) -> ListingColl
         total=len(requested),
         limit=limit,
         offset=offset,
-        items=[listing_dict(item) for item in requested[offset:offset + limit]],
+        items=[listing_dict(item) for item in requested[offset : offset + limit]],
     )
 
 
@@ -130,9 +133,7 @@ def listings(
     return _listing_collection(filtered, limit, offset)
 
 
-@app.get(
-    "/api/v1/listings/{listing_id}", response_model=ListingDetailResponse, tags=["listings"]
-)
+@app.get("/api/v1/listings/{listing_id}", response_model=ListingDetailResponse, tags=["listings"])
 def listing_detail(listing_id: str) -> ListingDetailResponse:
     try:
         item = next((row for row in get_listings() if row.id == listing_id), None)
@@ -158,14 +159,15 @@ def listing_deal_position_endpoint(listing_id: str) -> ListingDealPositionRespon
     if item is None:
         raise HTTPException(status_code=404, detail="Listing not found in this snapshot.")
     group = next(
-        (candidate for candidate in get_comparable_groups()
-         if any(row.id == item.id for row in candidate.listings)),
+        (
+            candidate
+            for candidate in get_comparable_groups()
+            if any(row.id == item.id for row in candidate.listings)
+        ),
         None,
     )
     peers = (
-        [row.unit_price for row in group.listings if row.unit_price is not None]
-        if group
-        else []
+        [row.unit_price for row in group.listings if row.unit_price is not None] if group else []
     )
     result = listing_deal_position(item.discount_pct, item.unit_price, peers)
     return ListingDealPositionResponse(
@@ -274,7 +276,7 @@ def market_price_position(
     trend = None
     if len(history) >= 2:
         change = (history[-1] - history[-2]) / history[-2] if history[-2] else 0.0
-        trend = "rising" if change > .02 else "falling" if change < -.02 else "stable"
+        trend = "rising" if change > 0.02 else "falling" if change < -0.02 else "stable"
     latest_date, latest_price = monthly_means[-1] if monthly_means else (None, None)
     position = (
         price_position(history[:-1], latest_price, trend)
@@ -335,10 +337,7 @@ def basket_optimize(request: BasketOptimizeRequest) -> BasketOptimizeResponse:
         quantities = request.quantities or [1] * len(selected_groups)
         stores = sorted({item.supermarket for item in get_listings()})
         options = [
-            {
-                item.supermarket: item.price_kes * quantity
-                for item in group.listings
-            }
+            {item.supermarket: item.price_kes * quantity for item in group.listings}
             for group, quantity in zip(selected_groups, quantities, strict=True)
         ]
         search = {
@@ -351,38 +350,43 @@ def basket_optimize(request: BasketOptimizeRequest) -> BasketOptimizeResponse:
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
         chosen_lines = []
-        for group, quantity, store in zip(
-            selected_groups, quantities, assignment, strict=True
-        ):
+        for group, quantity, store in zip(selected_groups, quantities, assignment, strict=True):
             item = next(row for row in group.listings if row.supermarket == store)
-            chosen_lines.append(BasketOptimizedLine(
-                group_id=group.id,
-                item_name=item.item_name,
-                listing_id=item.id,
-                store=store,
-                quantity=quantity,
-                price_kes=item.price_kes,
-                unit_price=item.unit_price,
-                line_total_kes=item.price_kes * quantity,
-                product_url=item.product_url,
-                missing_at_stores=sorted(
-                    set(stores) - {row.supermarket for row in group.listings}
-                ),
-            ))
+            chosen_lines.append(
+                BasketOptimizedLine(
+                    group_id=group.id,
+                    item_name=item.item_name,
+                    listing_id=item.id,
+                    store=store,
+                    quantity=quantity,
+                    price_kes=item.price_kes,
+                    unit_price=item.unit_price,
+                    line_total_kes=item.price_kes * quantity,
+                    product_url=item.product_url,
+                    missing_at_stores=sorted(
+                        set(stores) - {row.supermarket for row in group.listings}
+                    ),
+                )
+            )
         single_store_options = []
         for store in stores:
             missing = [
-                group.label for group in selected_groups
+                group.label
+                for group in selected_groups
                 if not any(item.supermarket == store for item in group.listings)
             ]
-            total = None if missing else sum(
-                next(item.price_kes for item in group.listings if item.supermarket == store)
-                * quantity
-                for group, quantity in zip(selected_groups, quantities, strict=True)
+            total = (
+                None
+                if missing
+                else sum(
+                    next(item.price_kes for item in group.listings if item.supermarket == store)
+                    * quantity
+                    for group, quantity in zip(selected_groups, quantities, strict=True)
+                )
             )
-            single_store_options.append(BasketSingleStoreOption(
-                store=store, total_kes=total, missing_items=missing
-            ))
+            single_store_options.append(
+                BasketSingleStoreOption(store=store, total_kes=total, missing_items=missing)
+            )
         complete_stores = [
             option for option in single_store_options if option.total_kes is not None
         ]
@@ -436,7 +440,63 @@ def basket_optimize(request: BasketOptimizeRequest) -> BasketOptimizeResponse:
     dependencies=[Depends(enforce_ai_rate_limit)],
 )
 async def market_question(request: MarketQuestionRequest) -> MarketQuestionResponse:
-    return await answer_market_question(request.question)
+    return answer_trained_question(request.question)
+
+
+@app.post(
+    "/api/v1/assistant/ask",
+    response_model=MarketQuestionResponse,
+    tags=["trained assistant"],
+    dependencies=[Depends(enforce_ai_rate_limit)],
+)
+def assistant_ask(request: AssistantAskRequest) -> MarketQuestionResponse:
+    return answer_trained_question(request.question)
+
+
+@app.get("/api/v1/models/info", tags=["trained assistant"])
+def models_info() -> dict[str, object]:
+    state = load_assistant_model()
+    metadata = state.metadata
+    matcher_metadata_path = (
+        Path(__file__).resolve().parents[2] / "models/listing_matcher_metadata.json"
+    )
+    try:
+        matcher_metadata = json.loads(matcher_metadata_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        matcher_metadata = {}
+    entity_metadata_path = (
+        Path(__file__).resolve().parents[2] / "models/entity_linker_metadata.json"
+    )
+    try:
+        entity_metadata = json.loads(entity_metadata_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        entity_metadata = {}
+    return {
+        "models": [
+            {
+                "name": metadata.get("model_name", "intent classifier"),
+                "training_date": metadata.get("training_date"),
+                "data_hash": metadata.get("training_data_sha256"),
+                "metrics": metadata.get("metrics", {}),
+                "available": state.pipeline is not None,
+                "message": state.error,
+            }
+        ],
+        "matcher": {
+            "name": matcher_metadata.get("model_name", "listing matcher"),
+            "training_date": matcher_metadata.get("training_date"),
+            "data_hash": matcher_metadata.get("training_data_sha256"),
+            "metrics": matcher_metadata.get("metrics", {}),
+            "available": load_matcher() is not None,
+            "message": None if load_matcher() is not None else "Matcher artifact not trained yet.",
+        },
+        "entity_linker": {
+            **entity_metadata,
+            "available": (
+                Path(__file__).resolve().parents[2] / "models/entity_linker.joblib"
+            ).is_file(),
+        },
+    }
 
 
 @app.post(
@@ -532,7 +592,9 @@ def mpesa_callback(secret: str, payload: dict) -> dict[str, str]:
     values = {row.get("Name"): row.get("Value") for row in metadata if isinstance(row, dict)}
     try:
         outcome, order = orders.apply_mpesa_callback(
-            str(checkout_id), int(result_code), values.get("Amount"),
+            str(checkout_id),
+            int(result_code),
+            values.get("Amount"),
             str(values["MpesaReceiptNumber"]) if values.get("MpesaReceiptNumber") else None,
         )
     except LookupError as error:
