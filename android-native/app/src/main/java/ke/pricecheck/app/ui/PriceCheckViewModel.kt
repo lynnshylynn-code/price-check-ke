@@ -71,6 +71,9 @@ data class PriceCheckUiState(
     val answerSourceUrl: String? = null,
     val answerCoverageStart: String? = null,
     val answerCoverageEnd: String? = null,
+    val answerIntent: String? = null,
+    val answerIntentConfidence: Double? = null,
+    val answerSources: List<ke.pricecheck.app.data.MarketAnswerSource> = emptyList(),
     val aiLoading: Boolean = false,
     val aiError: String? = null,
     val budgetInput: String? = null,
@@ -217,6 +220,10 @@ class PriceCheckViewModel(
                         areaMarketLoading = false,
                         areaMarketError = error.message ?: container.strings(R.string.market_load_failed),
                     )
+                }
+            }
+        }
+    }
 
     fun storeAvailability(state: PriceCheckUiState = uiState.value): List<StoreAvailability> =
         BasketPricing.storeAvailability(
@@ -224,10 +231,6 @@ class PriceCheckViewModel(
                 container.products.findById(id)?.let { BasketLine(it, quantity) }
             },
         )
-                }
-            }
-        }
-    }
 
     fun saveBudget() {
         val amount = (mutableState.value.budgetInput
@@ -353,6 +356,9 @@ class PriceCheckViewModel(
                         answerSourceUrl = answer.sourceUrl,
                         answerCoverageStart = answer.coverageStart,
                         answerCoverageEnd = answer.coverageEnd,
+                        answerIntent = answer.intent,
+                        answerIntentConfidence = answer.intentConfidence,
+                        answerSources = answer.sources,
                     )
                 }
             } catch (error: IOException) {

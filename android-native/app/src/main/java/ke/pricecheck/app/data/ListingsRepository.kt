@@ -122,6 +122,8 @@ class ListingsRepository(
                     prices = prices,
                     isDemoData = false,
                     dataLabel = SNAPSHOT_LABEL,
+                    predictedFoodGroup = first.optString("food_group").takeIf(String::isNotBlank),
+                    predictedNova = first.optString("nova").takeIf(String::isNotBlank),
                 )
             }
         }

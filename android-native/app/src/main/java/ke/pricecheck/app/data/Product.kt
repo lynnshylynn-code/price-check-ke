@@ -18,6 +18,8 @@ data class Product(
     val prices: List<StorePrice>,
     val isDemoData: Boolean = true,
     val dataLabel: String? = null,
+    val predictedFoodGroup: String? = null,
+    val predictedNova: String? = null,
 ) {
     val lowestPrice: StorePrice
         get() = prices.minBy(StorePrice::price)

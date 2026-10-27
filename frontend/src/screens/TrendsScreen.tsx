@@ -64,38 +64,17 @@ export function TrendsScreen({
     const requestController = new AbortController();
     const requestTimeout = setTimeout(() => requestController.abort(), 22_000);
     try {
-      const [simulation, liveAnswer] = await Promise.allSettled([
-        simulateMarketQuestion(submittedQuestion, requestController.signal),
-        askMarketQuestion(submittedQuestion, requestController.signal),
-      ]);
-      if (simulation.status === 'fulfilled') {
-        setSimulationAnswer(simulation.value);
-        setFallbackMode(true);
-      } else {
-        setAiError(
-          simulation.reason instanceof Error
-            ? `Dataset answer unavailable: ${simulation.reason.message}`
-            : 'Dataset answer unavailable.',
-        );
-      }
-      if (liveAnswer.status === 'fulfilled') {
-        setAiAnswer(liveAnswer.value);
-        setSimulationAnswer(null);
-        setFallbackMode(false);
-        setAiError(null);
-      } else {
-        const reason =
-          requestController.signal.aborted
-            ? 'The live AI request timed out after 22 seconds.'
-            : liveAnswer.reason instanceof Error
-              ? liveAnswer.reason.message
-              : 'The live AI service could not answer.';
-        setAiError(
-          simulation.status === 'fulfilled'
-            ? `Live AI is unavailable (${reason}). Showing the API-generated dataset answer.`
-            : `Live AI is unavailable (${reason}).`,
-        );
-      }
+      const answer = await askMarketQuestion(submittedQuestion, requestController.signal);
+      setAiAnswer(answer);
+      setFallbackMode(false);
+    } catch (error) {
+      setAiError(
+        requestController.signal.aborted
+          ? 'The assistant request timed out.'
+          : error instanceof Error
+            ? error.message
+            : 'The trained assistant could not answer.',
+      );
     } finally {
       clearTimeout(requestTimeout);
       setIsAsking(false);
@@ -350,9 +329,9 @@ export function TrendsScreen({
                     <Text style={styles.simulationTagText}>
                       {fallbackMode
                         ? isAsking
-                          ? 'LIVE AI PENDING'
+                          ? 'ASSISTANT PENDING'
                           : 'OFFLINE FALLBACK'
-                        : 'NOT LIVE AI'}
+                        : 'DATASET ANSWER'}
                     </Text>
                   </View>
                 </View>
@@ -367,22 +346,34 @@ export function TrendsScreen({
             {aiAnswer && (
               <View style={styles.aiAnswer}>
                 <View style={styles.aiCardHeader}>
-                  <Text style={styles.aiHeadline}>Live AI answer</Text>
+                  <Text style={styles.aiHeadline}>Trained assistant</Text>
                   <View style={styles.liveAiTag}>
-                    <Text style={styles.liveAiTagText}>OPENAI</Text>
+                    <Text style={styles.liveAiTagText}>LOCAL MODEL</Text>
                   </View>
                 </View>
                 <Text style={styles.aiBody}>{aiAnswer.answer}</Text>
                 <Text style={styles.aiSourceText}>
-                  Source: {aiAnswer.source_name} · {aiAnswer.coverage_start}–
-                  {aiAnswer.coverage_end}
+                  Understood as: {aiAnswer.intent} ({(aiAnswer.intent_confidence * 100).toFixed(1)}%)
                 </Text>
-                <Text style={styles.aiSourceText}>{aiAnswer.source_url}</Text>
+                <Text style={styles.aiSourceText}>
+                  Source: {aiAnswer.source_name}
+                  {aiAnswer.coverage_start && aiAnswer.coverage_end
+                    ? ` · ${aiAnswer.coverage_start}–${aiAnswer.coverage_end}`
+                    : ''}
+                </Text>
+                {aiAnswer.source_url && (
+                  <Text style={styles.aiSourceText}>{aiAnswer.source_url}</Text>
+                )}
+                {aiAnswer.sources.map((source) => (
+                  <Text key={`${source.name}-${source.url}`} style={styles.aiSourceText}>
+                    {source.name}: {source.note} {source.url}
+                  </Text>
+                ))}
               </View>
             )}
             <Text style={styles.aiFootnote}>
-              Live answers use OpenAI with data tools. If unavailable, the API provides a clearly
-              labelled dataset answer. Neither is a live supermarket price or forecast.
+              Answers use a model trained on synthetic questions and deterministic data lookups.
+              They are not live supermarket prices or forecasts.
             </Text>
           </View>
         </>
