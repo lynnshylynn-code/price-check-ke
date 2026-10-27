@@ -286,6 +286,13 @@ class BasketOptimizeResponse(BaseModel):
     single_store_options: list[BasketSingleStoreOption] = Field(default_factory=list)
 
 
+class ListingImage(BaseModel):
+    image_url: HttpUrl
+    attribution: str
+    source_page: HttpUrl
+    licence_note: str
+
+
 class ListingItem(BaseModel):
     id: str
     supermarket: str
@@ -307,6 +314,7 @@ class ListingItem(BaseModel):
     collection_method: str
     pack_size_source: str | None
     data_notes: str | None
+    image: ListingImage | None = None
 
 
 class ListingCollectionResponse(BaseModel):

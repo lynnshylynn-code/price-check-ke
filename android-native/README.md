@@ -117,6 +117,13 @@ in a browser. Delivery fee is set by the retailer at its own checkout and is
 not estimated here. Address and phone data are sent to the local backend for
 the prototype order and can be erased from the status screen.
 
+Product cards use Coil 3.6.3 `AsyncImage` with a local vector placeholder. The
+backend includes image metadata only for entries manually marked approved in
+`backend/data/images/product_images.json`; attribution appears under the image.
+No candidate is approved automatically, and failed/offline image requests show
+the placeholder. The dependency coordinates and Compose API follow Coil's
+official getting-started documentation and are verified by the Android build.
+
 ### Lecture topics mapped to code
 
 | Topic | Code location | Demonstration |

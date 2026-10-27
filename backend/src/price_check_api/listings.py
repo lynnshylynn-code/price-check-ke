@@ -12,6 +12,8 @@ from functools import lru_cache
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
 
+from .listing_images import image_for_listing
+
 DATA_LABEL = "Advertised prices, snapshot 2026-10-20, may differ in store"
 DATA_CAVEATS = (
     "Partial public catalogue snapshot, not a sales dataset or price history. "
@@ -344,6 +346,7 @@ def _listing_predictions() -> dict[str, dict[str, object]]:
 
 def listing_dict(listing: Listing) -> dict[str, object]:
     result: dict[str, object] = asdict(listing)
+    result["image"] = image_for_listing(listing.id)
     prediction = _listing_predictions().get(listing.id)
     if prediction:
         for label in ("food_group", "nova"):
