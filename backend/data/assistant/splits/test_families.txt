@@ -1,0 +1,12 @@
+biggest_discount_04
+biggest_discount_08
+cheapest_item_02
+compare_stores_03
+food_inflation_03
+food_inflation_04
+market_price_01
+out_of_scope_stock_delivery
+out_of_scope_weather_news
+price_at_store_08
+unit_price_04
+unit_price_07
