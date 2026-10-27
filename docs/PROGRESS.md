@@ -40,7 +40,7 @@ Part 10 — Reports and verification: complete.
 Changed: Updated PEAS, provenance, metrics, model cards, limitations, READMEs, and this progress log.
 Tests: Backend 127 → 128 passed; Android count stayed at 26 annotations (21 unit/5 instrumentation), with 21 unit tests passing. assembleDebug and Ruff succeeded; frontend type-check passed; instrumentation was not run (adb unavailable).
 
-Part 11 — Optional product images: skipped.
-Changed: Not started because the prior parts' Android build verification and human review remain incomplete.
-Tests: No image suggestions or image integration tests were run.
+Part 11 — Optional product images: integration code complete; suggestions and approval pending.
+Changed: Added a rate-limited Open Food Facts candidate CSV workflow, an empty approved-image registry, backend attribution/licence metadata, and Android image rendering with a placeholder. No images are approved or displayed until a human reviews the candidate metadata and records approval.
+Tests: Backend 132 passed and Ruff clean; Android 22 unit tests passed and assembleDebug succeeded. The candidate search was not run because no maintainer contact email was configured; no external image requests were made.
 

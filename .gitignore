@@ -55,6 +55,7 @@ local.properties
 # Unlicensed APHRC reference workbook; keep local only
 backend/data/listings/private/
 backend/data/listings/listing_predictions.json
+backend/data/images/candidates.csv
 backend/data/runtime/
 
 # generated notebook exports

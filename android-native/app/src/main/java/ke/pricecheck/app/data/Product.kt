@@ -9,6 +9,13 @@ data class StorePrice(
     val unitPrice: Double? = null,
 )
 
+data class ProductImage(
+    val imageUrl: String,
+    val attribution: String,
+    val sourcePage: String,
+    val licenceNote: String,
+)
+
 data class Product(
     val id: String,
     val name: String,
@@ -20,6 +27,7 @@ data class Product(
     val dataLabel: String? = null,
     val predictedFoodGroup: String? = null,
     val predictedNova: String? = null,
+    val image: ProductImage? = null,
 ) {
     val lowestPrice: StorePrice
         get() = prices.minBy(StorePrice::price)

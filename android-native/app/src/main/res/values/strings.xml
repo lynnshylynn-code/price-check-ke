@@ -191,6 +191,8 @@
     <string name="assistant_source_note">%1$s · %2$s</string>
     <string name="predicted_food_group">Predicted food group: %1$s</string>
     <string name="predicted_nova">Predicted NOVA: %1$s</string>
+    <string name="product_image_description">Product package image for %1$s</string>
+    <string name="product_image_attribution">Image attribution: %1$s</string>
     <string name="try_again">Try again</string>
     <string name="watchlist_title">Watchlist</string>
     <string name="watchlist_sort">Sort by</string>

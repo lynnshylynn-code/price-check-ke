@@ -124,6 +124,17 @@ class ListingsRepository(
                     dataLabel = SNAPSHOT_LABEL,
                     predictedFoodGroup = first.optString("food_group").takeIf(String::isNotBlank),
                     predictedNova = first.optString("nova").takeIf(String::isNotBlank),
+                    image = group.firstNotNullOfOrNull { it.optJSONObject("image") }?.let { image ->
+                        val imageUrl = image.optString("image_url").takeIf(String::isNotBlank)
+                        val attribution = image.optString("attribution").takeIf(String::isNotBlank)
+                        val sourcePage = image.optString("source_page").takeIf(String::isNotBlank)
+                        val licenceNote = image.optString("licence_note").takeIf(String::isNotBlank)
+                        if (imageUrl != null && attribution != null && sourcePage != null && licenceNote != null) {
+                            ProductImage(imageUrl, attribution, sourcePage, licenceNote)
+                        } else {
+                            null
+                        }
+                    },
                 )
             }
         }

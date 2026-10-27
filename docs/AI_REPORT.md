@@ -101,7 +101,8 @@ Question generation comes from AI-written templates and does not represent real 
 ## Not yet done / unverified
 
 - Human-authored assistant test questions and human review of the match-pair labels.
-- The Android Gradle build and device/emulator instrumentation tests; the Gradle command did not return output in this environment.
+- Device/emulator instrumentation tests (no `adb` executable/device was available); the Android unit tests and debug build did pass.
 - Daraja sandbox transaction and callback with merchant credentials and a reachable HTTPS callback.
 - Human spot-check of the predicted food-group/NOVA badges; the output is local and ignored by Git.
 - Swahili/sheng wording review by a fluent speaker.
+- Open Food Facts image candidate queries and human approval. The candidate script requires a maintainer contact email; the approved-image registry remains empty.

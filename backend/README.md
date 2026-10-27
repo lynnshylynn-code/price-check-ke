@@ -36,3 +36,18 @@ The trained artifacts are written to the ignored `backend/models/` directory. Th
 Question templates are AI-written and generated questions are synthetic. The separate `heldout_test_questions.csv` set is AI-written held-out data and is never used for training or tuning. The matcher uses human labels only when `label` is filled; otherwise it bootstraps synthetic noisy-copy positives and same-brand different-size negatives. Report these metrics as synthetic. The APHRC workbook is optional and excluded from Git; every endpoint must work when it is absent.
 
 Run backend checks with `python -m pytest` and `ruff check`. See `../docs/AI_REPORT.md` and `../docs/MODEL_CARD.md` for design, metrics and limitations.
+
+## Optional product image suggestions
+
+`python scripts/suggest_images_off.py --limit 15` writes local suggestions to
+`data/images/candidates.csv`; it never downloads images or fills the `approved` column. Set
+`PRICE_CHECK_OFF_CONTACT_EMAIL` first so requests identify the app as
+`PriceCheckKE/1.0 (contact-email)`. The script waits at least 6.2 seconds between at most 15
+searches and leaves uploader attribution blank when the API does not provide it. A maintainer must
+verify attribution and image-specific rights, then copy only approved complete entries into
+`data/images/product_images.json`. The default image registry is empty; listing responses expose only
+entries explicitly marked approved. Open Food Facts documents a 10-search-requests/minute limit, the
+required app-identifying User-Agent, and CC BY-SA product images; some images may have separate
+rights restrictions. The script uses their documented legacy full-text CGI search endpoint because
+the current v2 API supports structured search rather than plain-text search. Do not use
+supermarket-site images.
