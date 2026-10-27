@@ -15,3 +15,7 @@ Changed: Added vector menu icons, watchlist layout action, and MainActivity Abou
 Tests: 0 tests run in this pass; prior local report lists 16 unit test cases but is stale/unverified. XML resources parsed successfully.
 
 Parts 4–11 — Not started or audited yet.
+
+Part 4 — Synthetic assistant dataset: complete; local commit pending.
+Changed: Added seeded 15–20 fillings/template generation, 20% character noise, canonical-distinct paired slots, family-only splits, saved family lists/counts, and kept the 91-row AI-written held-out file separate.
+Tests: Dataset generator printed 4,030 rows (48 train / 8 validation / 12 test families); `pytest tests/test_assistant_dataset.py` — 3 passed; Ruff — clean.

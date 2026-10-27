@@ -1,0 +1,125 @@
+slot,surface_form,canonical,note
+product,Brookside UHT whole milk 250ml,brookside uht whole milk 250ml,in data
+product,Carrefour UHT whole milk 500ml,carrefour uht whole milk 500ml,in data
+product,Fresh Fri cooking oil 1 litre,fresh fri cooking oil 1ltr,in data
+product,Fresh Fri cooking oil 5 litres,fresh fri cooking oil 5ltr,in data
+product,Naivas white sugar 2kg,naivas local sugar white 2kg,in data
+product,Naivas white sugar 1kg,naivas local sugar white 1kg,in data
+product,Soko maize meal 2kg,soko flour maize meal 2kg,in data
+product,Ajab all purpose flour 2kg,ajab all purpose flour 2kg,in data
+product,Isinya eggs tray of 15,isinya eggs x15,in data
+product,Fanta Orange 2L,fanta orange pet 2l,in data
+product,Fanta Blackcurrant 2L,fanta blackcurrant pet 2l,in data
+product,Coke Zero 2L,coke zero 2l pet,in data
+product,Minute Maid apple juice 1L,minute maid apple juice 1l,in data
+product,Celine toilet tissue 10 pack,celine toilet tissue 10 pack,in data
+product,Celine Petals tissue,celine petals tissue 10 pack,in data
+product,Santa Maria spaghetti 400g,santa maria pasta spaghetti 400g,in data
+product,Blue Band margarine 500g,blue band margarine vanilla 500g,in data
+product,Golden butter cookies,golden butter cookies 200g,in data
+product,Kensalt table salt 1kg,kensalt premium iodated edible table salt 1kg,in data
+product,Farmnaivas Pakistani rice 2kg,farmnaivas pakistani rice 2kg,in data
+product,Brookside strawberry yoghurt,brookside real strawberry probiotic yoghurt 250g,in data
+product,Cussons soap 100g,cussons fresh nourishing soap 100g,in data
+product,Fresh sweet bread 400g,fresh sweet bread 400g,in data
+group,maize meal,maize-meal-2kg,staple group
+group,unga,maize-meal-2kg,staple group (Swahili/Kenyan English)
+group,maize flour,maize-meal-2kg,staple group
+group,sugar,sugar-2kg,staple group
+group,cooking oil,cooking-oil-1l,staple group
+group,eggs,eggs-tray-15,staple group
+group,milk,milk-1l,staple group
+group,rice,,not a staple group yet
+group,spaghetti,,
+group,bread,,
+group,salt,,
+group,margarine,,
+group,yoghurt,, 
+group,fizzy drinks,,
+group2,sugar,sugar-2kg,
+group2,cooking oil,cooking-oil-1l,
+group2,eggs,eggs-tray-15,
+group2,milk,milk-1l,
+group2,maize meal,maize-meal-2kg,
+category,dairy,,topical
+category,milk and dairy,,
+category,soft drinks,,
+category,snacks and biscuits,,
+category,cooking oils and fats,,
+category,rice and pasta,,
+category,flours and cereals,,
+category,toilet paper and tissue,,
+category,soap and personal care,,
+category,household cleaning,,
+category,beverages,,
+store,Naivas,Naivas,canonical
+store,Carrefour,Carrefour,canonical
+store,Quickmart,Quickmart,canonical
+store,naivas,Naivas,lowercase
+store,Naivas supermarket,Naivas,long form
+store,quick mart,Quickmart,spacing variant
+store,QuickMart,Quickmart,casing variant
+store,carefour,Carrefour,typo
+store,Carrefour Westlands,Carrefour,branch context
+store2,Naivas,Naivas,
+store2,Carrefour,Carrefour,
+store2,Quickmart,Quickmart,
+other_store,Tuskys,,"NOT in data: intent stays price_at_store, entity linker must say not in snapshot"
+other_store,Chandarana,,NOT in data
+other_store,Cleanshelf,,NOT in data
+other_store,Eastmatt,,NOT in data
+other_store,Jumia,,NOT in data
+unknown_product,an iPhone 15,,NOT in data
+unknown_product,a PlayStation 5,,NOT in data
+unknown_product,dog food,,NOT in data
+unknown_product,school uniform,,NOT in data
+unknown_product,a wheelbarrow,,NOT in data
+unknown_product,car tyres,,NOT in data
+county,Kitui,Kitui,has maize+beans+goat
+county,Garissa,Garissa,has maize+beans+goat
+county,Turkana,Turkana,has maize+beans+goat
+county,Kilifi,Kilifi,has maize+beans+goat
+county,Makueni,Makueni,has maize+beans+goat
+county,Marsabit,Marsabit,has maize+beans+goat
+county,Isiolo,Isiolo,has maize+beans+goat
+county,Wajir,Wajir,has maize+beans+goat
+county,Voi,Voi,has maize+beans+goat
+county,Lamu West,Lamu West,has maize+beans+goat
+county,North Imenti,North Imenti,has maize+beans+goat
+county,Mandera,Mandera,maize+goat only
+county,Baringo,Baringo,maize+beans only
+county,Kajiado,Kajiado,maize+beans only
+county,Nairobi,Nairobi,"beans only, last seen Jan 2022 (maize questions must say no data)"
+county,Mombasa,Mombasa,"beans only, last seen Nov 2021"
+county,Kisumu,Kisumu,NO price data at all
+county,Nakuru,Nakuru,NO price data at all
+county2,Kitui,Kitui,
+county2,Garissa,Garissa,
+county2,Turkana,Turkana,
+county2,Kilifi,Kilifi,
+county2,Makueni,Makueni,
+county2,Marsabit,Marsabit,
+county2,Isiolo,Isiolo,
+county2,Nairobi,Nairobi,beans only
+commodity,maize,maize,canonical
+commodity,beans,beans,canonical
+commodity,goat,goat,"price per animal/unit, not per kg"
+commodity,maize grain,maize,synonym
+commodity,dry beans,beans,synonym
+commodity_sw,mahindi,maize,Swahili
+commodity_sw,maharagwe,beans,Swahili
+commodity_sw,mbuzi,goat,Swahili
+year,2019,2019,
+year,2020,2020,
+year,2021,2021,
+year,2022,2022,
+year,2023,2023,
+year,2024,2024,
+year,2025,2025,
+month,January,January,
+month,March,March,
+month,June,June,
+month,September,September,
+month,December,December,
+month,Jan,Jan,
+month,Aug,Aug,
