@@ -136,3 +136,66 @@ def test_market_answer_rejects_county_outside_snapshot(monkeypatch: pytest.Monke
     answer = answer_trained_question("What are beans prices in Atlantis?")
     assert "not in the RTFP snapshot" in answer.answer
     assert answer.entities["county"] == "not in the snapshot"
+
+
+def _csv_price(store: str, name: str) -> float:
+    path = Path(__file__).parents[1] / "data/listings/kenya_supermarket_public_listings.csv"
+    with path.open(encoding="utf-8-sig", newline="") as source:
+        for row in csv.DictReader(source):
+            if row["supermarket"] == store and row["item_name"].casefold() == name.casefold():
+                return float(row["price_kes"])
+    raise AssertionError(f"{name} not found at {store}")
+
+
+@pytest.mark.parametrize(
+    ("question", "store", "listing_name"),
+    [
+        (
+            "How much is Brookside UHT whole milk 250ml at Quickmart?",
+            "Quickmart",
+            "Brookside Uht Whole Milk 250Ml",
+        ),
+        ("how much is Isinya eggs at Carrefour", "Carrefour", "Isinya Eggs X15"),
+        (
+            "price of Fresh Fri cooking oil 1 litre at Naivas",
+            "Naivas",
+            "Fresh Fri Cooking Oil 1Ltr",
+        ),
+    ],
+)
+def test_price_at_store_finds_listings_that_exist(
+    monkeypatch: pytest.MonkeyPatch, question: str, store: str, listing_name: str
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda text: ("price_at_store", 0.9, None),
+    )
+    response = answer_trained_question(question)
+    expected = _csv_price(store, listing_name)
+    assert "No matching advertised listing" not in response.answer
+    assert f"KES {expected:g} at {store}" in response.answer
+
+
+def test_generic_cheapest_question_uses_group_listings(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda text: ("cheapest_item", 0.9, None),
+    )
+    response = answer_trained_question("cheapest cooking oil")
+    assert "No matching advertised listing" not in response.answer
+    assert "KES" in response.answer
+
+
+@pytest.mark.parametrize(
+    "question", ["cheapest milk", "cheapest rice", "what is the cheapest sugar"]
+)
+def test_generic_group_questions_are_not_refused_as_unknown(
+    monkeypatch: pytest.MonkeyPatch, question: str
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda text: ("cheapest_item", 0.9, None),
+    )
+    response = answer_trained_question(question)
+    assert "not in the snapshot" not in response.answer
+    assert "KES" in response.answer or "No matching advertised listing" in response.answer

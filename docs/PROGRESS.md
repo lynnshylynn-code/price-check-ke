@@ -44,3 +44,7 @@ Part 11 — Optional product images: integration code complete; suggestions and 
 Changed: Added a rate-limited Open Food Facts candidate CSV workflow, an empty approved-image registry, backend attribution/licence metadata, and Android image rendering with a placeholder. No images are approved or displayed until a human reviews the candidate metadata and records approval.
 Tests: Backend 132 passed and Ruff clean; Android 22 unit tests passed and assembleDebug succeeded. The candidate search was not run because no maintainer contact email was configured; no external image requests were made.
 
+Part 12 — Assistant listing lookup: complete.
+Changed: Resolve exact store/product questions by listing name and generic questions through comparable listing groups; add regression coverage for known listings and staple groups.
+Tests: Backend 139 passed and Ruff clean; the live assistant endpoint returned the matching Quickmart listing and its advertised snapshot coverage.
+
