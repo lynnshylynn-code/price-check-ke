@@ -47,7 +47,7 @@ the web application in `../frontend/`.
 - `domain/` contains pure basket-pricing functions and the local
   dataset-question response rules.
 - The backend supplies the RTFP historical index, available beans and maize
-  market observations, and optional OpenAI answers with source and coverage.
+  market observations, and answers from the locally trained assistant with source, intent confidence, and coverage.
   User preferences, shopping area, and basket data are saved locally with
   DataStore.
 

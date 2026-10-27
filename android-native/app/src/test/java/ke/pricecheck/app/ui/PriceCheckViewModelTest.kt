@@ -86,6 +86,9 @@ class PriceCheckViewModelTest {
         assertEquals("https://example.org/data", state.answerSourceUrl)
         assertEquals("2022-01-01", state.answerCoverageStart)
         assertEquals("2022-08-01", state.answerCoverageEnd)
+        assertEquals("market_price", state.answerIntent)
+        assertEquals(0.91, state.answerIntentConfidence!!, 0.0001)
+        assertEquals(listOf(MarketAnswerSource("World Bank RTFP", "https://example.org/data", "Monthly market prices")), state.answerSources)
     }
 
     private fun viewModel(
@@ -135,7 +138,11 @@ class PriceCheckViewModelTest {
             return AreaMarketData(county, "World Bank RTFP", "https://example.org/data", "2022-01-01", "2022-08-01", "Aug 2022", if (emptyArea) emptyList() else listOf(MarketPricePoint(county, county, "2022-08-01", "beans", 130.0, "KES", "1 kg")))
         }
         override suspend fun loadFoodInflation() = sampleInflation
-        override suspend fun askQuestion(question: String) = MarketQuestionAnswer("The dataset answer", "World Bank RTFP", "https://example.org/data", "2022-01-01", "2022-08-01")
+        override suspend fun askQuestion(question: String) = MarketQuestionAnswer(
+            "The dataset answer", "World Bank RTFP", "https://example.org/data", "2022-01-01", "2022-08-01",
+            intent = "market_price", intentConfidence = 0.91,
+            sources = listOf(MarketAnswerSource("World Bank RTFP", "https://example.org/data", "Monthly market prices")),
+        )
     }
 
     private object TestProducts : ProductRepository {

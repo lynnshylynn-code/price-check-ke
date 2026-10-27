@@ -285,6 +285,16 @@ private fun AiQuestionCard(
                                 style = MaterialTheme.typography.titleSmall,
                             )
                             Text(answer)
+                            state.answerIntent?.let { intent ->
+                                Text(
+                                    stringResource(
+                                        R.string.assistant_understood_as,
+                                        intent,
+                                        ((state.answerIntentConfidence ?: 0.0) * 100).toInt(),
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
                             state.answerSourceName?.let { source ->
                                 Text(
                                     stringResource(
@@ -296,6 +306,15 @@ private fun AiQuestionCard(
                                     ),
                                     style = MaterialTheme.typography.bodySmall,
                                 )
+                            }
+                            state.answerSources.forEach { source ->
+                                Text(
+                                    stringResource(R.string.assistant_source_note, source.name, source.note),
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                                if (source.url.isNotBlank()) {
+                                    Text(source.url, style = MaterialTheme.typography.bodySmall)
+                                }
                             }
                         }
                     }

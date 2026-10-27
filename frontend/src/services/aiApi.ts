@@ -3,9 +3,14 @@ import { API_BASE_URL } from './marketApi';
 export type MarketQuestionAnswer = {
   answer: string;
   source_name: string;
-  source_url: string;
-  coverage_start: string;
-  coverage_end: string;
+  source_url: string | null;
+  coverage_start: string | null;
+  coverage_end: string | null;
+  intent: string;
+  intent_confidence: number;
+  entities: Record<string, unknown>;
+  model_version: string;
+  sources: { name: string; url: string; note: string }[];
 };
 
 function isMarketQuestionAnswer(value: unknown): value is MarketQuestionAnswer {
@@ -14,20 +19,23 @@ function isMarketQuestionAnswer(value: unknown): value is MarketQuestionAnswer {
   return (
     typeof payload.answer === 'string' &&
     typeof payload.source_name === 'string' &&
-    typeof payload.source_url === 'string' &&
-    typeof payload.coverage_start === 'string' &&
-    typeof payload.coverage_end === 'string'
+    (typeof payload.source_url === 'string' || payload.source_url === null) &&
+    (typeof payload.coverage_start === 'string' || payload.coverage_start === null) &&
+    (typeof payload.coverage_end === 'string' || payload.coverage_end === null) &&
+    typeof payload.intent === 'string' &&
+    typeof payload.intent_confidence === 'number' &&
+    typeof payload.model_version === 'string'
   );
 }
 
 async function requestMarketQuestion(
-  endpoint: 'market-question' | 'market-question/simulate',
+  endpoint: string,
   question: string,
   signal?: AbortSignal,
 ): Promise<MarketQuestionAnswer> {
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/v1/ai/${endpoint}`, {
+    response = await fetch(`${API_BASE_URL}/api/v1/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question }),
@@ -67,12 +75,12 @@ export function askMarketQuestion(
   question: string,
   signal?: AbortSignal,
 ): Promise<MarketQuestionAnswer> {
-  return requestMarketQuestion('market-question', question, signal);
+  return requestMarketQuestion('assistant/ask', question, signal);
 }
 
 export function simulateMarketQuestion(
   question: string,
   signal?: AbortSignal,
 ): Promise<MarketQuestionAnswer> {
-  return requestMarketQuestion('market-question/simulate', question, signal);
+  return requestMarketQuestion('ai/market-question/simulate', question, signal);
 }

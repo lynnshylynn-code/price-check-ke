@@ -69,6 +69,12 @@ fun ProductCard(
                     Text(product.category.uppercase(), style = MaterialTheme.typography.labelSmall)
                     Text("${product.name} · ${product.size}", style = MaterialTheme.typography.titleMedium)
                     Text(product.description, style = MaterialTheme.typography.bodySmall)
+                    product.predictedFoodGroup?.let { group ->
+                        Text(stringResource(R.string.predicted_food_group, group), style = MaterialTheme.typography.labelSmall)
+                    }
+                    product.predictedNova?.let { nova ->
+                        Text(stringResource(R.string.predicted_nova, nova), style = MaterialTheme.typography.labelSmall)
+                    }
                     Text(
                         stringResource(
                             if (product.isDemoData) R.string.best_illustrative_price
