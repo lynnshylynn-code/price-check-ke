@@ -48,3 +48,7 @@ Part 12 — Assistant listing lookup: complete.
 Changed: Resolve exact store/product questions by listing name and generic questions through comparable groups or matching listing terms before fuzzy product fallback; add regression coverage for known listings and staple groups.
 Tests: Backend 140 passed and Ruff clean; exact Quickmart and cheapest milk lookups returned matching advertised listings and snapshot coverage.
 
+Part 13 — Intent-classifier CRISP-DM notebook: implementation in progress; execution and consistency check blocked by this environment.
+Changed: Added a Colab-configurable notebook builder with pandas-based dataset inspection, shared word/character TF-IDF features, model comparison, validation-only abstention selection, overfitting diagnostics, provenance-separated evaluation, artifact export, API answer examples, and CLI consistency-check code. Updated model-loader guidance, READMEs, and AI/model-card descriptions. Optional entity-linking section was skipped because it is outside the required training path.
+Verification: Recorded pre-change backend suite was 140 passed (Part 12). This environment's Python 3.12 runtime has pandas and NumPy but lacks scikit-learn, matplotlib, pytest, and Ruff; Windows Store Python and WSL execution were unavailable. No dependencies were downloaded. Notebook execution, fresh test count, Ruff, CLI comparison, and resulting model metrics remain unverified.
+

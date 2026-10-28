@@ -11,13 +11,17 @@ The user enters a natural-language question about advertised listings or Kenya f
 - **Actuators:** deterministic answers with source, coverage, product URL, entities and model confidence; or a refusal with example questions.
 - **Sensors:** question text, trained intent probabilities, listing snapshot, comparable groups, and RTFP market series.
 
-Intent routing is a **model-based/goal-based agent**: it uses a trained model to classify the request and deterministic data functions to reach a source-grounded answer. In the learning-agent mapping, the **learning element** is `train_assistant.py` and the dataset builder, the **performance element** is the API serving path, and the **critic** is the validation/test evaluation scripts and their metrics.
+Intent routing is a **model-based/goal-based agent**: it uses a trained model to classify the request and deterministic data functions to reach a source-grounded answer. In the learning-agent mapping, the **learning element** is the CRISP-DM notebook `notebooks/assistant_intent_crisp_dm.ipynb` and the dataset builder; `train_assistant.py` is its command-line copy. The notebook makes data inspection, feature preparation, model comparison, threshold selection, and held-out evaluation visible. The **performance element** is the API serving path, and the **critic** is the validation/test evaluation in the notebook.
 
 ## Data provenance and splits
 
 The 228 supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The generator wrote 4,030 rows and split whole families: 2,900 training rows from 48 families, 433 validation rows from 8 families, and 697 synthetic test rows from 12 families. All eight intents occur in every split. The separate 91-row `heldout_test_questions.csv` is an **AI-written held-out set**; it was not used to train or select the classifier. There are no human-authored question metrics.
 
 ## Intent model results
+
+The main training path is `notebooks/assistant_intent_crisp_dm.ipynb`, generated and executed by `backend/scripts/build_assistant_notebook.py`. It compares a majority-class baseline with Multinomial Naive Bayes, kNN, a decision tree, logistic regression, calibrated linear SVM, random forest, and a small MLP neural network. Every candidate uses the same word and character TF-IDF feature union. Validation-only macro-F1 with abstentions, accepted accuracy, and coverage determine model and threshold selection; the synthetic test and provenance-labelled held-out sources are reported afterward. Tree-depth, neighbour-count, and regularization sweeps demonstrate train/validation gaps. The CLI script remains available as a consistency check and writes the same metadata and model format. Re-run the notebook builder to refresh the executed comparison table when training data or dependencies change.
+
+The result table below is the previously recorded command-line training run. The new notebook was not executable in the current offline environment because its installed Python runtime lacks scikit-learn and matplotlib; therefore these existing metrics are not presented as a fresh notebook-versus-CLI consistency result.
 
 Training ran 2026-10-27 with scikit-learn 1.9.1. The selected model was `CalibratedLinearSVC`, using word and character TF-IDF features and a confidence threshold of 0.4200 selected on the synthetic validation split. Its training data SHA-256 is `3e801bee7212dee46dab9c2279b812ae1bff7c7ebad89135728bd9dddd2f88d3`.
 

@@ -64,7 +64,10 @@ python -m pip install -e ".[dev]"
 The API runs at `http://127.0.0.1:8000`; interactive docs are at
 `http://127.0.0.1:8000/docs`. Before the first run, build the synthetic
 question dataset and train the assistant and listing matcher using the steps in
-[backend/README.md](backend/README.md). No model-service key is required.
+[backend/README.md](backend/README.md). The main assistant training path is
+`notebooks/assistant_intent_crisp_dm.ipynb`; generate and execute it with
+`python scripts/build_assistant_notebook.py` from `backend/`. The CLI training
+script remains a compatible alternate. No model-service key is required.
 
 ## Run the frontend
 

@@ -1,4 +1,9 @@
-"""Train and evaluate the synthetic, family-split intent-routing models."""
+"""Command-line copy of notebooks/assistant_intent_crisp_dm.ipynb.
+
+The CRISP-DM notebook is the main training path; this script keeps a repeatable
+command-line training path with the same features, threshold selection, and
+artifact format.
+"""
 
 from __future__ import annotations
 
