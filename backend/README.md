@@ -10,7 +10,7 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev,ml]"
 python scripts/build_assistant_dataset.py
-python scripts/train_assistant.py
+python scripts/build_assistant_notebook.py  # generates, executes, and saves outputs to notebooks/assistant_intent_crisp_dm.ipynb
 python scripts/train_entity_linker.py
 python scripts/train_matcher.py
 python scripts/predict_listing_categories.py  # optional; ignored output when APHRC workbook is present
@@ -32,6 +32,8 @@ The trained artifacts are written to the ignored `backend/models/` directory. Th
 - Order and basket endpoints remain prototype-only.
 
 ## Dataset and model provenance
+
+The main assistant training path is the CRISP-DM notebook at `../notebooks/assistant_intent_crisp_dm.ipynb`. Run `python scripts/build_assistant_notebook.py` to regenerate and execute it with the installed local dependencies. In Colab, clone the repository (or upload `backend/data/assistant` and the training script) and configure `ASSISTANT_DATA_DIR` / `ASSISTANT_MODEL_DIR` as needed. The notebook compares a majority baseline, Naive Bayes, kNN, decision tree, logistic regression, calibrated linear SVM, random forest, and MLP using the same word/character TF-IDF features. It selects the model and abstention threshold on validation only, then reports test and held-out sources separately. `python scripts/train_assistant.py` is the command-line copy of that pipeline and writes the same artifact format for compatibility.
 
 Question templates are AI-written and generated questions are synthetic. The separate `heldout_test_questions.csv` set is AI-written held-out data and is never used for training or tuning. The matcher uses human labels only when `label` is filled; otherwise it bootstraps synthetic noisy-copy positives and same-brand different-size negatives. Report these metrics as synthetic. The APHRC workbook is optional and excluded from Git; every endpoint must work when it is absent.
 

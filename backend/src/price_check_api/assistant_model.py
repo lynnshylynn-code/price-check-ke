@@ -25,7 +25,8 @@ def load_assistant_model(model_dir: Path = MODEL_DIR) -> AssistantModelState:
         return AssistantModelState(
             None,
             {},
-            "Trained assistant model is unavailable. Run `python scripts/train_assistant.py`.",
+            "Trained assistant model is unavailable. Run the notebook "
+            "notebooks/assistant_intent_crisp_dm.ipynb or python scripts/train_assistant.py.",
         )
     try:
         metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
@@ -38,7 +39,8 @@ def load_assistant_model(model_dir: Path = MODEL_DIR) -> AssistantModelState:
                 metadata,
                 "Trained assistant model uses scikit-learn "
                 f"{trained_version}; installed version is {sklearn.__version__}. "
-                "Retrain it with `python scripts/train_assistant.py`.",
+                "Run the notebook notebooks/assistant_intent_crisp_dm.ipynb or "
+                "python scripts/train_assistant.py.",
             )
         import joblib
 
@@ -49,5 +51,6 @@ def load_assistant_model(model_dir: Path = MODEL_DIR) -> AssistantModelState:
             None,
             {},
             "Could not load trained assistant model: "
-            f"{error}. Run `python scripts/train_assistant.py`.",
+            f"{error}. Run the notebook notebooks/assistant_intent_crisp_dm.ipynb or "
+            "python scripts/train_assistant.py.",
         )
