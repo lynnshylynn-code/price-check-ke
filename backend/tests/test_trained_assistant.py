@@ -380,3 +380,17 @@ def test_generic_group_questions_are_not_refused_as_unknown(
     response = answer_trained_question(question)
     assert "not in the snapshot" not in response.answer
     assert "KES" in response.answer or "No matching advertised listing" in response.answer
+
+
+def test_sweets_does_not_link_to_unrelated_sweet_corn(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("cheapest_item", 0.9, None),
+    )
+    response = answer_trained_question("where can i get the cheapest sweets?")
+    assert response.entities["product"] is None
+    assert response.entities["product_label"] == "sweets"
+    assert "No listing is categorized as sweets" in response.answer
+    assert "Kol Sweet Corn" not in response.answer

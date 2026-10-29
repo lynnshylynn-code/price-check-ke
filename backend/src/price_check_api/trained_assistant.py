@@ -108,6 +108,11 @@ def _resolve_product(question: str) -> tuple[str | None, str | None, float]:
     row = _extract(question, "product") or _extract(question, "unknown_product")
     if row:
         return row["canonical"], row["surface_form"], 1.0
+    confectionery = re.search(
+        r"\b(sweets|candy|candies|confectionery)\b", question.casefold()
+    )
+    if confectionery:
+        return None, confectionery.group(0), 0.0
     candidates = _product_candidates()
     vectorizer, matrix, names, threshold, aliases = candidates
     from sklearn.metrics.pairwise import cosine_similarity
@@ -544,6 +549,12 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
     else:
         store, store_similarity, unknown_store = _resolve_store(text)
     product, product_label, product_score = _resolve_product(text)
+    unavailable_confectionery = product is None and product_score == 0.0 and product_label in {
+        "sweets",
+        "candy",
+        "candies",
+        "confectionery",
+    }
     unknown_product = _extract(text, "unknown_product")
     if unknown_product:
         product = None
@@ -629,12 +640,19 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
                 "20 Oct 2026",
             )
         if unknown_store or not identified:
+            if unavailable_confectionery:
+                answer = (
+                    f"No listing is categorized as {product_label} in this snapshot. "
+                    f"Try specifying a product name. {DATA_LABEL}."
+                )
+            else:
+                answer = f"That product or store is not in the snapshot. {DATA_LABEL}."
             return _base_response(
                 text,
                 intent,
                 confidence,
                 entities,
-                f"That product or store is not in the snapshot. {DATA_LABEL}.",
+                answer,
                 [],
             )
         if intent == "biggest_discount":

@@ -80,3 +80,7 @@ Task D — Retraining and metrics refresh attempted.
 Changed: Documentation now describes the generated balanced splits and marks model results as historical pending retraining; notebook comparison exposes class weights and shares model/threshold selection with the CLI candidates.
 Verification: Dataset generation completed; model training stopped because joblib is missing and notebook execution stopped because matplotlib is missing. No new evaluation metrics are reported.
 
+Task E — Prevent confectionery false matches.
+Changed: Queries for generic sweets/candy/confectionery no longer use fuzzy matching that could return unrelated “sweet” items such as sweet corn.
+Verification: The exact local AI query returned “No matching advertised listing for sweets”; focused regression test passed and Ruff passed on the changed assistant files.
+
