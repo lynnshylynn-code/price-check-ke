@@ -2,6 +2,7 @@
 
 ## Intent classifier
 
+- **Metric status:** the recorded metrics below predate the expanded compare-stores training templates. Needs refresh after retraining; no metric values were changed without a new training run.
 - **Training path:** `notebooks/assistant_intent_crisp_dm.ipynb` is the main CRISP-DM training path. It compares a majority baseline, Multinomial Naive Bayes, kNN, decision tree, logistic regression, calibrated linear SVM, random forest, and a small MLP on the same word/character TF-IDF features. Selection and abstention threshold are validation-only. `backend/scripts/train_assistant.py` is the command-line copy and compatibility check.
 - **Recorded model:** CalibratedLinearSVC with word and character TF-IDF from the previously recorded CLI run. The new notebook comparison and CLI consistency check have not been executed in the current environment, so this is not confirmed as the notebook-selected model.
 - **Training data:** 2,900 synthetic rows from 48 template families. Validation used 433 synthetic rows from 8 families; the 697-row synthetic test and 91-row AI-written held-out set were kept separate. Training SHA-256: `3e801bee7212dee46dab9c2279b812ae1bff7c7ebad89135728bd9dddd2f88d3`.

@@ -48,6 +48,18 @@ Part 12 — Assistant listing lookup: complete.
 Changed: Resolve exact store/product questions by listing name and generic questions through comparable groups or matching listing terms before fuzzy product fallback; add regression coverage for known listings and staple groups.
 Tests: Backend 140 passed and Ruff clean; exact Quickmart and cheapest milk lookups returned matching advertised listings and snapshot coverage.
 
+Task 1 — Deterministic store, basket, and unit-price answers updated.
+Changed: Resolve ordered store aliases; compare named stores or all snapshot stores, calculate basket totals, show pack sizes, unit prices, URLs, and missing-store/item states.
+Verification: Added answer tests using listing data; not run because pytest and required API/ML dependencies are unavailable in the offline Python runtime.
+
+Task 2 — Compare-stores templates and leakage audit updated.
+Changed: Appended new compare-stores template families, added normalized held-out overlap checks and per-split intent/family reporting, and marked prior model metrics as needing refresh.
+Verification: Ran `python scripts/build_assistant_dataset.py`; family-grouped splits include compare_stores in each split, and the script reported its computed intent counts and highest normalized character-trigram Jaccard similarity.
+
+Task 3 — Assistant request limiter adjusted.
+Changed: Default is 60 requests per 60-second window, zero disables throttling, invalid negative limits remain rejected, and docs/tests/message were updated.
+Verification: Added default-limit and disabled-limit tests; not run because pytest is unavailable in the offline Python runtime.
+
 Part 13 — Intent-classifier CRISP-DM notebook: implementation in progress; execution and consistency check blocked by this environment.
 Changed: Added a Colab-configurable notebook builder with pandas-based dataset inspection, shared word/character TF-IDF features, model comparison, validation-only abstention selection, overfitting diagnostics, provenance-separated evaluation, artifact export, API answer examples, and CLI consistency-check code. Updated model-loader guidance, READMEs, and AI/model-card descriptions. Optional entity-linking section was skipped because it is outside the required training path.
 Verification: Recorded pre-change backend suite was 140 passed (Part 12). This environment's Python 3.12 runtime has pandas and NumPy but lacks scikit-learn, matplotlib, pytest, and Ruff; Windows Store Python and WSL execution were unavailable. No dependencies were downloaded. Notebook execution, fresh test count, Ruff, CLI comparison, and resulting model metrics remain unverified.

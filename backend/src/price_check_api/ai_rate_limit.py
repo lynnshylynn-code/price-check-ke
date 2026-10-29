@@ -20,9 +20,13 @@ def enforce_ai_rate_limit(request: Request) -> None:
             client_ip = forwarded_for
     now = time.monotonic()
     window_seconds = int(os.getenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60"))
-    request_limit = int(os.getenv("PRICE_CHECK_AI_RATE_LIMIT", "8"))
-    if window_seconds <= 0 or request_limit <= 0:
-        raise RuntimeError("AI rate-limit settings must be positive integers.")
+    request_limit = int(os.getenv("PRICE_CHECK_AI_RATE_LIMIT", "60"))
+    if window_seconds <= 0 or request_limit < 0:
+        raise RuntimeError(
+            "AI rate-limit window must be positive and request limit cannot be negative."
+        )
+    if request_limit == 0:
+        return
 
     with _lock:
         for ip, timestamps in list(_requests_by_ip.items()):
@@ -40,7 +44,10 @@ def enforce_ai_rate_limit(request: Request) -> None:
             retry_after = max(1, int(window_seconds - (now - timestamps[0])))
             raise HTTPException(
                 status_code=429,
-                detail="Too many AI requests from this IP. Please try again shortly.",
+                detail=(
+                    "AI request limit reached for this IP. "
+                    "Please retry after the indicated delay."
+                ),
                 headers={"Retry-After": str(retry_after)},
             )
         timestamps.append(now)

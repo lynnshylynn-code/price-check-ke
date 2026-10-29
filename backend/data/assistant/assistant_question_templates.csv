@@ -77,6 +77,30 @@ T075,compare_stores_07,compare_stores,casual,{group} prices {store} and {store2}
 T076,compare_stores_08,compare_stores,formal,Which store is cheaper for {group} and {group2} together?,"group,group2"
 T077,compare_stores_08,compare_stores,short,cheapest basket {group} {group2},"group,group2"
 T078,compare_stores_08,compare_stores,casual,which supermarket is cheaper for {group} plus {group2},"group,group2"
+T229,compare_stores_09,compare_stores,formal,Between {store} and {store2}, who has the better price on {group}?,"group,store,store2"
+T230,compare_stores_09,compare_stores,short,{group} price check: {store} against {store2},"group,store,store2"
+T231,compare_stores_09,compare_stores,casual,"which one is pricier for {group}, {store} or {store2}","group,store,store2"
+T232,compare_stores_10,compare_stores,formal,Is {store} more expensive than {store2} for {group}?,"group,store,store2"
+T233,compare_stores_10,compare_stores,short,{store} pricier than {store2}? {group},"group,store,store2"
+T234,compare_stores_10,compare_stores,swahili_mix,Ni ghali zaidi {store} au {store2} kwa {group}?,"group,store,store2"
+T235,compare_stores_11,compare_stores,formal,"I'm choosing between {store} and {store2} for my {group}. Which costs less?","group,store,store2"
+T236,compare_stores_11,compare_stores,short,{store}/{store2} {group} which costs less,"group,store,store2"
+T237,compare_stores_11,compare_stores,swahili_mix,"Nachagua kati ya {store} na {store2}, {group} ipi ni nafuu?","group,store,store2"
+T238,compare_stores_12,compare_stores,formal,Rank the supermarkets by price for {product}.,product
+T239,compare_stores_12,compare_stores,short,rank stores by {group} price,group
+T240,compare_stores_12,compare_stores,swahili_mix,Panga maduka kwa bei ya {group},group
+T241,compare_stores_13,compare_stores,formal,"Where do I save more on {group}, {store} or {store2}?","group,store,store2"
+T242,compare_stores_13,compare_stores,short,save more {group} {store} or {store2},"group,store,store2"
+T243,compare_stores_13,compare_stores,swahili_mix,"Nitaokoa wapi kwa {group}, {store} au {store2}?","group,store,store2"
+T244,compare_stores_14,compare_stores,formal,What is the cost of {product} at {store} versus {store2}?,"product,store,store2"
+T245,compare_stores_14,compare_stores,short,{product}: {store} vs {store2} cost,"product,store,store2"
+T246,compare_stores_14,compare_stores,swahili_mix,Bei ya {product} {store} dhidi ya {store2},"product,store,store2"
+T247,compare_stores_15,compare_stores,formal,Do {store} and {store2} charge the same for {group}?,"group,store,store2"
+T248,compare_stores_15,compare_stores,short,{store} same price as {store2}? {group},"group,store,store2"
+T249,compare_stores_15,compare_stores,swahili_mix,{store} na {store2} wana bei sawa kwa {group}?,"group,store,store2"
+T250,compare_stores_16,compare_stores,formal,Basket of {group} and {group2}: {store} or {store2}?,"group,group2,store,store2"
+T251,compare_stores_16,compare_stores,short,{group}+{group2} basket, {store} vs {store2},"group,group2,store,store2"
+T252,compare_stores_16,compare_stores,swahili_mix,Kikapu cha {group} na {group2}: {store} au {store2}?,"group,group2,store,store2"
 T079,biggest_discount_01,biggest_discount,formal,Which items have the biggest discount?,
 T080,biggest_discount_01,biggest_discount,short,biggest discounts,
 T081,biggest_discount_01,biggest_discount,swahili_mix,Ni bidhaa gani ina punguzo kubwa zaidi?,

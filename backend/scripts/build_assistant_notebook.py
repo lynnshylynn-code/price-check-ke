@@ -10,11 +10,9 @@ import io
 import json
 import os
 import re
-import sys
 import traceback
 from pathlib import Path
 from typing import Any
-
 
 ROOT = Path(__file__).resolve().parents[2]
 DESTINATION = ROOT / "notebooks/assistant_intent_crisp_dm.ipynb"
@@ -47,9 +45,11 @@ def code(index: int, source: str) -> dict[str, Any]:
 
 CELLS = [
     code(0, """# Notebook path overrides (Colab or local environment).
-from pathlib import Path
+import contextlib
+import io
 import os
 import sys
+from pathlib import Path
 
 def find_repo_root(start=Path.cwd()):
     for candidate in (start, *start.parents):

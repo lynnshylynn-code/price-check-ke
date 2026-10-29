@@ -23,6 +23,8 @@ The main training path is `notebooks/assistant_intent_crisp_dm.ipynb`, generated
 
 The result table below is the previously recorded command-line training run. The new notebook was not executable in the current offline environment because its installed Python runtime lacks scikit-learn and matplotlib; therefore these existing metrics are not presented as a fresh notebook-versus-CLI consistency result.
 
+The compare-stores template families have since been expanded. **Needs refresh after retraining:** the metrics below describe the prior dataset and must not be used to assess the expanded compare-stores intent.
+
 Training ran 2026-10-27 with scikit-learn 1.9.1. The selected model was `CalibratedLinearSVC`, using word and character TF-IDF features and a confidence threshold of 0.4200 selected on the synthetic validation split. Its training data SHA-256 is `3e801bee7212dee46dab9c2279b812ae1bff7c7ebad89135728bd9dddd2f88d3`.
 
 | Evaluation data | Model accuracy | Model macro-F1 | Dummy accuracy | Dummy macro-F1 | Rows |
