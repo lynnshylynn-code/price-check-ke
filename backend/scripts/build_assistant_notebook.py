@@ -158,7 +158,7 @@ display(pd.DataFrame(top_features))
 """),
     markdown(7, """## Modelling
 
-All candidates use the exact `feature_union()` from the command-line script. Compare a majority-class baseline, Multinomial Naive Bayes, k-nearest neighbours, decision tree, logistic regression, calibrated linear SVM, random forest, and a small multilayer perceptron (MLP). Timing is measured at execution. Validation accuracy and macro-F1 are descriptive comparison measures; final model selection uses the script's validation-only abstention rule.
+All candidates use the exact `feature_union()` from the command-line script. Compare a majority-class baseline, Multinomial Naive Bayes, k-nearest neighbours, decision tree, balanced logistic regression, balanced calibrated linear SVM, random forest, and a small multilayer perceptron (MLP). Timing is measured at execution. Validation accuracy and macro-F1 are descriptive comparison measures; the CLI candidates are selected by validation macro-F1, and the threshold maximizes accepted validation accuracy subject to the coverage rule.
 """),
     code(8, """from time import perf_counter
 from sklearn.base import clone
@@ -183,7 +183,11 @@ for name, model in model_candidates.items():
     model.fit(x_train, y_train)
     elapsed = perf_counter() - started
     prediction = model.predict(x_validation)
-    comparison.append({"model": name, "validation_accuracy": accuracy_score(y_validation, prediction), "validation_macro_f1": f1_score(y_validation, prediction, average="macro", zero_division=0), "training_seconds": elapsed})
+    classifier_params = model.named_steps["classifier"].get_params(deep=True)
+    class_weight = classifier_params.get("class_weight")
+    if class_weight is None:
+        class_weight = classifier_params.get("estimator__class_weight", "not applicable")
+    comparison.append({"model": name, "class_weight": class_weight, "validation_accuracy": accuracy_score(y_validation, prediction), "validation_macro_f1": f1_score(y_validation, prediction, average="macro", zero_division=0), "training_seconds": elapsed})
     fitted[name] = model
 comparison_df = pd.DataFrame(comparison).sort_values(["validation_macro_f1", "validation_accuracy"], ascending=False).reset_index(drop=True)
 display(comparison_df)
@@ -214,15 +218,17 @@ for axis, family in zip(axes, ["tree depth", "kNN k", "logistic C"]):
 plt.tight_layout(); plt.show()
 
 validation_scores = {}
-for name, model in fitted.items():
+cli_candidate_names = candidates().keys()
+for name in cli_candidate_names:
+    model = fitted[name]
     classes, probs = probabilities(model, x_validation)
     threshold, threshold_metrics = choose_threshold(y_validation, classes, probs)
-    validation_scores[name] = {"model": model, "threshold": threshold, "metrics": threshold_metrics}
-chosen_name = max(validation_scores, key=lambda name: (validation_scores[name]["metrics"]["macro_f1_with_abstentions"], validation_scores[name]["metrics"]["accepted_accuracy"], validation_scores[name]["metrics"]["coverage"]))
+    validation_scores[name] = {"model": model, "threshold": threshold, "metrics": threshold_metrics, "validation_macro_f1": f1_score(y_validation, model.predict(x_validation), average="macro", zero_division=0)}
+chosen_name = max(validation_scores, key=lambda name: (validation_scores[name]["validation_macro_f1"], validation_scores[name]["metrics"]["accepted_accuracy"], validation_scores[name]["metrics"]["coverage"]))
 chosen_model = validation_scores[chosen_name]["model"]
 threshold = validation_scores[chosen_name]["threshold"]
-display(pd.DataFrame([{"model": name, "threshold": row["threshold"], **row["metrics"]} for name, row in validation_scores.items()]).sort_values(["macro_f1_with_abstentions", "accepted_accuracy", "coverage"], ascending=False))
-print("Selected on validation only:", chosen_name, "| confidence threshold:", threshold)
+display(pd.DataFrame([{"model": name, "validation_macro_f1": row["validation_macro_f1"], "threshold": row["threshold"], **row["metrics"]} for name, row in validation_scores.items()]).sort_values(["validation_macro_f1", "accepted_accuracy", "coverage"], ascending=False))
+print("Selected by validation macro-F1:", chosen_name, "| confidence threshold selected by accepted accuracy and coverage:", threshold)
 
 val_classes, val_probs = probabilities(chosen_model, x_validation)
 confidence = val_probs.max(axis=1)

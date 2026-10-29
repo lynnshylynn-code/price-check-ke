@@ -8,7 +8,9 @@ import random
 import re
 import sys
 from collections import Counter, defaultdict
+from math import floor
 from pathlib import Path
+from statistics import median
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSISTANT_DIR = ROOT / "data" / "assistant"
@@ -23,11 +25,6 @@ MAX_FILLINGS_PER_TEMPLATE = 20
 MIN_FILLINGS_PER_TEMPLATE = 15
 NOISE_FRACTION = 0.20
 PAIR_SLOTS = (("store", "store2"), ("county", "county2"), ("group", "group2"))
-
-# Hold out whole families; targets tuned so each intent appears in every split.
-VAL_FAMILY_COUNT = 8
-TEST_FAMILY_COUNT = 12
-
 
 def load_slots(path: Path) -> dict[str, list[dict[str, str]]]:
     slots: dict[str, list[dict[str, str]]] = defaultdict(list)
@@ -129,18 +126,53 @@ def split_families(rng: random.Random) -> tuple[set[str], set[str], set[str]]:
                 f"Intent {intent!r} has fewer than three families; cannot represent it "
                 "in all splits."
             )
-        val.add(shuffled[0])
-        test.add(shuffled[1])
-
-    remaining = [family for family in all_families if family not in val and family not in test]
-    rng.shuffle(remaining)
-    while len(val) < VAL_FAMILY_COUNT and remaining:
-        val.add(remaining.pop())
-    while len(test) < TEST_FAMILY_COUNT and remaining:
-        test.add(remaining.pop())
+        holdout_count = 2 if len(shuffled) >= 5 else 1
+        val.update(shuffled[:holdout_count])
+        test.update(shuffled[holdout_count : holdout_count * 2])
 
     train = set(all_families) - val - test
     return train, val, test
+
+
+def balance_training_rows(
+    rows: list[dict[str, str]], train_families: set[str], rng: random.Random
+) -> tuple[list[dict[str, str]], int]:
+    """Cap each intent at 1.25 times the median count, sampled evenly by family."""
+    grouped: dict[str, dict[str, list[dict[str, str]]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    for row in rows:
+        if row["family_id"] in train_families:
+            grouped[row["intent"]][row["family_id"]].append(row)
+
+    counts = [
+        sum(len(family_rows) for family_rows in families.values())
+        for families in grouped.values()
+    ]
+    if not counts:
+        return [], 0
+    cap = floor(median(counts) * 1.25)
+    balanced: list[dict[str, str]] = []
+    for families in grouped.values():
+        family_ids = list(families)
+        rng.shuffle(family_ids)
+        for family_rows in families.values():
+            rng.shuffle(family_rows)
+        selected = 0
+        while selected < cap:
+            progressed = False
+            for family_id in family_ids:
+                available = families[family_id]
+                if available:
+                    balanced.append(available.pop())
+                    selected += 1
+                    progressed = True
+                    if selected == cap:
+                        break
+            if not progressed:
+                break
+    original_count = sum(counts)
+    return balanced, original_count - len(balanced)
 
 
 def write_split_files(
@@ -148,13 +180,15 @@ def write_split_files(
     train: set[str],
     val: set[str],
     test: set[str],
+    training_rows: list[dict[str, str]],
 ) -> None:
     SPLIT_DIR.mkdir(parents=True, exist_ok=True)
     splits = {"train": train, "validation": val, "test": test}
     for name, families in splits.items():
         path = SPLIT_DIR / f"{name}_families.txt"
         path.write_text("\n".join(sorted(families)) + "\n", encoding="utf-8")
-        subset = [row for row in rows if row["family_id"] in families]
+        source_rows = training_rows if name == "train" else rows
+        subset = [row for row in source_rows if row["family_id"] in families]
         out_csv = SPLIT_DIR / f"{name}_questions.csv"
         with out_csv.open("w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(
@@ -166,7 +200,8 @@ def write_split_files(
 
     summary_lines = ["split,families,rows"]
     for name, families in splits.items():
-        row_count = sum(1 for row in rows if row["family_id"] in families)
+        source_rows = training_rows if name == "train" else rows
+        row_count = sum(1 for row in source_rows if row["family_id"] in families)
         summary_lines.append(f"{name},{len(families)},{row_count}")
         intent_counts = Counter(row["intent"] for row in rows if row["family_id"] in families)
         print(f"\n{name}: {len(families)} families, {row_count} rows")
@@ -201,22 +236,68 @@ def _character_trigrams(question: str) -> set[str]:
     return {question[index : index + 3] for index in range(max(0, len(question) - 2))}
 
 
-def validate_heldout_separation(rows: list[dict[str, str]]) -> tuple[float, str | None]:
-    """Reject normalized train/held-out duplicates and report the nearest text pair."""
+def heldout_questions() -> list[tuple[str, str]]:
     heldout: list[tuple[str, str]] = []
     for filename, provenance in (
         ("heldout_test_questions.csv", "AI-written held-out"),
         ("human_test_questions.csv", "human-written held-out"),
     ):
         path = ASSISTANT_DIR / filename
-        if not path.is_file():
-            continue
-        with path.open(encoding="utf-8", newline="") as handle:
-            heldout.extend(
-                (row.get("question", ""), provenance)
-                for row in csv.DictReader(handle)
-                if row.get("question", "").strip()
-            )
+        if path.is_file():
+            with path.open(encoding="utf-8", newline="") as handle:
+                heldout.extend(
+                    (row.get("question", ""), provenance)
+                    for row in csv.DictReader(handle)
+                    if row.get("question", "").strip()
+                )
+    return heldout
+
+
+def _max_similarity(question: str, heldout_grams: list[tuple[set[str], str]]) -> float:
+    grams = _character_trigrams(normalize_question(question))
+    highest = 0.0
+    for reference_grams, _provenance in heldout_grams:
+        union = grams | reference_grams
+        similarity = len(grams & reference_grams) / len(union) if union else 1.0
+        highest = max(highest, similarity)
+    return highest
+
+
+def remove_training_leaks(
+    rows: list[dict[str, str]], threshold: float = 0.85
+) -> tuple[list[dict[str, str]], int, float, str | None]:
+    heldout = heldout_questions()
+    heldout_grams = [
+        (_character_trigrams(normalize_question(question)), provenance)
+        for question, provenance in heldout
+    ]
+    heldout_normalized = {normalize_question(question) for question, _ in heldout}
+    kept: list[dict[str, str]] = []
+    dropped = 0
+    for row in rows:
+        question = row["question"]
+        normalized = normalize_question(question)
+        too_similar = _max_similarity(question, heldout_grams) >= threshold
+        if normalized in heldout_normalized or too_similar:
+            dropped += 1
+        else:
+            kept.append(row)
+    highest = 0.0
+    closest_source = None
+    for row in kept:
+        grams = _character_trigrams(normalize_question(row["question"]))
+        for reference_grams, provenance in heldout_grams:
+            union = grams | reference_grams
+            similarity = len(grams & reference_grams) / len(union) if union else 1.0
+            if similarity > highest:
+                highest = similarity
+                closest_source = provenance
+    return kept, dropped, highest, closest_source
+
+
+def validate_heldout_separation(rows: list[dict[str, str]]) -> tuple[float, str | None]:
+    """Reject normalized train/held-out duplicates and report the nearest text pair."""
+    heldout = heldout_questions()
     heldout_normalized = {normalize_question(question) for question, _ in heldout}
     generated_normalized = {normalize_question(row["question"]) for row in rows}
     duplicates = generated_normalized & heldout_normalized
@@ -246,9 +327,24 @@ def validate_heldout_separation(rows: list[dict[str, str]]) -> tuple[float, str 
 def main() -> int:
     rng = random.Random(SEED)
     rows = expand_templates(rng)
-    highest_similarity, closest_source = validate_heldout_separation(rows)
+    train, val, test = split_families(random.Random(SPLIT_SEED))
+    raw_train = [row for row in rows if row["family_id"] in train]
+    leak_free_train, leakage_dropped, _raw_similarity, _raw_source = remove_training_leaks(
+        raw_train
+    )
+    balanced_train, balance_dropped = balance_training_rows(
+        leak_free_train, train, random.Random(SEED + 2)
+    )
+    clean_train, final_leaks, highest_similarity, closest_source = remove_training_leaks(
+        balanced_train
+    )
+    leakage_dropped += final_leaks
+    retained_rows = clean_train + [row for row in rows if row["family_id"] not in train]
+    validate_heldout_separation(retained_rows)
+    print(f"Training rows dropped by intent balance cap: {balance_dropped}")
+    print(f"Training rows dropped for held-out similarity >= 0.85: {leakage_dropped}")
     print(
-        "Highest normalized character-trigram Jaccard similarity to held-out questions: "
+        "Highest normalized character-trigram Jaccard similarity in retained training rows: "
         f"{highest_similarity:.4f} ({closest_source or 'no held-out questions found'})."
     )
     with OUTPUT_PATH.open("w", encoding="utf-8", newline="") as handle:
@@ -257,10 +353,9 @@ def main() -> int:
             fieldnames=["question", "intent", "family_id", "style", "entities"],
         )
         writer.writeheader()
-        writer.writerows(rows)
+        writer.writerows(retained_rows)
 
-    train, val, test = split_families(random.Random(SPLIT_SEED))
-    validate_split_invariants(rows, train, val, test)
+    validate_split_invariants(retained_rows, train, val, test)
     compare_families = {row["family_id"] for row in rows if row["intent"] == "compare_stores"}
     compare_coverage = {
         name: len(families & compare_families)
@@ -269,8 +364,11 @@ def main() -> int:
     if any(count == 0 for count in compare_coverage.values()):
         raise ValueError("compare_stores families must occur in train, validation, and test.")
     print("compare_stores families by split:", compare_coverage)
-    write_split_files(rows, train, val, test)
-    print(f"\nWrote {len(rows)} synthetic rows to {OUTPUT_PATH}")
+    write_split_files(retained_rows, train, val, test, clean_train)
+    print(f"\nWrote {len(retained_rows)} synthetic rows to {OUTPUT_PATH}")
+    training_intent_counts = Counter(row["intent"] for row in leak_free_train)
+    row_cap = floor(median(training_intent_counts.values()) * 1.25)
+    print("Maximum training rows per intent:", row_cap)
     print(f"Family split: train={len(train)} validation={len(val)} test={len(test)}")
     return 0
 

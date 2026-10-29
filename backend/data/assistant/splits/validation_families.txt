@@ -1,8 +1,16 @@
 biggest_discount_07
+biggest_discount_08
+cheapest_item_02
 cheapest_item_06
 compare_stores_05
+compare_stores_15
+food_inflation_01
 food_inflation_07
 market_price_02
+market_price_03
 out_of_scope_chitchat
+out_of_scope_forecast
+price_at_store_07
 price_at_store_09
 unit_price_02
+unit_price_07
