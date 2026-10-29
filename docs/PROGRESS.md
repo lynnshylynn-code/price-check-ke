@@ -64,3 +64,19 @@ Part 13 — Intent-classifier CRISP-DM notebook: implementation in progress; exe
 Changed: Added a Colab-configurable notebook builder with pandas-based dataset inspection, shared word/character TF-IDF features, model comparison, validation-only abstention selection, overfitting diagnostics, provenance-separated evaluation, artifact export, API answer examples, and CLI consistency-check code. Updated model-loader guidance, READMEs, and AI/model-card descriptions. Optional entity-linking section was skipped because it is outside the required training path.
 Verification: Recorded pre-change backend suite was 140 passed (Part 12). This environment's Python 3.12 runtime has pandas and NumPy but lacks scikit-learn, matplotlib, pytest, and Ruff; Windows Store Python and WSL execution were unavailable. No dependencies were downloaded. Notebook execution, fresh test count, Ruff, CLI comparison, and resulting model metrics remain unverified.
 
+Task A — Incomparable listing comparison fixed.
+Changed: Mixed unit families and uncomparable pack sizes now produce “Pack sizes differ; no winner” while retaining each selected store listing.
+Verification: Added listing-presence assertions; Python syntax compilation passed, but pytest could not run because it is unavailable in this offline environment.
+
+Task B — Intent-family splits and training balance updated.
+Changed: Added seeded intent-stratified family assignment, even per-family training caps, and removal of training questions at or above 0.85 held-out similarity.
+Verification: Dataset builder reported 649 balance-cap removals, zero similarity removals, and maximum retained-training Jaccard similarity 0.8056; all intents have stratified splits.
+
+Task C — Candidate weighting and threshold selection updated.
+Changed: Logistic regression and calibrated linear SVM use balanced class weights; model choice uses validation macro-F1 and abstention threshold maximizes accepted accuracy subject to 0.85 coverage.
+Verification: Updated threshold and candidate tests; Python syntax compilation passed, but pytest and Ruff are unavailable in this offline environment.
+
+Task D — Retraining and metrics refresh attempted.
+Changed: Documentation now describes the generated balanced splits and marks model results as historical pending retraining; notebook comparison exposes class weights and shares model/threshold selection with the CLI candidates.
+Verification: Dataset generation completed; model training stopped because joblib is missing and notebook execution stopped because matplotlib is missing. No new evaluation metrics are reported.
+

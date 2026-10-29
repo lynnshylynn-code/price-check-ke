@@ -360,8 +360,11 @@ def test_incomparable_units_do_not_get_an_absolute_price_winner() -> None:
     rows = get_listings()
     milk = next(item for item in rows if "milk" in item.item_name.casefold() and item.unit == "l")
     eggs = next(item for item in rows if "eggs" in item.item_name.casefold() and item.unit == "pcs")
-    answer, _selected = _price_comparison([], [milk, eggs])
+    answer, selected = _price_comparison([], [milk, eggs])
     assert "Pack sizes differ; no winner" in answer
+    assert selected
+    assert all(item.product_url in answer for item in selected)
+    assert all(f"{item.supermarket}:" in answer for item in selected)
 
 
 @pytest.mark.parametrize(

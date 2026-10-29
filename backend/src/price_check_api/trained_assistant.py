@@ -320,6 +320,8 @@ def _unit_basis(rows: list[Listing]) -> str | None:
     if not rows:
         return None
     units = {item.unit for item in rows}
+    if len(units - {None}) > 1:
+        return None
     if len(units) == 1 and None not in units and all(item.unit_price is not None for item in rows):
         return "unit_price"
     sizes = [parse_pack_size(item.pack_size) for item in rows]
@@ -329,6 +331,8 @@ def _unit_basis(rows: list[Listing]) -> str | None:
 
 
 def _same_pack_size(rows: list[Listing]) -> bool:
+    if len({item.unit for item in rows}) > 1:
+        return False
     sizes = [parse_pack_size(item.pack_size) for item in rows]
     return bool(sizes and sizes[0] is not None and all(size == sizes[0] for size in sizes))
 
@@ -349,8 +353,7 @@ def _choose_per_store(
             return item.price_kes, item.supermarket.casefold()
 
         chosen[store] = min(candidates, key=ranking)
-    selected_basis = _unit_basis(list(chosen.values()))
-    return chosen, selected_basis or basis
+    return chosen, basis
 
 
 def _listing_line(item: Listing) -> str:
@@ -480,6 +483,8 @@ def _price_comparison(
                 answers.append("The comparable prices are equal.")
         else:
             answers.append("Pack sizes differ; no winner is declared from absolute pack prices.")
+    elif rows and basis is None:
+        answers.append("Pack sizes differ; no winner is declared from absolute pack prices.")
     return "\n".join(answers) + f"\n{DATA_LABEL}.", used_rows
 
 

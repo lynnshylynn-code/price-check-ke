@@ -19,6 +19,7 @@ import numpy as np
 import sklearn
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.dummy import DummyClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (
@@ -28,8 +29,11 @@ from sklearn.metrics import (
     precision_recall_fscore_support,
 )
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import FeatureUnion, Pipeline
 from sklearn.svm import LinearSVC
+from sklearn.tree import DecisionTreeClassifier
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSISTANT_DIR = ROOT / "data/assistant"
@@ -39,9 +43,10 @@ TRAIN_FILE = SPLIT_DIR / "train_questions.csv"
 VALIDATION_FILE = SPLIT_DIR / "validation_questions.csv"
 TEST_FILE = SPLIT_DIR / "test_questions.csv"
 HELDOUT_FILE = ASSISTANT_DIR / "heldout_test_questions.csv"
+HUMAN_HELDOUT_FILE = ASSISTANT_DIR / "human_test_questions.csv"
 MODEL_FILE = MODEL_DIR / "intent_pipeline.joblib"
 METADATA_FILE = MODEL_DIR / "metadata.json"
-MIN_VALIDATION_COVERAGE = 0.70
+MIN_VALIDATION_COVERAGE = 0.85
 ABSTAIN = "__abstain__"
 
 
@@ -72,7 +77,12 @@ def candidates() -> dict[str, Pipeline]:
         "LogisticRegression": Pipeline(
             [
                 ("features", feature_union()),
-                ("classifier", LogisticRegression(C=3.0, max_iter=1500, random_state=42)),
+                (
+                    "classifier",
+                    LogisticRegression(
+                        C=3.0, class_weight="balanced", max_iter=1500, random_state=42
+                    ),
+                ),
             ]
         ),
         "CalibratedLinearSVC": Pipeline(
@@ -81,7 +91,9 @@ def candidates() -> dict[str, Pipeline]:
                 (
                     "classifier",
                     CalibratedClassifierCV(
-                        estimator=LinearSVC(C=1.0, random_state=42),
+                        estimator=LinearSVC(
+                            C=1.0, class_weight="balanced", random_state=42
+                        ),
                         method="sigmoid",
                         cv=3,
                     ),
@@ -98,6 +110,46 @@ def candidates() -> dict[str, Pipeline]:
             [
                 ("features", feature_union()),
                 ("classifier", DummyClassifier(strategy="most_frequent")),
+            ]
+        ),
+        "KNeighbors": Pipeline(
+            [
+                ("features", feature_union()),
+                (
+                    "classifier",
+                    KNeighborsClassifier(
+                        n_neighbors=5, metric="cosine", algorithm="brute"
+                    ),
+                ),
+            ]
+        ),
+        "DecisionTree": Pipeline(
+            [
+                ("features", feature_union()),
+                ("classifier", DecisionTreeClassifier(random_state=42)),
+            ]
+        ),
+        "RandomForest": Pipeline(
+            [
+                ("features", feature_union()),
+                (
+                    "classifier",
+                    RandomForestClassifier(n_estimators=80, random_state=42, n_jobs=1),
+                ),
+            ]
+        ),
+        "MLP": Pipeline(
+            [
+                ("features", feature_union()),
+                (
+                    "classifier",
+                    MLPClassifier(
+                        hidden_layer_sizes=(64,),
+                        max_iter=120,
+                        early_stopping=True,
+                        random_state=42,
+                    ),
+                ),
             ]
         ),
     }
@@ -117,32 +169,61 @@ def choose_threshold(
     best: tuple[float, float, float] | None = None
     best_result: dict[str, float] = {}
     best_threshold = 0.0
+    best_prediction: np.ndarray | None = None
     for threshold in candidates:
         predictions = np.where(confidence >= threshold, model_classes[indexes], ABSTAIN)
         coverage = float(np.mean(predictions != ABSTAIN))
         if coverage < MIN_VALIDATION_COVERAGE:
             continue
-        model_labels = sorted(set(labels))
-        class_scores = f1_score(
-            labels,
-            predictions,
-            labels=model_labels + [ABSTAIN],
-            average=None,
-            zero_division=0,
-        )
-        macro = float(np.mean(class_scores[: len(model_labels)]))
-        result = (macro, coverage, -float(threshold))
+        accepted = predictions != ABSTAIN
+        accepted_accuracy = float(
+            accuracy_score(np.asarray(labels)[accepted], predictions[accepted])
+        ) if np.any(accepted) else 0.0
+        result = (accepted_accuracy, coverage, float(threshold))
         if best is None or result > best:
             best = result
             best_threshold = float(threshold)
-            accepted = predictions != ABSTAIN
-            best_result = {
-                "macro_f1_with_abstentions": macro,
-                "accepted_accuracy": float(accuracy_score(
-                    np.asarray(labels)[accepted], predictions[accepted]
-                )) if np.any(accepted) else 0.0,
-                "coverage": coverage,
-            }
+            best_prediction = predictions
+    if best is None:
+        eligible = [
+            (float(np.mean(confidence >= threshold)), float(threshold))
+            for threshold in candidates
+            if threshold > 0 and np.any(confidence >= threshold)
+        ]
+        if not eligible:
+            raise ValueError("No positive confidence threshold accepts validation examples")
+        best_coverage, best_threshold = max(eligible)
+        best_prediction = np.where(
+            confidence >= best_threshold, model_classes[indexes], ABSTAIN
+        )
+        print(
+            "Warning: no confidence threshold reaches the required "
+            f"{MIN_VALIDATION_COVERAGE:.0%} validation coverage; using the highest-coverage "
+            f"positive threshold ({best_coverage:.4f} coverage)."
+        )
+
+    assert best_prediction is not None
+    accepted = best_prediction != ABSTAIN
+    model_labels = sorted(set(labels))
+    class_scores = f1_score(
+        labels,
+        best_prediction,
+        labels=model_labels + [ABSTAIN],
+        average=None,
+        zero_division=0,
+    )
+    best_result = {
+        "macro_f1_with_abstentions": float(np.mean(class_scores[: len(model_labels)])),
+        "accepted_accuracy": float(
+            accuracy_score(np.asarray(labels)[accepted], best_prediction[accepted])
+        ) if np.any(accepted) else 0.0,
+        "coverage": float(np.mean(accepted)),
+    }
+    if best_threshold == 0.0:
+        print(
+            "Confidence threshold 0.0 selected explicitly: it maximized accepted accuracy "
+            f"among thresholds with coverage >= {MIN_VALIDATION_COVERAGE:.0%}."
+        )
     return best_threshold, best_result
 
 
@@ -215,6 +296,21 @@ def heldout_by_source(rows: list[dict[str, str]]) -> dict[str, list[dict[str, st
     return groups
 
 
+def read_optional_human_heldout() -> list[dict[str, str]]:
+    if not HUMAN_HELDOUT_FILE.is_file():
+        return []
+    rows = read_csv(HUMAN_HELDOUT_FILE)
+    normalized = []
+    for row in rows:
+        expected_intent = row.get("expected_intent") or row.get("intent")
+        if not expected_intent:
+            raise ValueError("Human held-out questions require expected_intent or intent.")
+        normalized.append(
+            {**row, "expected_intent": expected_intent, "source": "human_written"}
+        )
+    return normalized
+
+
 def main() -> None:
     train = read_csv(TRAIN_FILE)
     validation = read_csv(VALIDATION_FILE)
@@ -222,21 +318,26 @@ def main() -> None:
     heldout_rows = read_csv(HELDOUT_FILE)
     if any(row.get("source") != "ai_written" for row in heldout_rows):
         raise ValueError("Expected heldout_test_questions.csv to contain only AI-written rows")
+    heldout_rows.extend(read_optional_human_heldout())
 
     x_train = [row["question"] for row in train]
     y_train = [row["intent"] for row in train]
     x_validation = [row["question"] for row in validation]
     y_validation = [row["intent"] for row in validation]
-    fitted: dict[str, tuple[Pipeline, float, dict[str, float]]] = {}
+    fitted: dict[str, tuple[Pipeline, float, dict[str, float], float]] = {}
     print("Validation model selection (synthetic validation split only):")
     for name, model in candidates().items():
         model.fit(x_train, y_train)
         classes, probs = probabilities(model, x_validation)
         threshold, validation_metrics = choose_threshold(y_validation, classes, probs)
-        fitted[name] = (model, threshold, validation_metrics)
+        validation_prediction = model.predict(x_validation)
+        validation_macro_f1 = float(
+            f1_score(y_validation, validation_prediction, average="macro", zero_division=0)
+        )
+        fitted[name] = (model, threshold, validation_metrics, validation_macro_f1)
         print(
             f"  {name}: threshold={threshold:.4f}; "
-            f"macro-F1={validation_metrics['macro_f1_with_abstentions']:.4f}; "
+            f"validation macro-F1={validation_macro_f1:.4f}; "
             f"accepted accuracy={validation_metrics['accepted_accuracy']:.4f}; "
             f"coverage={validation_metrics['coverage']:.4f}"
         )
@@ -244,12 +345,12 @@ def main() -> None:
     chosen_name = max(
         fitted,
         key=lambda name: (
-            fitted[name][2]["macro_f1_with_abstentions"],
+            fitted[name][3],
             fitted[name][2]["accepted_accuracy"],
             fitted[name][2]["coverage"],
         ),
     )
-    chosen_model, threshold, validation_metrics = fitted[chosen_name]
+    chosen_model, threshold, validation_metrics, _ = fitted[chosen_name]
     print(f"Selected model: {chosen_name}; confidence threshold={threshold:.4f}")
 
     dummy = candidates()["DummyMostFrequent"]
