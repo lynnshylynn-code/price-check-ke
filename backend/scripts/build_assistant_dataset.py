@@ -193,9 +193,64 @@ def validate_split_invariants(
             raise ValueError(f"Split {name!r} does not contain every intent")
 
 
+def normalize_question(question: str) -> str:
+    return " ".join(re.findall(r"[a-z0-9]+", question.casefold()))
+
+
+def _character_trigrams(question: str) -> set[str]:
+    return {question[index : index + 3] for index in range(max(0, len(question) - 2))}
+
+
+def validate_heldout_separation(rows: list[dict[str, str]]) -> tuple[float, str | None]:
+    """Reject normalized train/held-out duplicates and report the nearest text pair."""
+    heldout: list[tuple[str, str]] = []
+    for filename, provenance in (
+        ("heldout_test_questions.csv", "AI-written held-out"),
+        ("human_test_questions.csv", "human-written held-out"),
+    ):
+        path = ASSISTANT_DIR / filename
+        if not path.is_file():
+            continue
+        with path.open(encoding="utf-8", newline="") as handle:
+            heldout.extend(
+                (row.get("question", ""), provenance)
+                for row in csv.DictReader(handle)
+                if row.get("question", "").strip()
+            )
+    heldout_normalized = {normalize_question(question) for question, _ in heldout}
+    generated_normalized = {normalize_question(row["question"]) for row in rows}
+    duplicates = generated_normalized & heldout_normalized
+    if duplicates:
+        raise ValueError(
+            "Generated assistant questions overlap with a held-out set after normalization: "
+            + ", ".join(sorted(duplicates)[:3])
+        )
+
+    highest_similarity = 0.0
+    closest_source = None
+    heldout_grams = [
+        (_character_trigrams(normalize_question(question)), provenance)
+        for question, provenance in heldout
+    ]
+    for row in rows:
+        generated_grams = _character_trigrams(normalize_question(row["question"]))
+        for reference_grams, provenance in heldout_grams:
+            union = generated_grams | reference_grams
+            similarity = len(generated_grams & reference_grams) / len(union) if union else 1.0
+            if similarity > highest_similarity:
+                highest_similarity = similarity
+                closest_source = provenance
+    return highest_similarity, closest_source
+
+
 def main() -> int:
     rng = random.Random(SEED)
     rows = expand_templates(rng)
+    highest_similarity, closest_source = validate_heldout_separation(rows)
+    print(
+        "Highest normalized character-trigram Jaccard similarity to held-out questions: "
+        f"{highest_similarity:.4f} ({closest_source or 'no held-out questions found'})."
+    )
     with OUTPUT_PATH.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(
             handle,
@@ -206,6 +261,14 @@ def main() -> int:
 
     train, val, test = split_families(random.Random(SPLIT_SEED))
     validate_split_invariants(rows, train, val, test)
+    compare_families = {row["family_id"] for row in rows if row["intent"] == "compare_stores"}
+    compare_coverage = {
+        name: len(families & compare_families)
+        for name, families in (("train", train), ("validation", val), ("test", test))
+    }
+    if any(count == 0 for count in compare_coverage.values()):
+        raise ValueError("compare_stores families must occur in train, validation, and test.")
+    print("compare_stores families by split:", compare_coverage)
     write_split_files(rows, train, val, test)
     print(f"\nWrote {len(rows)} synthetic rows to {OUTPUT_PATH}")
     print(f"Family split: train={len(train)} validation={len(val)} test={len(test)}")

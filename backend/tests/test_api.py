@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from price_check_api import ai_rate_limit, market_tools, orders
@@ -403,6 +404,50 @@ def test_market_question_applies_per_ip_rate_limit(
         )
         assert limited.status_code == 429
         assert limited.headers["retry-after"]
+    finally:
+        ai_rate_limit._requests_by_ip.clear()
+
+
+def test_rate_limiter_default_is_sixty_requests_per_minute(monkeypatch: pytest.MonkeyPatch) -> None:
+    from starlette.requests import Request
+
+    ai_rate_limit._requests_by_ip.clear()
+    monkeypatch.delenv("PRICE_CHECK_AI_RATE_LIMIT", raising=False)
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60")
+    request = Request(
+        {
+            "type": "http", "method": "GET", "path": "/",
+            "headers": [], "client": ("198.51.100.90", 1234),
+            "server": ("test", 80), "scheme": "http", "query_string": b"",
+        }
+    )
+    try:
+        for _ in range(60):
+            ai_rate_limit.enforce_ai_rate_limit(request)
+        with pytest.raises(HTTPException) as error:
+            ai_rate_limit.enforce_ai_rate_limit(request)
+        assert error.value.status_code == 429
+    finally:
+        ai_rate_limit._requests_by_ip.clear()
+
+
+def test_rate_limiter_zero_disables_throttling(monkeypatch: pytest.MonkeyPatch) -> None:
+    from starlette.requests import Request
+
+    ai_rate_limit._requests_by_ip.clear()
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_LIMIT", "0")
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60")
+    request = Request(
+        {
+            "type": "http", "method": "GET", "path": "/",
+            "headers": [], "client": ("198.51.100.91", 1234),
+            "server": ("test", 80), "scheme": "http", "query_string": b"",
+        }
+    )
+    try:
+        for _ in range(100):
+            ai_rate_limit.enforce_ai_rate_limit(request)
+        assert "198.51.100.91" not in ai_rate_limit._requests_by_ip
     finally:
         ai_rate_limit._requests_by_ip.clear()
 

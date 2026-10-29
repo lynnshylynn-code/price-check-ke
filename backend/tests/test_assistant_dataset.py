@@ -16,6 +16,7 @@ from build_assistant_dataset import (  # noqa: E402
     TEMPLATES_PATH,
     expand_templates,
     split_families,
+    validate_heldout_separation,
 )
 
 ASSISTANT_DATA = ROOT / "data/assistant"
@@ -55,6 +56,21 @@ def test_written_splits_hold_out_whole_families_and_keep_every_intent():
         intents_by_split[name] = {row["intent"] for row in rows}
         assert len(rows) > 0
     assert intents_by_split["train"] == intents_by_split["validation"] == intents_by_split["test"]
+    compare_families = {
+        row["family_id"]
+        for row in read_rows(TEMPLATES_PATH)
+        if row["intent"] == "compare_stores"
+    }
+    assert train & compare_families
+    assert validation & compare_families
+    assert test & compare_families
+
+
+def test_generated_questions_have_no_normalized_heldout_overlap():
+    rows = expand_templates(Random(SEED))
+    similarity, source = validate_heldout_separation(rows)
+    assert 0 <= similarity <= 1
+    assert source in {"AI-written held-out", "human-written held-out", None}
 
 
 def test_ai_written_heldout_set_remains_separate():

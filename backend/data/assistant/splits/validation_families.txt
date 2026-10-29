@@ -1,8 +1,8 @@
 biggest_discount_07
 cheapest_item_06
-compare_stores_02
-food_inflation_05
-market_price_07
-out_of_scope_coding_help
-price_at_store_04
-unit_price_08
+compare_stores_05
+food_inflation_07
+market_price_02
+out_of_scope_chitchat
+price_at_store_09
+unit_price_02
