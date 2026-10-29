@@ -26,15 +26,14 @@ def test_validation_threshold_keeps_required_coverage_and_explains_zero(capsys):
 
 
 def test_validation_threshold_maximizes_accepted_accuracy_at_required_coverage():
-    labels = ["a"] * 10 + ["b"] * 10
+    # 9 confident "a", 9 confident "b", then two low-confidence predictions that are wrong.
+    labels = ["a"] * 9 + ["b"] * 9 + ["b", "a"]
     classes = np.asarray(["a", "b"])
     probabilities = np.asarray(
         [[0.9, 0.1]] * 9
         + [[0.1, 0.9]] * 9
         + [[0.51, 0.49], [0.49, 0.51]]
     )
-    # The final two predictions are deliberately wrong but have lower confidence.
-    labels[-2:] = ["b", "a"]
     threshold, metrics = choose_threshold(labels, classes, probabilities)
     assert threshold > 0.5
     assert metrics["coverage"] >= MIN_VALIDATION_COVERAGE
