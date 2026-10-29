@@ -70,7 +70,7 @@ def test_written_splits_hold_out_whole_families_and_keep_every_intent():
     assert validation & compare_families
     assert test & compare_families
     templates_by_intent = families_by_intent(TEMPLATES_PATH)
-    for intent, families in templates_by_intent.items():
+    for families in templates_by_intent.values():
         minimum = 2 if len(families) >= 5 else 1
         assert sum(family in validation for family in families) >= minimum
         assert sum(family in test for family in families) >= minimum
