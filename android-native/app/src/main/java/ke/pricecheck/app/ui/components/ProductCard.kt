@@ -18,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,11 +28,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.tooling.preview.Preview
+import coil3.compose.AsyncImage
 import ke.pricecheck.app.R
 import ke.pricecheck.app.data.Product
 import ke.pricecheck.app.data.ProductCatalog
@@ -66,12 +72,34 @@ fun ProductCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    AsyncImage(
+                        model = product.image?.imageUrl,
+                        contentDescription = stringResource(R.string.product_image_description, product.name),
+                        placeholder = painterResource(R.drawable.ic_product_placeholder),
+                        error = painterResource(R.drawable.ic_product_placeholder),
+                        fallback = painterResource(R.drawable.ic_product_placeholder),
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.size(72.dp).clip(RoundedCornerShape(8.dp)),
+                    )
+                    product.image?.attribution?.let { attribution ->
+                        Text(
+                            stringResource(R.string.product_image_attribution, attribution),
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
                     Text(product.category.uppercase(), style = MaterialTheme.typography.labelSmall)
                     Text("${product.name} · ${product.size}", style = MaterialTheme.typography.titleMedium)
                     Text(product.description, style = MaterialTheme.typography.bodySmall)
+                    product.predictedFoodGroup?.let { group ->
+                        Text(stringResource(R.string.predicted_food_group, group), style = MaterialTheme.typography.labelSmall)
+                    }
+                    product.predictedNova?.let { nova ->
+                        Text(stringResource(R.string.predicted_nova, nova), style = MaterialTheme.typography.labelSmall)
+                    }
                     Text(
                         stringResource(
-                            R.string.best_illustrative_price,
+                            if (product.isDemoData) R.string.best_illustrative_price
+                            else R.string.best_snapshot_price,
                             product.lowestPrice.price,
                             product.lowestPrice.store,
                         ),

@@ -1,0 +1,253 @@
+template_id,family_id,intent,style,template,slots
+T001,cheapest_item_01,cheapest_item,formal,What is the cheapest {group}?,group
+T002,cheapest_item_01,cheapest_item,short,cheapest {group}?,group
+T003,cheapest_item_01,cheapest_item,typo,wich is the cheepest {group},group
+T004,cheapest_item_02,cheapest_item,formal,Where can I find the lowest price for {product}?,product
+T005,cheapest_item_02,cheapest_item,short,lowest price {product},product
+T006,cheapest_item_02,cheapest_item,swahili_mix,Nitapata wapi {product} kwa bei nafuu zaidi?,product
+T007,cheapest_item_03,cheapest_item,formal,Find me the cheapest {category}.,category
+T008,cheapest_item_03,cheapest_item,short,cheapest {category} items,category
+T009,cheapest_item_03,cheapest_item,swahili_mix,Ni {category} gani ina bei rahisi zaidi?,category
+T010,cheapest_item_04,cheapest_item,formal,Which store sells {product} for the least?,product
+T011,cheapest_item_04,cheapest_item,casual,who sells {product} cheapest,product
+T012,cheapest_item_04,cheapest_item,typo,wich shop sels {product} the cheapest,product
+T013,cheapest_item_05,cheapest_item,formal,I want the best price on {group}.,group
+T014,cheapest_item_05,cheapest_item,short,best price {group},group
+T015,cheapest_item_05,cheapest_item,casual,need the best price for {group} pls,group
+T016,cheapest_item_06,cheapest_item,formal,What is the most affordable {group} right now?,group
+T017,cheapest_item_06,cheapest_item,short,most affordable {group},group
+T018,cheapest_item_06,cheapest_item,typo,most afordable {group} rite now,group
+T019,cheapest_item_07,cheapest_item,casual,cheapest {group} pls,group
+T020,cheapest_item_07,cheapest_item,typo,chepest {group},group
+T021,cheapest_item_07,cheapest_item,swahili_mix,{group} ya bei rahisi zaidi ni ipi?,group
+T022,cheapest_item_08,cheapest_item,formal,Show me the lowest priced {category}.,category
+T023,cheapest_item_08,cheapest_item,short,lowest priced {category},category
+T024,cheapest_item_08,cheapest_item,casual,show cheap {category},category
+T025,price_at_store_01,price_at_store,formal,How much is {product} at {store}?,"product,store"
+T026,price_at_store_01,price_at_store,short,{product} price at {store},"product,store"
+T027,price_at_store_01,price_at_store,swahili_mix,Bei ya {product} {store} ni ngapi?,"product,store"
+T028,price_at_store_02,price_at_store,formal,What does {store} charge for {product}?,"product,store"
+T029,price_at_store_02,price_at_store,short,{store} {product} price?,"product,store"
+T030,price_at_store_02,price_at_store,typo,hw much is {product} in {store},"product,store"
+T031,price_at_store_03,price_at_store,formal,What is the price of {group} at {store}?,"group,store"
+T032,price_at_store_03,price_at_store,short,{group} at {store} price,"group,store"
+T033,price_at_store_03,price_at_store,swahili_mix,Bei ya {group} kwa {store} ni ngapi?,"group,store"
+T034,price_at_store_04,price_at_store,formal,"Is {product} listed at {store}, and at what price?","product,store"
+T035,price_at_store_04,price_at_store,casual,does {store} have {product}? how much,"product,store"
+T036,price_at_store_04,price_at_store,typo,dos {store} hav {product} how much,"product,store"
+T037,price_at_store_05,price_at_store,formal,Tell me the {store} price for {product}.,"product,store"
+T038,price_at_store_05,price_at_store,short,{store} price {product},"product,store"
+T039,price_at_store_05,price_at_store,casual,whats the {store} price for {product},"product,store"
+T040,price_at_store_06,price_at_store,formal,How much does {store} sell {group} for?,"group,store"
+T041,price_at_store_06,price_at_store,casual,{store} sells {group} for how much,"group,store"
+T042,price_at_store_06,price_at_store,short,{store} {group} price,"group,store"
+T043,price_at_store_07,price_at_store,swahili_mix,Naomba bei ya {product} {store}.,"product,store"
+T044,price_at_store_07,price_at_store,swahili_mix,Price ya {product} {store} ni how much?,"product,store"
+T045,price_at_store_07,price_at_store,swahili_mix,Bei ya {group} {store} leo,"group,store"
+T046,price_at_store_08,price_at_store,formal,Can you check {product} at {store}?,"product,store"
+T047,price_at_store_08,price_at_store,short,check {store} for {product},"product,store"
+T048,price_at_store_08,price_at_store,casual,pls check the price of {product} at {store},"product,store"
+T049,price_at_store_09,price_at_store,formal,How much is {product} at {other_store}?,"other_store,product"
+T050,price_at_store_09,price_at_store,short,{other_store} {group} price,"group,other_store"
+T051,price_at_store_09,price_at_store,casual,whats {group} cost at {other_store},"group,other_store"
+T052,price_at_store_10,price_at_store,formal,How much is {unknown_product} at {store}?,"store,unknown_product"
+T053,price_at_store_10,price_at_store,short,{store} {unknown_product} price,"store,unknown_product"
+T054,price_at_store_10,price_at_store,casual,does {store} sell {unknown_product} and for how much,"store,unknown_product"
+T055,compare_stores_01,compare_stores,formal,Compare {store} and {store2} prices for {group}.,"group,store,store2"
+T056,compare_stores_01,compare_stores,short,{store} vs {store2} {group},"group,store,store2"
+T057,compare_stores_01,compare_stores,swahili_mix,"{store} au {store2}, wapi {group} ni rahisi?","group,store,store2"
+T058,compare_stores_02,compare_stores,formal,Is {product} cheaper at {store} or {store2}?,"product,store,store2"
+T059,compare_stores_02,compare_stores,short,{store} or {store2} for {product}?,"product,store,store2"
+T060,compare_stores_02,compare_stores,typo,is {product} cheeper at {store} or {store2},"product,store,store2"
+T061,compare_stores_03,compare_stores,formal,Compare the price of {product} across all stores.,product
+T062,compare_stores_03,compare_stores,short,{product} price across stores,product
+T063,compare_stores_03,compare_stores,swahili_mix,Linganisha bei ya {product} kwenye maduka yote.,product
+T064,compare_stores_04,compare_stores,formal,How do {store} and {store2} compare?,"store,store2"
+T065,compare_stores_04,compare_stores,short,{store} versus {store2},"store,store2"
+T066,compare_stores_04,compare_stores,casual,{store} vs {store2} which is better on price,"store,store2"
+T067,compare_stores_05,compare_stores,formal,What is the price difference for {product} between {store} and {store2}?,"product,store,store2"
+T068,compare_stores_05,compare_stores,short,price gap {product} {store} {store2},"product,store,store2"
+T069,compare_stores_05,compare_stores,casual,how much more is {product} at {store} than {store2},"product,store,store2"
+T070,compare_stores_06,compare_stores,formal,Should I buy {group} at {store} or {store2}?,"group,store,store2"
+T071,compare_stores_06,compare_stores,short,{store} or {store2} for {group},"group,store,store2"
+T072,compare_stores_06,compare_stores,swahili_mix,Ninunue {group} {store} au {store2}?,"group,store,store2"
+T073,compare_stores_07,compare_stores,formal,Show me {group} prices at {store} and {store2}.,"group,store,store2"
+T074,compare_stores_07,compare_stores,short,{group} {store} {store2},"group,store,store2"
+T075,compare_stores_07,compare_stores,casual,{group} prices {store} and {store2} side by side,"group,store,store2"
+T076,compare_stores_08,compare_stores,formal,Which store is cheaper for {group} and {group2} together?,"group,group2"
+T077,compare_stores_08,compare_stores,short,cheapest basket {group} {group2},"group,group2"
+T078,compare_stores_08,compare_stores,casual,which supermarket is cheaper for {group} plus {group2},"group,group2"
+T229,compare_stores_09,compare_stores,formal,Between {store} and {store2}, who has the better price on {group}?,"group,store,store2"
+T230,compare_stores_09,compare_stores,short,{group} price check: {store} against {store2},"group,store,store2"
+T231,compare_stores_09,compare_stores,casual,"which one is pricier for {group}, {store} or {store2}","group,store,store2"
+T232,compare_stores_10,compare_stores,formal,Is {store} more expensive than {store2} for {group}?,"group,store,store2"
+T233,compare_stores_10,compare_stores,short,{store} pricier than {store2}? {group},"group,store,store2"
+T234,compare_stores_10,compare_stores,swahili_mix,Ni ghali zaidi {store} au {store2} kwa {group}?,"group,store,store2"
+T235,compare_stores_11,compare_stores,formal,"I'm choosing between {store} and {store2} for my {group}. Which costs less?","group,store,store2"
+T236,compare_stores_11,compare_stores,short,{store}/{store2} {group} which costs less,"group,store,store2"
+T237,compare_stores_11,compare_stores,swahili_mix,"Nachagua kati ya {store} na {store2}, {group} ipi ni nafuu?","group,store,store2"
+T238,compare_stores_12,compare_stores,formal,Rank the supermarkets by price for {product}.,product
+T239,compare_stores_12,compare_stores,short,rank stores by {group} price,group
+T240,compare_stores_12,compare_stores,swahili_mix,Panga maduka kwa bei ya {group},group
+T241,compare_stores_13,compare_stores,formal,"Where do I save more on {group}, {store} or {store2}?","group,store,store2"
+T242,compare_stores_13,compare_stores,short,save more {group} {store} or {store2},"group,store,store2"
+T243,compare_stores_13,compare_stores,swahili_mix,"Nitaokoa wapi kwa {group}, {store} au {store2}?","group,store,store2"
+T244,compare_stores_14,compare_stores,formal,What is the cost of {product} at {store} versus {store2}?,"product,store,store2"
+T245,compare_stores_14,compare_stores,short,{product}: {store} vs {store2} cost,"product,store,store2"
+T246,compare_stores_14,compare_stores,swahili_mix,Bei ya {product} {store} dhidi ya {store2},"product,store,store2"
+T247,compare_stores_15,compare_stores,formal,Do {store} and {store2} charge the same for {group}?,"group,store,store2"
+T248,compare_stores_15,compare_stores,short,{store} same price as {store2}? {group},"group,store,store2"
+T249,compare_stores_15,compare_stores,swahili_mix,{store} na {store2} wana bei sawa kwa {group}?,"group,store,store2"
+T250,compare_stores_16,compare_stores,formal,Basket of {group} and {group2}: {store} or {store2}?,"group,group2,store,store2"
+T251,compare_stores_16,compare_stores,short,{group}+{group2} basket, {store} vs {store2},"group,group2,store,store2"
+T252,compare_stores_16,compare_stores,swahili_mix,Kikapu cha {group} na {group2}: {store} au {store2}?,"group,group2,store,store2"
+T079,biggest_discount_01,biggest_discount,formal,Which items have the biggest discount?,
+T080,biggest_discount_01,biggest_discount,short,biggest discounts,
+T081,biggest_discount_01,biggest_discount,swahili_mix,Ni bidhaa gani ina punguzo kubwa zaidi?,
+T082,biggest_discount_02,biggest_discount,formal,What is on offer at {store}?,store
+T083,biggest_discount_02,biggest_discount,short,{store} offers,store
+T084,biggest_discount_02,biggest_discount,swahili_mix,Offers za {store} ni zipi?,store
+T085,biggest_discount_03,biggest_discount,formal,Show me the best deals at {store}.,store
+T086,biggest_discount_03,biggest_discount,short,best deals {store},store
+T087,biggest_discount_03,biggest_discount,swahili_mix,Deals za {store} leo,store
+T088,biggest_discount_04,biggest_discount,formal,Which {category} items are discounted the most?,category
+T089,biggest_discount_04,biggest_discount,short,discounted {category},category
+T090,biggest_discount_04,biggest_discount,casual,most reduced {category} right now,category
+T091,biggest_discount_05,biggest_discount,formal,How much is {product} reduced by?,product
+T092,biggest_discount_05,biggest_discount,short,{product} discount?,product
+T093,biggest_discount_05,biggest_discount,swahili_mix,"Je, {product} ina punguzo?",product
+T094,biggest_discount_06,biggest_discount,formal,What is the highest percentage off right now?,
+T095,biggest_discount_06,biggest_discount,short,highest % off,
+T096,biggest_discount_06,biggest_discount,typo,whats the biggest percent of rite now,
+T097,biggest_discount_07,biggest_discount,formal,List the items with a crossed-out price at {store}.,store
+T098,biggest_discount_07,biggest_discount,short,was now prices {store},store
+T099,biggest_discount_07,biggest_discount,casual,what has a was price at {store},store
+T100,biggest_discount_08,biggest_discount,formal,Are there any promotions on {group}?,group
+T101,biggest_discount_08,biggest_discount,short,promo {group},group
+T102,biggest_discount_08,biggest_discount,swahili_mix,Kuna promo ya {group}?,group
+T103,unit_price_01,unit_price,formal,What is the unit price of {product}?,product
+T104,unit_price_01,unit_price,short,unit price {product},product
+T105,unit_price_01,unit_price,swahili_mix,Bei ya {product} kwa kilo au lita ni ngapi?,product
+T106,unit_price_02,unit_price,formal,Which {group} pack is the best value per kilo or litre?,group
+T107,unit_price_02,unit_price,short,best value {group} per unit,group
+T108,unit_price_02,unit_price,casual,which {group} pack gives most for the money per kg,group
+T109,unit_price_03,unit_price,formal,Is the bigger pack of {group} cheaper per unit?,group
+T110,unit_price_03,unit_price,short,bigger {group} pack cheaper per kg?,group
+T111,unit_price_03,unit_price,casual,is the large {group} better value per litre or kg,group
+T112,unit_price_04,unit_price,formal,How much per 100 g or 100 ml is {product}?,product
+T113,unit_price_04,unit_price,short,per 100g price {product},product
+T114,unit_price_04,unit_price,typo,how much per 100ml is {product},product
+T115,unit_price_05,unit_price,formal,Which {group} is cheapest per kilo?,group
+T116,unit_price_05,unit_price,short,cheapest per kg {group},group
+T117,unit_price_05,unit_price,swahili_mix,{group} ipi ni rahisi zaidi kwa kilo?,group
+T118,unit_price_06,unit_price,formal,What is the price per egg?,
+T119,unit_price_06,unit_price,short,price per egg,
+T120,unit_price_06,unit_price,swahili_mix,Bei ya yai moja ni ngapi?,
+T121,unit_price_07,unit_price,formal,Work out the unit cost of {product}.,product
+T122,unit_price_07,unit_price,short,unit cost {product},product
+T123,unit_price_07,unit_price,casual,what is {product} per kg or litre,product
+T124,unit_price_08,unit_price,formal,What is the price per litre of {product} at {store}?,"product,store"
+T125,unit_price_08,unit_price,short,per litre {product} {store},"product,store"
+T126,unit_price_08,unit_price,casual,{store} {product} cost per litre,"product,store"
+T127,market_price_01,market_price,formal,What is the price of {commodity} in {county}?,"commodity,county"
+T128,market_price_01,market_price,short,{commodity} price {county},"commodity,county"
+T129,market_price_01,market_price,swahili_mix,Bei ya {commodity_sw} {county} ni ngapi?,"commodity_sw,county"
+T130,market_price_02,market_price,formal,How much is {commodity} in {county} markets?,"commodity,county"
+T131,market_price_02,market_price,short,{county} market {commodity},"commodity,county"
+T132,market_price_02,market_price,typo,how much is {commodity} in {county} marketz,"commodity,county"
+T133,market_price_03,market_price,formal,What was the latest {commodity} price recorded in {county}?,"commodity,county"
+T134,market_price_03,market_price,short,latest {commodity} {county},"commodity,county"
+T135,market_price_03,market_price,casual,most recent {commodity} price for {county},"commodity,county"
+T136,market_price_04,market_price,formal,Has the price of {commodity} gone up in {county}?,"commodity,county"
+T137,market_price_04,market_price,short,{commodity} {county} rising?,"commodity,county"
+T138,market_price_04,market_price,swahili_mix,"Je, bei ya {commodity_sw} {county} imepanda?","commodity_sw,county"
+T139,market_price_05,market_price,formal,Show {commodity} prices in {county} for {year}.,"commodity,county,year"
+T140,market_price_05,market_price,short,{commodity} {county} {year},"commodity,county,year"
+T141,market_price_05,market_price,casual,{commodity} prices {county} in {year},"commodity,county,year"
+T142,market_price_06,market_price,formal,Which county has the cheapest {commodity}?,commodity
+T143,market_price_06,market_price,short,cheapest {commodity} county,commodity
+T144,market_price_06,market_price,swahili_mix,Kaunti ipi ina {commodity_sw} ya bei nafuu zaidi?,commodity_sw
+T145,market_price_07,market_price,formal,Compare {commodity} prices in {county} and {county2}.,"commodity,county,county2"
+T146,market_price_07,market_price,short,{county} vs {county2} {commodity},"commodity,county,county2"
+T147,market_price_07,market_price,casual,{commodity} {county} or {county2} which is cheaper,"commodity,county,county2"
+T148,market_price_08,market_price,formal,What are the market prices in {county}?,county
+T149,market_price_08,market_price,short,{county} market prices,county
+T150,market_price_08,market_price,swahili_mix,Bei za soko {county} ni zipi?,county
+T151,food_inflation_01,food_inflation,formal,What is the current food inflation?,
+T152,food_inflation_01,food_inflation,short,food inflation now,
+T153,food_inflation_01,food_inflation,swahili_mix,Mfumuko wa bei wa chakula ni kiasi gani?,
+T154,food_inflation_02,food_inflation,formal,How has food inflation changed in {year}?,year
+T155,food_inflation_02,food_inflation,short,food inflation {year},year
+T156,food_inflation_02,food_inflation,casual,food inflation trend for {year},year
+T157,food_inflation_03,food_inflation,formal,Is food getting more expensive in Kenya?,
+T158,food_inflation_03,food_inflation,short,are food prices rising,
+T159,food_inflation_03,food_inflation,swahili_mix,"Je, bei ya chakula inapanda?",
+T160,food_inflation_04,food_inflation,formal,What was the food price index last month?,
+T161,food_inflation_04,food_inflation,short,latest food price index,
+T162,food_inflation_04,food_inflation,casual,whats the food price index lately,
+T163,food_inflation_05,food_inflation,formal,What was food inflation in {month} {year}?,"month,year"
+T164,food_inflation_05,food_inflation,short,{month} {year} food inflation,"month,year"
+T165,food_inflation_05,food_inflation,casual,food inflation for {month} {year},"month,year"
+T166,food_inflation_06,food_inflation,formal,Give me the national food inflation rate.,
+T167,food_inflation_06,food_inflation,short,national food inflation,
+T168,food_inflation_06,food_inflation,typo,natinal food inflaton rate,
+T169,food_inflation_07,food_inflation,formal,How high is food inflation compared with last year?,
+T170,food_inflation_07,food_inflation,short,food inflation vs last year,
+T171,food_inflation_07,food_inflation,casual,is food inflation higher than last year,
+T172,food_inflation_08,food_inflation,formal,Tell me about food price trends in Kenya.,
+T173,food_inflation_08,food_inflation,short,food price trend Kenya,
+T174,food_inflation_08,food_inflation,casual,how are food prices trending,
+T175,out_of_scope_greeting,out_of_scope,short,Hello,
+T176,out_of_scope_greeting,out_of_scope,short,Hi there,
+T177,out_of_scope_greeting,out_of_scope,swahili_mix,Habari,
+T178,out_of_scope_greeting,out_of_scope,swahili_mix,Mambo vipi,
+T179,out_of_scope_greeting,out_of_scope,short,good morning,
+T180,out_of_scope_greeting,out_of_scope,short,hey,
+T181,out_of_scope_greeting,out_of_scope,short,thanks,
+T182,out_of_scope_greeting,out_of_scope,short,thank you,
+T183,out_of_scope_greeting,out_of_scope,swahili_mix,asante sana,
+T184,out_of_scope_chitchat,out_of_scope,formal,Tell me a joke,
+T185,out_of_scope_chitchat,out_of_scope,short,Who are you?,
+T186,out_of_scope_chitchat,out_of_scope,formal,What is your name?,
+T187,out_of_scope_chitchat,out_of_scope,formal,How are you today?,
+T188,out_of_scope_chitchat,out_of_scope,formal,sing me a song,
+T189,out_of_scope_chitchat,out_of_scope,formal,are you a robot,
+T190,out_of_scope_weather_news,out_of_scope,formal,What is the weather in Nairobi today?,
+T191,out_of_scope_weather_news,out_of_scope,formal,Will it rain tomorrow?,
+T192,out_of_scope_weather_news,out_of_scope,formal,What is the latest news?,
+T193,out_of_scope_weather_news,out_of_scope,formal,Who won the football match yesterday?,
+T194,out_of_scope_general_knowledge,out_of_scope,formal,Who is the president of Kenya?,
+T195,out_of_scope_general_knowledge,out_of_scope,formal,What is the capital of France?,
+T196,out_of_scope_general_knowledge,out_of_scope,formal,How many people live in Kenya?,
+T197,out_of_scope_general_knowledge,out_of_scope,short,Explain photosynthesis,
+T198,out_of_scope_general_knowledge,out_of_scope,formal,What is 25 times 18?,
+T199,out_of_scope_coding_help,out_of_scope,formal,Write a Python function to reverse a string,
+T200,out_of_scope_coding_help,out_of_scope,formal,How do I fix a NullPointerException?,
+T201,out_of_scope_coding_help,out_of_scope,formal,Explain what a ViewModel is,
+T202,out_of_scope_coding_help,out_of_scope,formal,help me with my homework,
+T203,out_of_scope_forecast,out_of_scope,formal,What will sugar cost next month?,
+T204,out_of_scope_forecast,out_of_scope,formal,Will maize flour prices go up next week?,
+T205,out_of_scope_forecast,out_of_scope,formal,Predict food inflation for next year,
+T206,out_of_scope_forecast,out_of_scope,formal,Will Naivas lower prices in December?,
+T207,out_of_scope_forecast,out_of_scope,formal,forecast the price of cooking oil,
+T208,out_of_scope_advice,out_of_scope,formal,Should I invest in maize farming?,
+T209,out_of_scope_advice,out_of_scope,formal,Should I buy shares in a supermarket?,
+T210,out_of_scope_advice,out_of_scope,formal,Is it a good time to buy a car?,
+T211,out_of_scope_advice,out_of_scope,formal,give me medical advice for a headache,
+T212,out_of_scope_advice,out_of_scope,formal,how do I lose weight fast,
+T213,out_of_scope_stock_delivery,out_of_scope,formal,Is sugar in stock at Naivas right now?,
+T214,out_of_scope_stock_delivery,out_of_scope,formal,How long will delivery take?,
+T215,out_of_scope_stock_delivery,out_of_scope,formal,Can you deliver to my house today?,
+T216,out_of_scope_stock_delivery,out_of_scope,short,Track my order,
+T217,out_of_scope_stock_delivery,out_of_scope,formal,What is the delivery fee?,
+T218,out_of_scope_stock_delivery,out_of_scope,formal,can I pay with a credit card,
+T219,out_of_scope_personal,out_of_scope,formal,What is my name?,
+T220,out_of_scope_personal,out_of_scope,formal,Where do I live?,
+T221,out_of_scope_personal,out_of_scope,short,Remember my password,
+T222,out_of_scope_personal,out_of_scope,short,Call my mother,
+T223,out_of_scope_gibberish,out_of_scope,short,asdfgh,
+T224,out_of_scope_gibberish,out_of_scope,short,???,
+T225,out_of_scope_gibberish,out_of_scope,short,...,
+T226,out_of_scope_gibberish,out_of_scope,formal,lorem ipsum dolor sit amet,
+T227,out_of_scope_gibberish,out_of_scope,short,qwerty 12345,
+T228,out_of_scope_gibberish,out_of_scope,short,ok,

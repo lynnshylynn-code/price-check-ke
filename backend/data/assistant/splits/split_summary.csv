@@ -1,0 +1,4 @@
+split,families,rows
+train,44,1864
+validation,16,927
+test,16,956

@@ -2,20 +2,66 @@ package ke.pricecheck.app
 
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.commit
-import ke.pricecheck.app.ui.PriceCheckFragment
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupActionBarWithNavController
+import com.google.android.material.appbar.MaterialToolbar
+import ke.pricecheck.app.R
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate: initialize Compose UI")
-        if (savedInstanceState == null) {
-            supportFragmentManager.commit {
-                setReorderingAllowed(true)
-                replace(android.R.id.content, PriceCheckFragment())
-            }
+        Log.d(TAG, "onCreate: initialize navigation host")
+        setContentView(R.layout.activity_main)
+        val toolbar = findViewById<MaterialToolbar>(R.id.main_toolbar)
+        setSupportActionBar(toolbar)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(R.id.priceCheckFragment),
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            toolbar.visibility =
+                if (destination.id == R.id.priceCheckFragment) View.GONE else View.VISIBLE
         }
+        addMenuProvider(
+            object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.main_menu, menu)
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.main_menu_about -> {
+                            navController.navigate(R.id.action_global_aboutActivity)
+                            true
+                        }
+                        R.id.main_menu_exit -> {
+                            finish()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            },
+            this,
+            Lifecycle.State.RESUMED,
+        )
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        return navHostFragment.navController.navigateUp() || super.onSupportNavigateUp()
     }
 
     override fun onStart() {
@@ -31,14 +77,6 @@ class MainActivity : AppCompatActivity() {
     override fun onRestart() {
         super.onRestart()
         Log.d(TAG, "onRestart: activity is returning to the foreground")
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        if (supportFragmentManager.backStackEntryCount > 0) {
-            supportFragmentManager.popBackStack()
-            return true
-        }
-        return super.onSupportNavigateUp()
     }
 
     override fun onPause() {

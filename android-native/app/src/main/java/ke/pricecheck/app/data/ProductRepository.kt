@@ -3,6 +3,10 @@ package ke.pricecheck.app.data
 interface ProductRepository {
     val products: List<Product>
     val categories: List<String>
+    val isDemoData: Boolean get() = true
+    val dataLabel: String get() = "Demo supermarket prices only; not live retailer data."
+
+    suspend fun refresh(): Boolean = false
 
     fun findById(productId: String): Product?
 }

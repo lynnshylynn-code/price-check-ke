@@ -1,22 +1,15 @@
-import asyncio
 import json
-from pathlib import Path
-from types import SimpleNamespace
 
-import httpx
 import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from openai import AuthenticationError
 
-from price_check_api import ai_insights, ai_rate_limit, market_tools
+from price_check_api import ai_rate_limit, market_tools, orders
+from price_check_api.listings import get_listings
 from price_check_api.main import app
 from price_check_api.schemas import MarketQuestionResponse
 
 client = TestClient(app)
-EVAL_CASES = json.loads(
-    (Path(__file__).parent / "evals" / "market_qa.json").read_text(encoding="utf-8")
-)
 
 
 def test_health_check() -> None:
@@ -24,6 +17,26 @@ def test_health_check() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_mpesa_callback_route_rejects_wrong_path_secret(tmp_path, monkeypatch):
+    monkeypatch.setenv("PRICE_CHECK_ORDERS_DB", str(tmp_path / "orders.sqlite3"))
+    monkeypatch.setenv("PRICE_CHECK_CALLBACK_SECRET", "right-secret")
+    listing = get_listings()[0]
+    order = orders.create_order(
+        {
+            "store": listing.supermarket,
+            "items": [{"listing_id": listing.id, "quantity": 1}],
+            "delivery_address": "123 Example Road Nairobi",
+            "phone": "0712345678",
+        }
+    )
+    response = client.post(
+        "/api/v1/payments/mpesa/callback/wrong-secret",
+        json={"Body": {"stkCallback": {"CheckoutRequestID": "unknown", "ResultCode": 0}}},
+    )
+    assert response.status_code == 403
+    assert orders.get_order(order["id"])["status"] == "created"
 
 
 def test_food_inflation_endpoint_returns_source_data_and_summary() -> None:
@@ -89,9 +102,13 @@ def test_prices_endpoint_returns_observed_kes_prices_without_filling_gaps() -> N
 
 
 def test_fuzzy_price_position_reports_source_and_historical_context() -> None:
-    response = client.get("/api/v1/market/price-position", params={
-        "market": "Garissa", "commodity": "maize",
-    })
+    response = client.get(
+        "/api/v1/market/price-position",
+        params={
+            "market": "Garissa",
+            "commodity": "maize",
+        },
+    )
     assert response.status_code == 200
     payload = response.json()
     assert payload["market"] == "Garissa"
@@ -102,9 +119,13 @@ def test_fuzzy_price_position_reports_source_and_historical_context() -> None:
 
 
 def test_fuzzy_price_position_keeps_empty_coverage_unscored() -> None:
-    response = client.get("/api/v1/market/price-position", params={
-        "market": "Kisumu", "commodity": "maize",
-    })
+    response = client.get(
+        "/api/v1/market/price-position",
+        params={
+            "market": "Kisumu",
+            "commodity": "maize",
+        },
+    )
     assert response.status_code == 200
     payload = response.json()
     assert payload["score"] is None
@@ -113,9 +134,14 @@ def test_fuzzy_price_position_keeps_empty_coverage_unscored() -> None:
 
 
 def test_basket_optimize_endpoint_returns_labeled_demo_search_result() -> None:
-    response = client.post("/api/v1/basket/optimize", json={
-        "product_ids": ["bread", "sugar"], "strategy": "astar", "trip_cost": 0,
-    })
+    response = client.post(
+        "/api/v1/basket/optimize",
+        json={
+            "product_ids": ["bread", "sugar"],
+            "strategy": "astar",
+            "trip_cost": 0,
+        },
+    )
     assert response.status_code == 200
     payload = response.json()
     assert payload["is_demo_data"] is True
@@ -126,13 +152,61 @@ def test_basket_optimize_endpoint_returns_labeled_demo_search_result() -> None:
     assert payload["nodes_expanded"] > 0
 
 
-@pytest.mark.parametrize("body", [
-    {"product_ids": []},
-    {"product_ids": ["bread", "bread"]},
-    {"product_ids": ["unknown-product"]},
-    {"product_ids": ["bread"], "trip_cost": -1},
-    {"product_ids": ["bread"], "strategy": "greedy"},
-])
+def test_listing_groups_expose_real_store_availability() -> None:
+    response = client.get("/api/v1/listing-groups")
+    assert response.status_code == 200
+    payload = response.json()
+    assert "snapshot 2026-10-20" in payload["data_label"]
+    oil = next(group for group in payload["groups"] if group["group_id"] == "cooking-oil-1l")
+    assert oil["stores"] == ["Naivas"]
+    assert set(oil["missing_at_stores"]) == {"Carrefour", "Quickmart"}
+
+
+def test_basket_optimize_uses_group_prices_and_reports_gaps() -> None:
+    response = client.post(
+        "/api/v1/basket/optimize",
+        json={
+            "group_ids": ["cooking-oil-1l"],
+            "strategy": "astar",
+        },
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["is_demo_data"] is False
+    assert payload["lines"][0]["store"] == "Naivas"
+    assert payload["lines"][0]["product_url"].startswith("https://")
+    assert set(payload["lines"][0]["missing_at_stores"]) == {"Carrefour", "Quickmart"}
+    assert payload["best_single_store"] == "Naivas"
+
+
+def test_basket_optimize_rejects_unavailable_group_and_unknown_group() -> None:
+    unavailable = client.post(
+        "/api/v1/basket/optimize",
+        json={
+            "group_ids": ["milk-1l"],
+            "strategy": "ucs",
+        },
+    )
+    assert unavailable.status_code == 422
+    unknown = client.post(
+        "/api/v1/basket/optimize",
+        json={
+            "group_ids": ["made-up-group"],
+        },
+    )
+    assert unknown.status_code == 404
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"product_ids": []},
+        {"product_ids": ["bread", "bread"]},
+        {"product_ids": ["unknown-product"]},
+        {"product_ids": ["bread"], "trip_cost": -1},
+        {"product_ids": ["bread"], "strategy": "greedy"},
+    ],
+)
 def test_basket_optimize_validates_input(body: dict) -> None:
     response = client.post("/api/v1/basket/optimize", json=body)
     assert response.status_code in {404, 422}
@@ -172,15 +246,18 @@ def test_prices_endpoint_rejects_unknown_markets_and_reversed_ranges() -> None:
         params={"market": "Not a market", "commodity": "beans"},
     )
     assert unknown.status_code == 404
-    assert client.get(
-        "/api/prices",
-        params={
-            "market": "Garissa",
-            "commodity": "beans",
-            "from": "2026-06-01",
-            "to": "2026-05-01",
-        },
-    ).status_code == 422
+    assert (
+        client.get(
+            "/api/prices",
+            params={
+                "market": "Garissa",
+                "commodity": "beans",
+                "from": "2026-06-01",
+                "to": "2026-05-01",
+            },
+        ).status_code
+        == 422
+    )
 
 
 def test_product_catalog_marks_all_supermarket_prices_as_demo() -> None:
@@ -231,111 +308,17 @@ def test_single_store_basket_uses_best_shared_store() -> None:
     assert {line["store"] for line in payload["lines"]} == {"Carrefour"}
 
 
-def test_market_question_requires_openai_api_key(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-
-    with pytest.raises(HTTPException) as error:
-        asyncio.run(ai_insights.answer_market_question("What was the latest value?"))
-
-    assert error.value.status_code == 503
-    assert "OPENAI_API_KEY" in error.value.detail
+def test_model_info_exposes_training_metadata() -> None:
+    response = client.get("/api/v1/models/info")
+    assert response.status_code == 200
+    assert "models" in response.json()
 
 
-def test_market_question_explains_rejected_openai_key(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    class FakeResponses:
-        async def create(self, **_: object) -> object:
-            request = httpx.Request("POST", "https://api.openai.com/v1/responses")
-            response = httpx.Response(401, request=request)
-            raise AuthenticationError(
-                "Invalid API key",
-                response=response,
-                body={"error": {"code": "invalid_api_key"}},
-            )
-
-    class FakeClient:
-        responses = FakeResponses()
-
-        async def __aenter__(self) -> "FakeClient":
-            return self
-
-        async def __aexit__(self, *_: object) -> None:
-            return None
-
-    monkeypatch.setenv("OPENAI_API_KEY", "invalid-test-key")
-    monkeypatch.setattr(ai_insights, "AsyncOpenAI", lambda **_: FakeClient())
-
-    with pytest.raises(HTTPException) as error:
-        asyncio.run(ai_insights.answer_market_question("What was the latest value?"))
-
-    assert error.value.status_code == 502
-    assert "401 invalid_api_key" in error.value.detail
-
-
-@pytest.mark.parametrize("case", EVAL_CASES, ids=lambda case: case["id"])
-def test_ai_market_question_golden_eval_uses_mocked_tool_output(
-    case: dict[str, object],
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    expected_tool_result = json.dumps(case["tool_result"])
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
-    monkeypatch.delenv("OPENAI_MODEL", raising=False)
-    monkeypatch.setattr(
-        ai_insights,
-        "execute_market_tool",
-        lambda name, arguments: expected_tool_result,
+def test_assistant_rejects_control_characters_and_long_input() -> None:
+    assert (
+        client.post("/api/v1/assistant/ask", json={"question": "Hi\u0000there"}).status_code == 422
     )
-
-    class FakeResponses:
-        call_count = 0
-
-        async def create(self, **request: object) -> object:
-            self.call_count += 1
-            if self.call_count == 1:
-                assert request["input"] == [{"role": "user", "content": case["question"]}]
-                assert "untrusted data" in str(request["instructions"])
-                return SimpleNamespace(
-                    id="response-with-tool",
-                    output=[
-                        SimpleNamespace(
-                            type="function_call",
-                            name=case["tool_name"],
-                            call_id="call-1",
-                            arguments=json.dumps(case["arguments"]),
-                        )
-                    ],
-                    output_text="",
-                )
-
-            assert isinstance(request["input"], list)
-            tool_output = request["input"][0]
-            assert isinstance(tool_output, dict)
-            assert tool_output["type"] == "function_call_output"
-            assert json.loads(tool_output["output"]) == case["tool_result"]
-            return SimpleNamespace(
-                id="response-final",
-                output=[],
-                output_text=str(case["expected_fact"]),
-            )
-
-    class FakeClient:
-        responses = FakeResponses()
-
-        async def __aenter__(self) -> "FakeClient":
-            return self
-
-        async def __aexit__(self, *_: object) -> None:
-            return None
-
-    monkeypatch.setattr(ai_insights, "AsyncOpenAI", lambda **_: FakeClient())
-    answer = asyncio.run(ai_insights.answer_market_question(str(case["question"])))
-
-    assert case["expected_fact"] in answer.answer
-    assert answer.source_name.startswith("World Bank")
-    assert str(answer.source_url).startswith("https://microdata.worldbank.org/")
-    assert answer.coverage_start == "Jan 2007"
-    assert answer.coverage_end == "Aug 2026"
+    assert client.post("/api/v1/assistant/ask", json={"question": "x" * 301}).status_code == 422
 
 
 def test_ai_tool_rejects_untrusted_market_argument_without_querying_arbitrary_data() -> None:
@@ -394,7 +377,7 @@ def test_offline_market_answer_uses_shared_source_and_discloses_gaps(
 def test_market_question_applies_per_ip_rate_limit(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_answer(question: str) -> MarketQuestionResponse:
+    def fake_answer(question: str) -> MarketQuestionResponse:
         return MarketQuestionResponse(
             answer=f"Response to {question}",
             source_name="World Bank Kenya RTFP",
@@ -406,7 +389,7 @@ def test_market_question_applies_per_ip_rate_limit(
     ai_rate_limit._requests_by_ip.clear()
     monkeypatch.setenv("PRICE_CHECK_AI_RATE_LIMIT", "2")
     monkeypatch.setenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60")
-    monkeypatch.setattr("price_check_api.main.answer_market_question", fake_answer)
+    monkeypatch.setattr("price_check_api.main.answer_trained_question", fake_answer)
     try:
         for _ in range(2):
             response = client.post(
@@ -425,6 +408,50 @@ def test_market_question_applies_per_ip_rate_limit(
         ai_rate_limit._requests_by_ip.clear()
 
 
+def test_rate_limiter_default_is_sixty_requests_per_minute(monkeypatch: pytest.MonkeyPatch) -> None:
+    from starlette.requests import Request
+
+    ai_rate_limit._requests_by_ip.clear()
+    monkeypatch.delenv("PRICE_CHECK_AI_RATE_LIMIT", raising=False)
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60")
+    request = Request(
+        {
+            "type": "http", "method": "GET", "path": "/",
+            "headers": [], "client": ("198.51.100.90", 1234),
+            "server": ("test", 80), "scheme": "http", "query_string": b"",
+        }
+    )
+    try:
+        for _ in range(60):
+            ai_rate_limit.enforce_ai_rate_limit(request)
+        with pytest.raises(HTTPException) as error:
+            ai_rate_limit.enforce_ai_rate_limit(request)
+        assert error.value.status_code == 429
+    finally:
+        ai_rate_limit._requests_by_ip.clear()
+
+
+def test_rate_limiter_zero_disables_throttling(monkeypatch: pytest.MonkeyPatch) -> None:
+    from starlette.requests import Request
+
+    ai_rate_limit._requests_by_ip.clear()
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_LIMIT", "0")
+    monkeypatch.setenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60")
+    request = Request(
+        {
+            "type": "http", "method": "GET", "path": "/",
+            "headers": [], "client": ("198.51.100.91", 1234),
+            "server": ("test", 80), "scheme": "http", "query_string": b"",
+        }
+    )
+    try:
+        for _ in range(100):
+            ai_rate_limit.enforce_ai_rate_limit(request)
+        assert "198.51.100.91" not in ai_rate_limit._requests_by_ip
+    finally:
+        ai_rate_limit._requests_by_ip.clear()
+
+
 def test_rate_limiter_trusts_forwarded_ip_only_when_enabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -434,12 +461,18 @@ def test_rate_limiter_trusts_forwarded_ip_only_when_enabled(
     monkeypatch.setenv("PRICE_CHECK_AI_RATE_LIMIT", "1")
     monkeypatch.setenv("PRICE_CHECK_AI_RATE_WINDOW_SECONDS", "60")
     monkeypatch.setenv("PRICE_CHECK_TRUST_PROXY", "1")
-    request = Request({
-        "type": "http", "method": "GET", "path": "/",
-        "headers": [(b"x-forwarded-for", b"203.0.113.5, 10.0.0.2")],
-        "client": ("10.0.0.1", 1234), "server": ("test", 80),
-        "scheme": "http", "query_string": b"",
-    })
+    request = Request(
+        {
+            "type": "http",
+            "method": "GET",
+            "path": "/",
+            "headers": [(b"x-forwarded-for", b"203.0.113.5, 10.0.0.2")],
+            "client": ("10.0.0.1", 1234),
+            "server": ("test", 80),
+            "scheme": "http",
+            "query_string": b"",
+        }
+    )
     try:
         ai_rate_limit.enforce_ai_rate_limit(request)
         assert "203.0.113.5" in ai_rate_limit._requests_by_ip
@@ -451,7 +484,7 @@ def test_rate_limiter_trusts_forwarded_ip_only_when_enabled(
 def test_market_question_endpoint_returns_answer_and_source(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    async def fake_answer(question: str) -> MarketQuestionResponse:
+    def fake_answer(question: str) -> MarketQuestionResponse:
         assert question == "What happened in August 2026?"
         return MarketQuestionResponse(
             answer="The reported value was 10.46% in August 2026.",
@@ -461,7 +494,7 @@ def test_market_question_endpoint_returns_answer_and_source(
             coverage_end="Aug 2026",
         )
 
-    monkeypatch.setattr("price_check_api.main.answer_market_question", fake_answer)
+    monkeypatch.setattr("price_check_api.main.answer_trained_question", fake_answer)
     response = client.post(
         "/api/v1/ai/market-question",
         json={"question": "  What happened in August 2026?  "},
@@ -474,6 +507,11 @@ def test_market_question_endpoint_returns_answer_and_source(
         "source_url": "https://microdata.worldbank.org/index.php/catalog/6167",
         "coverage_start": "Jan 2007",
         "coverage_end": "Aug 2026",
+        "sources": [],
+        "intent": "out_of_scope",
+        "intent_confidence": 0.0,
+        "entities": {},
+        "model_version": "unavailable",
     }
 
 

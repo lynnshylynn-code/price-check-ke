@@ -126,13 +126,26 @@ class MarketRepository(private val baseUrl: String) : MarketDataSource {
 
     override suspend fun askQuestion(question: String): MarketQuestionAnswer = withContext(Dispatchers.IO) {
         val payload = JSONObject().put("question", question)
-        val response = request("/api/v1/ai/market-question", payload)
+        val response = request("/api/v1/assistant/ask", payload)
+        val sourceArray = response.optJSONArray("sources")
+        val sources = (0 until (sourceArray?.length() ?: 0)).mapNotNull { index ->
+            sourceArray?.optJSONObject(index)?.let { source ->
+                MarketAnswerSource(
+                    name = source.optString("name"),
+                    url = source.optString("url").takeUnless { it == "null" }.orEmpty(),
+                    note = source.optString("note"),
+                )
+            }
+        }
         MarketQuestionAnswer(
             answer = response.getString("answer"),
             sourceName = response.getString("source_name"),
-            sourceUrl = response.getString("source_url"),
-            coverageStart = response.getString("coverage_start"),
-            coverageEnd = response.getString("coverage_end"),
+            sourceUrl = response.optString("source_url").takeUnless { it == "null" }.orEmpty(),
+            coverageStart = response.optString("coverage_start").takeUnless { it == "null" }.orEmpty(),
+            coverageEnd = response.optString("coverage_end").takeUnless { it == "null" }.orEmpty(),
+            intent = response.optString("intent", "out_of_scope"),
+            intentConfidence = response.optDouble("intent_confidence", 0.0),
+            sources = sources,
         )
     }
 

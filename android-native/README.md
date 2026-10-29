@@ -4,13 +4,33 @@ This is the native Android client, implemented in Kotlin and Jetpack Compose to
 match the mobile-development lecture topics. The existing Expo client remains
 the web application in `../frontend/`.
 
+## Splash screen
+
+- `SplashActivity` is the launcher activity (lecture-style delayed hand-off to
+  `MainActivity` with a `Handler` on the main looper). The delay is a named
+  constant in `SplashActivity`; pending callbacks are removed in `onDestroy`,
+  and Back cancels the timer and finishes the splash.
+- On Android 12 and later, the system shows its own splash screen before any
+  activity layout. `Theme.PriceCheck` sets `android:windowSplashScreenBackground`
+  so that system splash matches the in-app splash background colour.
+- Google discourages artificial splash delays in production apps; the
+  recommended approach is [`androidx.core:core-splashscreen`](https://developer.android.com/develop/ui/views/launch/splash-screen)
+  to keep the system splash visible only until the app is ready, without an
+  extra timed screen.
+
 ## Architecture
 
-- `MainActivity` is the Android entry Activity; it hosts `PriceCheckFragment`.
-  Activity lifecycle callbacks, including `onRestart`, log under the
-  `PriceCheckLifecycle` Logcat tag.
-- `PriceCheckFragment` hosts the Compose shopping screens and opens
-  `WatchlistFragment` through a `FragmentManager` transaction on the back stack.
+- After the splash, `MainActivity` hosts a `NavHostFragment` (`nav_graph.xml`)
+  starting at `PriceCheckFragment`, with a Material toolbar wired through
+  `setupActionBarWithNavController` (hidden on the home destination). Activity
+  lifecycle callbacks, including `onRestart`, log under the `PriceCheckLifecycle`
+  Logcat tag.
+- `PriceCheckFragment` hosts the Compose shopping screens and navigates to
+  `WatchlistFragment`, the store hand-off / checkout / order-status demo flow,
+  and `AboutActivity` through the Navigation Component. Fragment arguments use
+  `Bundle` keys in `NavArgs` instead of the Safe Args Gradle plugin so this
+  project stays compatible with the current AGP/Kotlin toolchain without an
+  extra code-generation plugin.
   Both fragments share the Activity-scoped `PriceCheckViewModel`.
 - `WatchlistFragment` uses a View-system `RecyclerView`, `LinearLayoutManager`,
   `ListAdapter`, `DiffUtil`, and a `ViewHolder`. It inflates its XML sorting
@@ -27,7 +47,7 @@ the web application in `../frontend/`.
 - `domain/` contains pure basket-pricing functions and the local
   dataset-question response rules.
 - The backend supplies the RTFP historical index, available beans and maize
-  market observations, and optional OpenAI answers with source and coverage.
+  market observations, and answers from the locally trained assistant with source, intent confidence, and coverage.
   User preferences, shopping area, and basket data are saved locally with
   DataStore.
 
@@ -81,6 +101,50 @@ computer's LAN address and start Uvicorn with `--host 0.0.0.0`:
 Replace the sample LAN address with the computer's actual address. Use HTTPS
 for a deployed API. Cleartext traffic is enabled only when the configured
 development API URL uses HTTP.
+
+## Retailer listings and prototype ordering
+
+The app loads `/api/v1/listings` from the backend and groups exact normalized
+item-name and pack-size matches for comparison. If the API is unavailable, the
+bundled `snapshot 20 Oct 2026` JSON asset is used. Demo catalog prices are a
+last-resort fallback and remain visibly labelled as demo data. Retailer values
+are advertised snapshot prices; stock and checkout prices are not verified.
+
+The checkout flow is a prototype. It creates a local backend order record and
+uses the mock payment provider by default; it does not submit an order to a
+supermarket or move real money. Listing hand-off buttons open the retailer URL
+in a browser. Delivery fee is set by the retailer at its own checkout and is
+not estimated here. Address and phone data are sent to the local backend for
+the prototype order and can be erased from the status screen.
+
+Product cards use Coil 3.6.3 `AsyncImage` with a local vector placeholder. The
+backend includes image metadata only for entries manually marked approved in
+`backend/data/images/product_images.json`; attribution appears under the image.
+No candidate is approved automatically, and failed/offline image requests show
+the placeholder. The dependency coordinates and Compose API follow Coil's
+official getting-started documentation and are verified by the Android build.
+
+### Lecture topics mapped to code
+
+| Topic | Code location | Demonstration |
+| --- | --- | --- |
+| Fragments and back stack | `PriceCheckFragment`, `StoreHandoffFragment`, `CheckoutFragment`, `OrderStatusFragment` | Each step replaces the content fragment and is added to the back stack; checkout state is shared with `activityViewModels`. |
+| Implicit intents | `StoreHandoffFragment` | `ACTION_VIEW` opens each listing URL; `ACTION_SEND` shares the basket as plain text. Missing browser apps are handled. |
+| Runtime permissions | `CheckoutFragment`, `OrderStatusFragment` | Optional coarse location and Android 13+ notification permission are requested at runtime; denial leaves the main flow available. |
+| Notifications | `OrderStatusFragment` | Creates a notification channel and notifies when the order reaches `paid_sandbox`, subject to notification permission. |
+| Forms and validation | `CheckoutScreen`, `CheckoutViewModel` | Address and Kenyan phone fields show inline validation before the order request. |
+| Offline data | `ListingsRepository`, `generate_android_listings_snapshot.py` | The backend snapshot asset supplies listings when the API cannot be reached. |
+
+Generate the bundled snapshot after changing the source CSV:
+
+```powershell
+cd backend
+python scripts/generate_android_listings_snapshot.py
+```
+
+For the optional Daraja sandbox, configure the backend-only environment
+variables documented in `../backend/README.md` and expose a public HTTPS
+callback URL. No Daraja credentials are stored in this Android app.
 
 ## Verify
 

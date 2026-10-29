@@ -9,7 +9,8 @@ description = "API for Kenya food-market trend data, summaries, and AI explorati
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.115,<1.0",
-    "openai>=2.0,<3.0",
+    "joblib==1.6.0",
+    "scikit-learn==1.9.1",
     "uvicorn[standard]>=0.34,<1.0",
 ]
 
@@ -22,9 +23,9 @@ dev = [
 ml = [
     "pandas>=2.2,<3.0",
     "numpy>=1.26,<3.0",
-    "scikit-learn>=1.5,<2.0",
     "matplotlib>=3.9,<4.0",
     "jupyter>=1.1,<2.0",
+    "openpyxl>=3.1,<4.0",
 ]
 
 [tool.pytest.ini_options]

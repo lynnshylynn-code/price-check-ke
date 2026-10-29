@@ -9,12 +9,20 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.commit
+import androidx.core.os.bundleOf
+import androidx.navigation.fragment.findNavController
 import ke.pricecheck.app.PriceCheckApplication
+import ke.pricecheck.app.R
+import ke.pricecheck.app.navigation.NavArgs
 
 class PriceCheckFragment : Fragment() {
     private val viewModel: PriceCheckViewModel by activityViewModels {
         PriceCheckViewModel.Factory(
+            (requireActivity().application as PriceCheckApplication).container,
+        )
+    }
+    private val checkoutViewModel: CheckoutViewModel by activityViewModels {
+        CheckoutViewModel.Factory(
             (requireActivity().application as PriceCheckApplication).container,
         )
     }
@@ -34,11 +42,21 @@ class PriceCheckFragment : Fragment() {
             PriceCheckApp(
                 viewModel = viewModel,
                 onOpenWatchlist = {
-                    parentFragmentManager.commit {
-                        setReorderingAllowed(true)
-                        replace(android.R.id.content, WatchlistFragment())
-                        addToBackStack("watchlist")
-                    }
+                    findNavController().navigate(R.id.action_priceCheckFragment_to_watchlistFragment)
+                },
+                onStoreHandoff = { storeName, basket ->
+                    checkoutViewModel.prepareOrder(storeName, viewModel.products, basket)
+                    findNavController().navigate(
+                        R.id.action_priceCheckFragment_to_storeHandoffFragment,
+                        bundleOf(NavArgs.STORE_NAME to storeName),
+                    )
+                },
+                onOrderFromStore = { store, basket ->
+                    checkoutViewModel.prepareOrder(store, viewModel.products, basket)
+                    findNavController().navigate(
+                        R.id.action_priceCheckFragment_to_storeHandoffFragment,
+                        bundleOf(NavArgs.STORE_NAME to store),
+                    )
                 },
             )
         }

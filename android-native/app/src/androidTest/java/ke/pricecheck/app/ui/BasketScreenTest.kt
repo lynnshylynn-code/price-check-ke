@@ -30,11 +30,14 @@ class BasketScreenTest {
                     onChangeQuantity = { _, _ -> },
                     onChangeStrategy = {},
                     onBrowse = {},
+                    onStoreHandoff = {},
                     onShare = {},
                     total = 175,
                     lowestPerItemTotal = 175,
                     singleStoreTotal = 180,
                     bestSingleStore = "Naivas",
+                    storeOptions = emptyList(),
+                    onOrderFromStore = {},
                 )
             }
         }

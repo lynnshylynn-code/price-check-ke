@@ -47,7 +47,12 @@ import ke.pricecheck.app.ui.screens.SearchScreen
 import ke.pricecheck.app.ui.screens.TrendsScreen
 
 @Composable
-fun PriceCheckApp(viewModel: PriceCheckViewModel, onOpenWatchlist: () -> Unit) {
+fun PriceCheckApp(
+    viewModel: PriceCheckViewModel,
+    onOpenWatchlist: () -> Unit,
+    onOrderFromStore: (String, Map<String, Int>) -> Unit,
+    onStoreHandoff: (String, Map<String, Int>) -> Unit,
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     var selectedProduct by remember { mutableStateOf<Product?>(null) }
@@ -139,6 +144,7 @@ fun PriceCheckApp(viewModel: PriceCheckViewModel, onOpenWatchlist: () -> Unit) {
                         onChangeQuantity = viewModel::changeBasket,
                         onChangeStrategy = viewModel::setBasketStrategy,
                         onBrowse = { viewModel.selectTab(PriceCheckTab.SEARCH) },
+                        onStoreHandoff = { store -> onStoreHandoff(store, state.preferences.basket) },
                         onShare = {
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
@@ -152,6 +158,10 @@ fun PriceCheckApp(viewModel: PriceCheckViewModel, onOpenWatchlist: () -> Unit) {
                         lowestPerItemTotal = viewModel.basketTotal(state, ke.pricecheck.app.data.BasketStrategy.LOWEST_PER_ITEM),
                         singleStoreTotal = viewModel.bestSingleStoreTotal(state)?.total,
                         bestSingleStore = viewModel.bestSingleStoreTotal(state)?.store,
+                        storeOptions = viewModel.storeAvailability(state),
+                        onOrderFromStore = { store ->
+                            onOrderFromStore(store, state.preferences.basket)
+                        },
                     )
                     PriceCheckTab.TRENDS -> TrendsScreen(
                         state = state,
@@ -215,18 +225,21 @@ private fun ProductComparisonDialog(
         text = {
             Column {
                 Text(
-                    stringResource(
-                        R.string.product_comparison_description,
-                        product.description,
-                    ),
+                        stringResource(
+                            if (product.isDemoData) R.string.product_demo_description
+                            else R.string.product_snapshot_description,
+                        ),
                 )
+                if (product.isDemoData && product.description.isNotBlank()) {
+                    Text(product.description)
+                }
                 product.prices.sortedBy { it.price }.forEach { price ->
                     Text(
                         stringResource(
                             R.string.product_store_price,
                             price.store,
                             price.price,
-                            price.stock,
+                            price.stock.ifBlank { stringResource(R.string.listing_stock_unverified) },
                         ),
                     )
                 }

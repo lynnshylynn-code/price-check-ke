@@ -1,0 +1,957 @@
+question,intent,family_id,style,entities
+What isthe cheapest unga?,cheapest_item,cheapest_item_01,formal,"{""group"": ""maize-meal-2kg""}"
+What is the cheapest unga?,cheapest_item,cheapest_item_01,formal,"{""group"": ""maize-meal-2kg""}"
+Wa is the cheapest spaghetti?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest sugar?,cheapest_item,cheapest_item_01,formal,"{""group"": ""sugar-2kg""}"
+What is the cheapest maize meal?,cheapest_item,cheapest_item_01,formal,"{""group"": ""maize-meal-2kg""}"
+What is the cheapest margarine?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest spaghetti?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest rice?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest yoghurt?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest yoghurt?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest margarine?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What i the hceapest cookng oil?,cheapest_item,cheapest_item_01,formal,"{""group"": ""cooking-oil-1l""}"
+What is the cheapest bread?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest maize meal?,cheapest_item,cheapest_item_01,formal,"{""group"": ""maize-meal-2kg""}"
+What is the cheapest spaghetti?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest bread?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest eggs?,cheapest_item,cheapest_item_01,formal,"{""group"": ""eggs-tray-15""}"
+Wht ist he cheapest margarie?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+What is the cheapest milk?,cheapest_item,cheapest_item_01,formal,"{""group"": ""milk-1l""}"
+What is the cheapest salt?,cheapest_item,cheapest_item_01,formal,"{""group"": """"}"
+cheapest eggs?,cheapest_item,cheapest_item_01,short,"{""group"": ""eggs-tray-15""}"
+cheapest salt?,cheapest_item,cheapest_item_01,short,"{""group"": """"}"
+cheapest salt?,cheapest_item,cheapest_item_01,short,"{""group"": """"}"
+cheapest bread?,cheapest_item,cheapest_item_01,short,"{""group"": """"}"
+cheapest spaghetti?,cheapest_item,cheapest_item_01,short,"{""group"": """"}"
+cheapest maize flour?,cheapest_item,cheapest_item_01,short,"{""group"": ""maize-meal-2kg""}"
+cheapest cooking oil?,cheapest_item,cheapest_item_01,short,"{""group"": ""cooking-oil-1l""}"
+cheapest salt?,cheapest_item,cheapest_item_01,short,"{""group"": """"}"
+cheapest sugar?,cheapest_item,cheapest_item_01,short,"{""group"": ""sugar-2kg""}"
+cheapest fizzy drinks?,cheapest_item,cheapest_item_01,short,"{""group"": """"}"
+cheapest maize meal?,cheapest_item,cheapest_item_01,short,"{""group"": ""maize-meal-2kg""}"
+cheapest maize meal?,cheapest_item,cheapest_item_01,short,"{""group"": ""maize-meal-2kg""}"
+cheapest milk?,cheapest_item,cheapest_item_01,short,"{""group"": ""milk-1l""}"
+cheapest sugar?,cheapest_item,cheapest_item_01,short,"{""group"": ""sugar-2kg""}"
+cheapest bread?,cheapest_item,cheapest_item_01,short,"{""group"": """"}"
+cheapest eggs?,cheapest_item,cheapest_item_01,short,"{""group"": ""eggs-tray-15""}"
+wich is the cheepest milk,cheapest_item,cheapest_item_01,typo,"{""group"": ""milk-1l""}"
+wich is the cheepest salt,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the chepest cooknig oil,cheapest_item,cheapest_item_01,typo,"{""group"": ""cooking-oil-1l""}"
+wich is the cheepest spaghetti,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the cheepest yoghurt,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the cheepest maize flour,cheapest_item,cheapest_item_01,typo,"{""group"": ""maize-meal-2kg""}"
+wich is the cheepest milk,cheapest_item,cheapest_item_01,typo,"{""group"": ""milk-1l""}"
+wich is the cheepest milk,cheapest_item,cheapest_item_01,typo,"{""group"": ""milk-1l""}"
+wich is the cheepest rice,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the cheepest spaghetti,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the cheepest maize meal,cheapest_item,cheapest_item_01,typo,"{""group"": ""maize-meal-2kg""}"
+wich is the cheepest unga,cheapest_item,cheapest_item_01,typo,"{""group"": ""maize-meal-2kg""}"
+wich is the cheepest spaghetti,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the cheepest yoghurt,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the cheepest unga,cheapest_item,cheapest_item_01,typo,"{""group"": ""maize-meal-2kg""}"
+wich is the cheepest maize flour,cheapest_item,cheapest_item_01,typo,"{""group"": ""maize-meal-2kg""}"
+wich is the cheepest margarine,cheapest_item,cheapest_item_01,typo,"{""group"": """"}"
+wich is the cheepest cooking oil,cheapest_item,cheapest_item_01,typo,"{""group"": ""cooking-oil-1l""}"
+Find me the cheapest rice and pasta.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest snacks and biscuits.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest rice and pasta.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest flours and cereals.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest soft drinks.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest snacks and biscuits.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest soft drinks.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest dair.y,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest snacks and biscuits.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest milk and dairy.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest dairy.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the hcapest sancks and biscuits.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest rice and pasta.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest milk and dairy.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+Find me the cheapest cooking oils and fats.,cheapest_item,cheapest_item_03,formal,"{""category"": """"}"
+cheapest flours and cereals items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest soap and personal care items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapestdairy items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest milk and dairy items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest rice and pasta items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest rice and pasta items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest soap an personal cre items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest soap and personal care items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest soap and personal care items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest beverages items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest rice and pasta items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest milk and dairy items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest cooking oils and fats items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest beverages items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest flours and cereals items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest soap and personal care items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest dairy items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest snacks and biscuits items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+cheapest household cleaning items,cheapest_item,cheapest_item_03,short,"{""category"": """"}"
+Ni toilet paper and tissue gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni beverages gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni toilet paper and tissue gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni soft drinks gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni cooking oils and fats gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni beverages gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni milk and dairy gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni snacks and biscuits gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni snacks and biscuits gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni sfot drinks gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni flours and cereals gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni houeshold ceaning gai ina bei rahisi zaii?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni soap and personal care gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni soap and personal care gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni milk and dairy gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni toilet paper and tissue gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+Ni soap and personal care gani ina bei rahisi zaidi?,cheapest_item,cheapest_item_03,swahili_mix,"{""category"": """"}"
+How much is Naivas white sguar 2kg ta Carrfour Wsetlands?,price_at_store,price_at_store_01,formal,"{""product"": ""naivas local sugar white 2kg"", ""store"": ""Carrefour""}"
+How much is Carrefour UHT whole milk 500ml at Naivas supermarket?,price_at_store,price_at_store_01,formal,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Naivas""}"
+How much is Coke Zero 2L at Carrefour?,price_at_store,price_at_store_01,formal,"{""product"": ""coke zero 2l pet"", ""store"": ""Carrefour""}"
+How much is Soko maize meal 2kg at Quickmart?,price_at_store,price_at_store_01,formal,"{""product"": ""soko flour maize meal 2kg"", ""store"": ""Quickmart""}"
+How much is Ajab all purpose flour 2kg at Carrefour?,price_at_store,price_at_store_01,formal,"{""product"": ""ajab all purpose flour 2kg"", ""store"": ""Carrefour""}"
+How much is Golden butter cookies atquick mart?,price_at_store,price_at_store_01,formal,"{""product"": ""golden butter cookies 200g"", ""store"": ""Quickmart""}"
+w much is Cussons sopa 100g at Carrefour Wsetladns?,price_at_store,price_at_store_01,formal,"{""product"": ""cussons fresh nourishing soap 100g"", ""store"": ""Carrefour""}"
+How much i sNaivas whites uga r2k at QuckMart?,price_at_store,price_at_store_01,formal,"{""product"": ""naivas local sugar white 2kg"", ""store"": ""Quickmart""}"
+How much is Fanta Orange 2L at quick mart?,price_at_store,price_at_store_01,formal,"{""product"": ""fanta orange pet 2l"", ""store"": ""Quickmart""}"
+How much is Kensalt table salt 1kg at Carrefour?,price_at_store,price_at_store_01,formal,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Carrefour""}"
+How much is Naivas white sugar 2kg at Quickmart?,price_at_store,price_at_store_01,formal,"{""product"": ""naivas local sugar white 2kg"", ""store"": ""Quickmart""}"
+How much is Carrefour UHT whole milk 500ml at Carrefour?,price_at_store,price_at_store_01,formal,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Carrefour""}"
+How much is Cussons soap 100g at QuickMart?,price_at_store,price_at_store_01,formal,"{""product"": ""cussons fresh nourishing soap 100g"", ""store"": ""Quickmart""}"
+How much is Celine Petals tissue at QuickMart?,price_at_store,price_at_store_01,formal,"{""product"": ""celine petals tissue 10 pack"", ""store"": ""Quickmart""}"
+How much is Blue Band margarine 500g at Carrefour?,price_at_store,price_at_store_01,formal,"{""product"": ""blue band margarine vanilla 500g"", ""store"": ""Carrefour""}"
+How much is Fresh Fri cooking oil 5 litres at Naivas supermarket?,price_at_store,price_at_store_01,formal,"{""product"": ""fresh fri cooking oil 5ltr"", ""store"": ""Naivas""}"
+How much is Kensalt table salt 1kg at carefour?,price_at_store,price_at_store_01,formal,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Carrefour""}"
+Carrefour UHT whole milk 500ml price at naivas,price_at_store,price_at_store_01,short,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Naivas""}"
+Farmnaivas Paistnai ice 2kg price at Naivas,price_at_store,price_at_store_01,short,"{""product"": ""farmnaivas pakistani rice 2kg"", ""store"": ""Naivas""}"
+Brookside UHT whole milk 250ml price at carefour,price_at_store,price_at_store_01,short,"{""product"": ""brookside uht whole milk 250ml"", ""store"": ""Carrefour""}"
+Naivas white sugar 1kg price at Quickmart,price_at_store,price_at_store_01,short,"{""product"": ""naivas local sugar white 1kg"", ""store"": ""Quickmart""}"
+Fresh sweet bread 400g price at naivas,price_at_store,price_at_store_01,short,"{""product"": ""fresh sweet bread 400g"", ""store"": ""Naivas""}"
+Cussons soap 100g price at uick mart,price_at_store,price_at_store_01,short,"{""product"": ""cussons fresh nourishing soap 100g"", ""store"": ""Quickmart""}"
+Celine Petals tissue price at Carrefour,price_at_store,price_at_store_01,short,"{""product"": ""celine petals tissue 10 pack"", ""store"": ""Carrefour""}"
+Kensalt table salt 1kg price at QuickMart,price_at_store,price_at_store_01,short,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Quickmart""}"
+Fresh sweet bread 400g price at QuickMart,price_at_store,price_at_store_01,short,"{""product"": ""fresh sweet bread 400g"", ""store"": ""Quickmart""}"
+Minute Maid apple juice 1L price at Naivas,price_at_store,price_at_store_01,short,"{""product"": ""minute maid apple juice 1l"", ""store"": ""Naivas""}"
+Naivas white sugar 1kg price at carefour,price_at_store,price_at_store_01,short,"{""product"": ""naivas local sugar white 1kg"", ""store"": ""Carrefour""}"
+Coke Zero 2L price at Carrefour,price_at_store,price_at_store_01,short,"{""product"": ""coke zero 2l pet"", ""store"": ""Carrefour""}"
+Fresh Fri cooking oil 5 litres price at naivas,price_at_store,price_at_store_01,short,"{""product"": ""fresh fri cooking oil 5ltr"", ""store"": ""Naivas""}"
+Minute Maid aplpe juice 1L price at Carrefour Wselands,price_at_store,price_at_store_01,short,"{""product"": ""minute maid apple juice 1l"", ""store"": ""Carrefour""}"
+Fresh Fri cooking oil 1 litre price at Carrefour Westlands,price_at_store,price_at_store_01,short,"{""product"": ""fresh fri cooking oil 1ltr"", ""store"": ""Carrefour""}"
+Blue Band margarine 500g price at Carrefour Westland,price_at_store,price_at_store_01,short,"{""product"": ""blue band margarine vanilla 500g"", ""store"": ""Carrefour""}"
+Ajab all purpose flour 2kg price at Carrefour,price_at_store,price_at_store_01,short,"{""product"": ""ajab all purpose flour 2kg"", ""store"": ""Carrefour""}"
+Bei ya Naivas white sugar 1kg carefour ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""naivas local sugar white 1kg"", ""store"": ""Carrefour""}"
+Bei ya Kensalt table salt 1kg carefour ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Carrefour""}"
+Bei ya Kensalt table salt 1kg quick mart ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Quickmart""}"
+Bei ya Brookside strawberry yohgurt quick mart ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""brookside real strawberry probiotic yoghurt 250g"", ""store"": ""Quickmart""}"
+Bei ya Brookside strawberry yoghurt Naivas supermarket ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""brookside real strawberry probiotic yoghurt 250g"", ""store"": ""Naivas""}"
+Bei ya Kensalt table salt 1kg Naivas ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Naivas""}"
+Bei ya Fresh Fri cooking oil 1 litre Naivas supermarket ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""fresh fri cooking oil 1ltr"", ""store"": ""Naivas""}"
+Bei ya Carrefour UHT whole milk 500ml Naivas ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Naivas""}"
+Bei ya Fanta Orange 2L Carrefour ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""fanta orange pet 2l"", ""store"": ""Carrefour""}"
+Bei ya Fresh Fri cooking oil 1 litre Carrefour Westlands ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""fresh fri cooking oil 1ltr"", ""store"": ""Carrefour""}"
+Bei ya Kensalt table salt 1kg Carrefour Westlands ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Carrefour""}"
+Bei ya Carrefour UHT whole milk 500ml carefour ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Carrefour""}"
+Bei ya Kensalt table salt 1kg naivas ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""kensalt premium iodated edible table salt 1kg"", ""store"": ""Naivas""}"
+Bei ya Santa Maria spaghetti400g Carrefour Westlands ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""santa maria pasta spaghetti 400g"", ""store"": ""Carrefour""}"
+Bei ya Fanta Blackcurrant 2L Carrefour ni ngapi?,price_at_store,price_at_store_01,swahili_mix,"{""product"": ""fanta blackcurrant pet 2l"", ""store"": ""Carrefour""}"
+How much is an iPhone 15 at Carrefour?,price_at_store,price_at_store_10,formal,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+How much is school uniform at Carrefour Westlands?,price_at_store,price_at_store_10,formal,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+How much is school uniform at quick mart?,price_at_store,price_at_store_10,formal,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+How much is a wheelbarrowat Carrefour?,price_at_store,price_at_store_10,formal,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+How much is school uniform at Naivas?,price_at_store,price_at_store_10,formal,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+How much is a PlayStation 5 at Quickmart?,price_at_store,price_at_store_10,formal,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+How much is school uniform at quick mart?,price_at_store,price_at_store_10,formal,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+How much is dog food at quick mart?,price_at_store,price_at_store_10,formal,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+How much is an iPhone 15 at naivas?,price_at_store,price_at_store_10,formal,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+How much i sa wheelbarrow at Quickmart?,price_at_store,price_at_store_10,formal,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+How much is dog food at carefour?,price_at_store,price_at_store_10,formal,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+How much is dog food at Carrefour Westlands?,price_at_store,price_at_store_10,formal,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+How much is school uniform at naivas?,price_at_store,price_at_store_10,formal,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+How much is a niPhone 15 at Naivas suprmarket?,price_at_store,price_at_store_10,formal,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+How much is an iPhone 15 at Quickmart?,price_at_store,price_at_store_10,formal,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+How much is school uniform at quick mart?,price_at_store,price_at_store_10,formal,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+How much is dog food at Naivas supermarket?,price_at_store,price_at_store_10,formal,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+Naivas school uniform price,price_at_store,price_at_store_10,short,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+Carrefour Westlands car tyres price,price_at_store,price_at_store_10,short,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+Carefour school uniform price,price_at_store,price_at_store_10,short,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+Naivas a PlayStation 5 price,price_at_store,price_at_store_10,short,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+Carrefour a wheelbarrow price,price_at_store,price_at_store_10,short,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+Carrefour an iPhone 15 price,price_at_store,price_at_store_10,short,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+naivas car tyres price,price_at_store,price_at_store_10,short,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+Quickmart an iPhone 15 price,price_at_store,price_at_store_10,short,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+qick mart an iPhon e15 price,price_at_store,price_at_store_10,short,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+QuickaMrt shol uniform price,price_at_store,price_at_store_10,short,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+Naivas supermarket school uniform price,price_at_store,price_at_store_10,short,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+Naivas a wheelbarrow price,price_at_store,price_at_store_10,short,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+naivas car tyres price,price_at_store,price_at_store_10,short,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+QuickMart a wheelbarrow price,price_at_store,price_at_store_10,short,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+Carrefour dog food price,price_at_store,price_at_store_10,short,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+QuickMart a PlayStation 5 price,price_at_store,price_at_store_10,short,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+does naivas sell car tyres and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+does Carrefour Westlands sell an iPhone 15 and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+does quick mart sell school uniform and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+does carefour sell dog food and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+does Carrefour Westlands sell dog food and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+does Quickmart sell an iPhone 15 and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+does naivas sell an iPhone 15 and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+does Naivas supermarket sell an iPhone 15 and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+does carefour sell a wheelbarrow and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+doe naivas el la Playtation 5 and ofr how much,price_at_store,price_at_store_10,casual,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+does quick mart sell car tyres and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+does Naivas sell car tyres and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+does Quickmart sell a wheelbarrow and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+does carefour sell a wheelbarrow and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+does carefour sell an iPhone 15 and fo how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+does carefour sell an iPhone 15 and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+does naivas sell a PlayStation 5 and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Naivas"", ""unknown_product"": """"}"
+does Quicmart sell dog food and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Quickmart"", ""unknown_product"": """"}"
+does Carrefour Westlands sell dog food and for how much,price_at_store,price_at_store_10,casual,"{""store"": ""Carrefour"", ""unknown_product"": """"}"
+Should I buy margarine at Carrefour or Naivas?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Should I buy margarine at Carrefour Westlands or Quickmart?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+Should I buy fizzy drinks at Naivas supermarket or Carrefour?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Should i buy milk ta Naivas or Carrefour?,compare_stores,compare_stores_06,formal,"{""group"": ""milk-1l"", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Should I buy fizzy drinks at Naivas supermarket or Quickmart?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Quickmart""}"
+Should I buy milk at carefour or Naivas?,compare_stores,compare_stores_06,formal,"{""group"": ""milk-1l"", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Should I buy yoghurt at carefour or Quickmart?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+Should I buy bread at Naivas or Carrefour?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Should I buy yoghurt at naivas or Quickmart?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Quickmart""}"
+Should I buy yoghurt at quick mart or Carrefour?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Should I buy spaghetti at Carrefour Westlands or Naivas?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Should I bu ycookngo il at naivas or Carrefour?,compare_stores,compare_stores_06,formal,"{""group"": ""cooking-oil-1l"", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Should I buy margarine at naivas or Carrefour?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Should I buy sugar at naivas or Carrefour?,compare_stores,compare_stores_06,formal,"{""group"": ""sugar-2kg"", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Should I buy sugar at naivas or Quickmart?,compare_stores,compare_stores_06,formal,"{""group"": ""sugar-2kg"", ""store"": ""Naivas"", ""store2"": ""Quickmart""}"
+Should I buy yoghurt at Carrefour or Naivas?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Shuold I buy salt atc arefour o Quikcmart?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+Should I buy yoghurt at Carrefour Westlands or Quickmart?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+Should I buy bread at Quickmart or Naivas?,compare_stores,compare_stores_06,formal,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Naivas""}"
+Should i bu ymilk at carefour or Quickmart?,compare_stores,compare_stores_06,formal,"{""group"": ""milk-1l"", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+quick mart or Naivas for rice,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Naivas""}"
+quick mart or Carrefour for unga,compare_stores,compare_stores_06,short,"{""group"": ""maize-meal-2kg"", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Quickmart or Carrefour for cooking oil,compare_stores,compare_stores_06,short,"{""group"": ""cooking-oil-1l"", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+quick mart orC arrefourf ro ice,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Quickmart or Naivas for bread,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Naivas""}"
+Naivas supermarket or Quickmart for margarine,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Quickmart""}"
+Quickmart or Naivas for sugar,compare_stores,compare_stores_06,short,"{""group"": ""sugar-2kg"", ""store"": ""Quickmart"", ""store2"": ""Naivas""}"
+Quickmart or Carrefour for maize meal,compare_stores,compare_stores_06,short,"{""group"": ""maize-meal-2kg"", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Carrefour Westlands or Quickmart for fizzy drinks,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+carefour or Quickmart for yoghurt,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+Nivas or Carrefour for bread,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Naivas supermarket or Carrefour for fizzy drinks,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+carefour or Quickmart for unga,compare_stores,compare_stores_06,short,"{""group"": ""maize-meal-2kg"", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+quick mart or Carrefour for eggs,compare_stores,compare_stores_06,short,"{""group"": ""eggs-tray-15"", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Carrefour or Naivas for milk,compare_stores,compare_stores_06,short,"{""group"": ""milk-1l"", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Carrefour Westlands or Naivas for salt,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+quick mart or Carrefour for cooking oil,compare_stores,compare_stores_06,short,"{""group"": ""cooking-oil-1l"", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+carefour or Naivas for rice,compare_stores,compare_stores_06,short,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+carefour or Quickmart for cooking oil,compare_stores,compare_stores_06,short,"{""group"": ""cooking-oil-1l"", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+Ninunue salt quick mart au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Ninunue bread uQickMart au Naivas?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Naivas""}"
+Ninunue cooking oil QuickMart au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": ""cooking-oil-1l"", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Ninunue yoghurt quick mart au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Ninunue maize flour Naivas au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": ""maize-meal-2kg"", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Ninunu margarine Carrefour au Naivas?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Ninunu erice Carrefour Westlands u Naivs?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Ninunue milk Naivas supermarket au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": ""milk-1l"", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Ninunue rice Quickmart au Naivas?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Naivas""}"
+Ninunue maize flour Naivas au Quickmart?,compare_stores,compare_stores_06,swahili_mix,"{""group"": ""maize-meal-2kg"", ""store"": ""Naivas"", ""store2"": ""Quickmart""}"
+Ninunue eggs carefour au Quickmart?,compare_stores,compare_stores_06,swahili_mix,"{""group"": ""eggs-tray-15"", ""store"": ""Carrefour"", ""store2"": ""Quickmart""}"
+Ninunue maize flour Carrefour Westlands au Naivas?,compare_stores,compare_stores_06,swahili_mix,"{""group"": ""maize-meal-2kg"", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Ninunue rice QuickMart au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Quickmart"", ""store2"": ""Carrefour""}"
+Ninunue rice Carrefour Westlands au Naivas?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Carrefour"", ""store2"": ""Naivas""}"
+Ninunue rice Naivas supermarket au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": """", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Ninunue maize flour Naivas supermarket au Carrefour?,compare_stores,compare_stores_06,swahili_mix,"{""group"": ""maize-meal-2kg"", ""store"": ""Naivas"", ""store2"": ""Carrefour""}"
+Which store is cheaper for unga and cooking oil together?,compare_stores,compare_stores_08,formal,"{""group"": ""maize-meal-2kg"", ""group2"": ""cooking-oil-1l""}"
+Which store is cheaper for unga and sugar together?,compare_stores,compare_stores_08,formal,"{""group"": ""maize-meal-2kg"", ""group2"": ""sugar-2kg""}"
+Which store is cheaper for spaghetti and mlk together?,compare_stores,compare_stores_08,formal,"{""group"": """", ""group2"": ""milk-1l""}"
+Which store is cheaper for unga and eggs together?,compare_stores,compare_stores_08,formal,"{""group"": ""maize-meal-2kg"", ""group2"": ""eggs-tray-15""}"
+Which store is cheaper for margarine and milk together?,compare_stores,compare_stores_08,formal,"{""group"": """", ""group2"": ""milk-1l""}"
+Which store is cheaper for maize flour and cooking oil together?,compare_stores,compare_stores_08,formal,"{""group"": ""maize-meal-2kg"", ""group2"": ""cooking-oil-1l""}"
+Which store is cheaper for spaghetti and eggs together?,compare_stores,compare_stores_08,formal,"{""group"": """", ""group2"": ""eggs-tray-15""}"
+Which store is cheaper for spaghetti and maize meal together?,compare_stores,compare_stores_08,formal,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+Which store is cheaper for eggs and milk together?,compare_stores,compare_stores_08,formal,"{""group"": ""eggs-tray-15"", ""group2"": ""milk-1l""}"
+Which store is cheaper for milk and eggs together?,compare_stores,compare_stores_08,formal,"{""group"": ""milk-1l"", ""group2"": ""eggs-tray-15""}"
+Which store is cheaper for bread and maize meal together?,compare_stores,compare_stores_08,formal,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+Which store is cheaper for yoghurt and maize meal together?,compare_stores,compare_stores_08,formal,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+Which store is cheaper for cooking oil and eggs together?,compare_stores,compare_stores_08,formal,"{""group"": ""cooking-oil-1l"", ""group2"": ""eggs-tray-15""}"
+Which store is cheaper for rice and milk together?,compare_stores,compare_stores_08,formal,"{""group"": """", ""group2"": ""milk-1l""}"
+Which store is cheaper for maize meal and cooking oil together?,compare_stores,compare_stores_08,formal,"{""group"": ""maize-meal-2kg"", ""group2"": ""cooking-oil-1l""}"
+Which store is cheaper for cooking oil and sugar together?,compare_stores,compare_stores_08,formal,"{""group"": ""cooking-oil-1l"", ""group2"": ""sugar-2kg""}"
+Which store is cheaper for sugar and cooking oil together?,compare_stores,compare_stores_08,formal,"{""group"": ""sugar-2kg"", ""group2"": ""cooking-oil-1l""}"
+cheapest basket yoghurt eggs,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""eggs-tray-15""}"
+cheapest basket spaghetti maize meal,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+cheapestb asketbread ooking oil,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""cooking-oil-1l""}"
+cheapest bakset cooknig oil eggs,compare_stores,compare_stores_08,short,"{""group"": ""cooking-oil-1l"", ""group2"": ""eggs-tray-15""}"
+cheapest basket fizzy drinks maize meal,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+cehapest baest unga eggs,compare_stores,compare_stores_08,short,"{""group"": ""maize-meal-2kg"", ""group2"": ""eggs-tray-15""}"
+cheapest basket milk sugar,compare_stores,compare_stores_08,short,"{""group"": ""milk-1l"", ""group2"": ""sugar-2kg""}"
+cheapest basket sugar maize meal,compare_stores,compare_stores_08,short,"{""group"": ""sugar-2kg"", ""group2"": ""maize-meal-2kg""}"
+cehaepst basket salt milk,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""milk-1l""}"
+cheapst basket spaghetti cokoing oil,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""cooking-oil-1l""}"
+chaepest basket yoghurt milk,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""milk-1l""}"
+cheapest basket maize meal milk,compare_stores,compare_stores_08,short,"{""group"": ""maize-meal-2kg"", ""group2"": ""milk-1l""}"
+cheapest basket milk maize meal,compare_stores,compare_stores_08,short,"{""group"": ""milk-1l"", ""group2"": ""maize-meal-2kg""}"
+cheapest basket margarine cooking oil,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""cooking-oil-1l""}"
+cheapest basket rice maize meal,compare_stores,compare_stores_08,short,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+which supermarket is cheaper for margarine plus maize meal,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+which supermarket is cheaper for unga plus eggs,compare_stores,compare_stores_08,casual,"{""group"": ""maize-meal-2kg"", ""group2"": ""eggs-tray-15""}"
+which supermraket is chaepre for eggs plu maize mael,compare_stores,compare_stores_08,casual,"{""group"": ""eggs-tray-15"", ""group2"": ""maize-meal-2kg""}"
+which supermarket is cheaper for maize flour plus eggs,compare_stores,compare_stores_08,casual,"{""group"": ""maize-meal-2kg"", ""group2"": ""eggs-tray-15""}"
+which supermarket is cheaper for yoghurt plus milk,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""milk-1l""}"
+which supermarket is cheaper for rice plus sugar,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""sugar-2kg""}"
+which supermarket is cheaper for sugar plus cooking oil,compare_stores,compare_stores_08,casual,"{""group"": ""sugar-2kg"", ""group2"": ""cooking-oil-1l""}"
+which supermarket is cheaper for maize flour plus sugar,compare_stores,compare_stores_08,casual,"{""group"": ""maize-meal-2kg"", ""group2"": ""sugar-2kg""}"
+which supermaket i sheaper fr maize flour plus egs,compare_stores,compare_stores_08,casual,"{""group"": ""maize-meal-2kg"", ""group2"": ""eggs-tray-15""}"
+which supermarket is cheaper for spaghetti plus maize meal,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+which supermarket is cheaper for spaghetti plus milk,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""milk-1l""}"
+which supermarket is cheaper for maize flour plus sugar,compare_stores,compare_stores_08,casual,"{""group"": ""maize-meal-2kg"", ""group2"": ""sugar-2kg""}"
+whihc supermarket is cheaper for salt plus maize meal,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+hich spermarket is cheaper for bread pluse ggs,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""eggs-tray-15""}"
+which supermarket is cheaper for milk plus cooking oil,compare_stores,compare_stores_08,casual,"{""group"": ""milk-1l"", ""group2"": ""cooking-oil-1l""}"
+which supermarket is cheaper for spaghetti plus sugar,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""sugar-2kg""}"
+which supermarket is cheaper for rice plus maize meal,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+which supermarket is cheaper for maize flour plus cooking oil,compare_stores,compare_stores_08,casual,"{""group"": ""maize-meal-2kg"", ""group2"": ""cooking-oil-1l""}"
+which supermarket is cheaper for rice plus maize meal,compare_stores,compare_stores_08,casual,"{""group"": """", ""group2"": ""maize-meal-2kg""}"
+Which rice and pasta items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which dairy items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which soap and personal care items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which soft drinks items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which toilet paper and tissue items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which soap and personal care items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which household cleaning items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which rice and pasta items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which beverages items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which snacks and biscuits items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which milk and dairy items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which soap and personal care items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which milk and dairy items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which cooking oils and fats items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which beverages items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which cooking oils and fats items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which cooking oils and fats items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which soap and personal care items are discounted them ost?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which cooking oils and fats items are discounted the most?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+Which rcie and pasta items ar ediscounted the mst?,biggest_discount,biggest_discount_04,formal,"{""category"": """"}"
+discounted beverages,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted household cleaning,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted cooking oils and fats,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted household cleaning,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted flours and cereals,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted snaks nd biscutis,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted soft drinks,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted flurs and cereals,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted toilet paper and tissue,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted milk and dairy,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted soap and personal care,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted soap and personal care,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted flours and cereals,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted household cleaning,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted flours and cereals,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted toilet paper and tissue,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted flours and cereals,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted soft drinks,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted toilet paper and tissue,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+discounted soft drinks,biggest_discount,biggest_discount_04,short,"{""category"": """"}"
+most reduced soap and persona lcare right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced soft drinks right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced rice and pasta right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced milk and dairy right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most redued flours and cereals righ tnow,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced rice and pasta right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced rice and pasta right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced toilet paper nd tissue right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced cooking oils and fats right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+ost educed snacks and bisciuts rigth now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced household cleaning right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced toilet paper and tissue right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced flours and cereals right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced household cleanign right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced beverages right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced rice and pat aright nw,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced cooking oils and fats right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced soft drinks right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+most reduced household cleaning right now,biggest_discount,biggest_discount_04,casual,"{""category"": """"}"
+How much is Fanta Orange 2L reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""fanta orange pet 2l""}"
+How much is Fresh Fri cooking oil 5 litres reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""fresh fri cooking oil 5ltr""}"
+How much is rFesh Fri cooking oi 1 litre reduce by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""fresh fri cooking oil 1ltr""}"
+How much is Fresh Fri cooking oil 5 litres reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""fresh fri cooking oil 5ltr""}"
+How much is Golde butter cookies reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""golden butter cookies 200g""}"
+How much is Ajab all purpose flour 2kg reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""ajab all purpose flour 2kg""}"
+How much is Kensalt table salt 1kg reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""kensalt premium iodated edible table salt 1kg""}"
+How much is Golden butter cookies reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""golden butter cookies 200g""}"
+How much is Minute Maid apple juice 1L reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""minute maid apple juice 1l""}"
+How much is Santa Maria spaghetti 400g reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""santa maria pasta spaghetti 400g""}"
+How much is Brookside UHT whole milk 250ml reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""brookside uht whole milk 250ml""}"
+How much is Naivas white sugar 1kg reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""naivas local sugar white 1kg""}"
+How much is Blue Band margarine 500g reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""blue band margarine vanilla 500g""}"
+How much is Isinya eggs tray of 15reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""isinya eggs x15""}"
+How mch isFanta Ornage 2L reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""fanta orange pet 2l""}"
+How much is Farmnaivas Pakistani rice 2kg reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+How much is Naivas hwite sugar 1kg reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""naivas local sugar white 1kg""}"
+How much is Fresh Fri cooking oil 5 litres reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""fresh fri cooking oil 5ltr""}"
+How much is Celine toilet tissue 10 pack reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""celine toilet tissue 10 pack""}"
+How much is Isinya eggs tray of 15 reduced by?,biggest_discount,biggest_discount_05,formal,"{""product"": ""isinya eggs x15""}"
+Carrefour UHT whole milk 500ml discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""carrefour uht whole milk 500ml""}"
+Farmnaivas Pakistani rice 2kg discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+Santa Maria spaghetti 400g discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""santa maria pasta spaghetti 400g""}"
+Blue Band margarine 500g discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""blue band margarine vanilla 500g""}"
+Fresh Fri cooking oil 5 litres discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""fresh fri cooking oil 5ltr""}"
+Fanta Blackcurrant 2L discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""fanta blackcurrant pet 2l""}"
+Celine toilet tissue 10 pack discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""celine toilet tissue 10 pack""}"
+Ajab all purpose flour 2kg discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""ajab all purpose flour 2kg""}"
+Brookside UHT whole milk 250ml discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""brookside uht whole milk 250ml""}"
+Kensalt table salt 1kg discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""kensalt premium iodated edible table salt 1kg""}"
+Ajab all purpose flour 2kg discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""ajab all purpose flour 2kg""}"
+Brookside strawberry yoghurt discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+Fanta Orange 2L discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""fanta orange pet 2l""}"
+Celine Petals tisue discont?,biggest_discount,biggest_discount_05,short,"{""product"": ""celine petals tissue 10 pack""}"
+Naivas white sugar 1kg discount?,biggest_discount,biggest_discount_05,short,"{""product"": ""naivas local sugar white 1kg""}"
+"Je, Celine toilet tissue 10 pack ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""celine toilet tissue 10 pack""}"
+"Je, Golden butter cookies ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""golden butter cookies 200g""}"
+"Je, Brookside UHT whole milk 250ml ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""brookside uht whole milk 250ml""}"
+"Je, Farmnaivas Pakistani rice 2kg ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+"Je, Naivas white sugar 1gk ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""naivas local sugar white 1kg""}"
+"Je, Blue Band margarine 500g ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""blue band margarine vanilla 500g""}"
+"Je, Naivas white sugar 1kg ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""naivas local sugar white 1kg""}"
+"Je, Kensalt table salt 1kg ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""kensalt premium iodated edible table salt 1kg""}"
+"Je, Fresh Fri cooking oil 5 litres ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""fresh fri cooking oil 5ltr""}"
+"Je, Golden butter cookies ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""golden butter cookies 200g""}"
+"Je, Celine toilet tissue 10 pack ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""celine toilet tissue 10 pack""}"
+"Je, Blue Band margarine 500g ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""blue band margarine vanilla 500g""}"
+"Je, Fanta Blackcurrant 2L ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""fanta blackcurrant pet 2l""}"
+"Je, Fanta Blackcurrant 2L ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""fanta blackcurrant pet 2l""}"
+"Je, Fresh sweet bread 400g ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""fresh sweet bread 400g""}"
+"Je, Ajab all purpose flour 2kg ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""ajab all purpose flour 2kg""}"
+"Je, Fanta Blackcurrant 2L ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""fanta blackcurrant pet 2l""}"
+"Je, Celine Petals tissue ina punguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""celine petals tissue 10 pack""}"
+"je, Fanta Blackcurrant 2L ina unguzo?",biggest_discount,biggest_discount_05,swahili_mix,"{""product"": ""fanta blackcurrant pet 2l""}"
+How much per 100 g or 100 ml is Isinya eggs tray of 15?,unit_price,unit_price_04,formal,"{""product"": ""isinya eggs x15""}"
+How much per 100 g or 100 ml is Minute Maid apple juice 1L?,unit_price,unit_price_04,formal,"{""product"": ""minute maid apple juice 1l""}"
+How much per 100 g or 100 ml is Brookside UHT whole milk 250ml?,unit_price,unit_price_04,formal,"{""product"": ""brookside uht whole milk 250ml""}"
+How much per 100 g or 100 ml is Santa Maria spaghetti 400g?,unit_price,unit_price_04,formal,"{""product"": ""santa maria pasta spaghetti 400g""}"
+How much per 100 g or 100 ml is Celine toilet tissue 10 pack?,unit_price,unit_price_04,formal,"{""product"": ""celine toilet tissue 10 pack""}"
+How much per 100 g or 100 ml is Brookside strawberry yoghurt?,unit_price,unit_price_04,formal,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+How muchper 100 g or 100 ml is eline toilet tissue 10 pack?,unit_price,unit_price_04,formal,"{""product"": ""celine toilet tissue 10 pack""}"
+How much per 100 g or 100 ml is Blue Band margarine 500g?,unit_price,unit_price_04,formal,"{""product"": ""blue band margarine vanilla 500g""}"
+How much per 100 g or 100 ml is Celine Petals tissue?,unit_price,unit_price_04,formal,"{""product"": ""celine petals tissue 10 pack""}"
+How much per 100 g or 100 ml is Soko maize meal2kg?,unit_price,unit_price_04,formal,"{""product"": ""soko flour maize meal 2kg""}"
+How much per 100 g or 100 ml is Soko maize meal 2kg?,unit_price,unit_price_04,formal,"{""product"": ""soko flour maize meal 2kg""}"
+How much per 100 g or 100 ml is Celine toilet tissue 10 pack?,unit_price,unit_price_04,formal,"{""product"": ""celine toilet tissue 10 pack""}"
+How much pr 100 gr 10 l is FarmnaivasPakistani rice 2kg?,unit_price,unit_price_04,formal,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+How much per 100 g or 100 ml is Santa Maria spaghetti 400g?,unit_price,unit_price_04,formal,"{""product"": ""santa maria pasta spaghetti 400g""}"
+How much per 100 g or 100 ml is Fresh Fri cookin ol 5 litres?,unit_price,unit_price_04,formal,"{""product"": ""fresh fri cooking oil 5ltr""}"
+How much per 100 g or 100 ml is Fresh Fri cooking oil 5 litres?,unit_price,unit_price_04,formal,"{""product"": ""fresh fri cooking oil 5ltr""}"
+per 100g price Minute Maid apple juice 1L,unit_price,unit_price_04,short,"{""product"": ""minute maid apple juice 1l""}"
+per 100g price Isinya eggs tray of 15,unit_price,unit_price_04,short,"{""product"": ""isinya eggs x15""}"
+per 100g price Santa Maria spaghetti 400g,unit_price,unit_price_04,short,"{""product"": ""santa maria pasta spaghetti 400g""}"
+per 100g price Farmnaivas Pakistani rice 2kg,unit_price,unit_price_04,short,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+per 100g price Coke Zero 2L,unit_price,unit_price_04,short,"{""product"": ""coke zero 2l pet""}"
+per 100g price Fanta Blackcurrant 2L,unit_price,unit_price_04,short,"{""product"": ""fanta blackcurrant pet 2l""}"
+per 100g price Ajab all purpose flour 2kg,unit_price,unit_price_04,short,"{""product"": ""ajab all purpose flour 2kg""}"
+per 100g price Cussons soap 100g,unit_price,unit_price_04,short,"{""product"": ""cussons fresh nourishing soap 100g""}"
+epr 100g price Farmnavas pakistani rice 2kg,unit_price,unit_price_04,short,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+per 100g price Naivas white sugar2 kg,unit_price,unit_price_04,short,"{""product"": ""naivas local sugar white 2kg""}"
+per 100g price Fresh sweet bread 400g,unit_price,unit_price_04,short,"{""product"": ""fresh sweet bread 400g""}"
+per 100g price Ajab all purpose flour 2kg,unit_price,unit_price_04,short,"{""product"": ""ajab all purpose flour 2kg""}"
+per 100g price Farmnaivas Pakistani rice 2kg,unit_price,unit_price_04,short,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+per 100g price Santa Maria spaghetti 400g,unit_price,unit_price_04,short,"{""product"": ""santa maria pasta spaghetti 400g""}"
+per 100g price Cussons oap 100g,unit_price,unit_price_04,short,"{""product"": ""cussons fresh nourishing soap 100g""}"
+how much per 100ml is Cussons soap 100g,unit_price,unit_price_04,typo,"{""product"": ""cussons fresh nourishing soap 100g""}"
+how much per 100ml is Farmnaivas Pakistani rice 2kg,unit_price,unit_price_04,typo,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+how much per 100ml is Farmnaivas Pakistani rice 2kg,unit_price,unit_price_04,typo,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+how much per 100ml is Coke Zero 2L,unit_price,unit_price_04,typo,"{""product"": ""coke zero 2l pet""}"
+how much per 100ml is Santa Maria spaghetti 400g,unit_price,unit_price_04,typo,"{""product"": ""santa maria pasta spaghetti 400g""}"
+how much per 100ml is Fresh sweet bread 400g,unit_price,unit_price_04,typo,"{""product"": ""fresh sweet bread 400g""}"
+how much per 100ml is Minute Maid apple juice 1L,unit_price,unit_price_04,typo,"{""product"": ""minute maid apple juice 1l""}"
+how much per 100ml is Soko maize meal 2kg,unit_price,unit_price_04,typo,"{""product"": ""soko flour maize meal 2kg""}"
+how much per 100ml is Blue Band margarine 500g,unit_price,unit_price_04,typo,"{""product"": ""blue band margarine vanilla 500g""}"
+how much per 100ml is Fresh sweet bread 400g,unit_price,unit_price_04,typo,"{""product"": ""fresh sweet bread 400g""}"
+how much per 100ml is Naivas white sugar 2kg,unit_price,unit_price_04,typo,"{""product"": ""naivas local sugar white 2kg""}"
+how much per 100ml is Fresh Fri cooking oil 1 litre,unit_price,unit_price_04,typo,"{""product"": ""fresh fri cooking oil 1ltr""}"
+how much per 100ml is Cussons soap 100g,unit_price,unit_price_04,typo,"{""product"": ""cussons fresh nourishing soap 100g""}"
+how muc hper 10ml is Celine Petal tissue,unit_price,unit_price_04,typo,"{""product"": ""celine petals tissue 10 pack""}"
+hw much per 100mlisF resh sweet bread 400g,unit_price,unit_price_04,typo,"{""product"": ""fresh sweet bread 400g""}"
+how much per 100ml is Santa Maria spaghetti 400g,unit_price,unit_price_04,typo,"{""product"": ""santa maria pasta spaghetti 400g""}"
+how much per 100ml is Cussons sap 100g,unit_price,unit_price_04,typo,"{""product"": ""cussons fresh nourishing soap 100g""}"
+What is the price per litre of Cussons soap 100g at naivas?,unit_price,unit_price_08,formal,"{""product"": ""cussons fresh nourishing soap 100g"", ""store"": ""Naivas""}"
+What is the price per litre of Fresh Fri cooking oil 5 litres at Naivas supermarket?,unit_price,unit_price_08,formal,"{""product"": ""fresh fri cooking oil 5ltr"", ""store"": ""Naivas""}"
+What is the price per litre of Fanta Orange 2L at Naivas supermarket?,unit_price,unit_price_08,formal,"{""product"": ""fanta orange pet 2l"", ""store"": ""Naivas""}"
+What is the price per litre of Brookside strawberry yoghurt at QuickMart?,unit_price,unit_price_08,formal,"{""product"": ""brookside real strawberry probiotic yoghurt 250g"", ""store"": ""Quickmart""}"
+What is the price per litre of Fanta Orange 2L at Carrefour Westlands?,unit_price,unit_price_08,formal,"{""product"": ""fanta orange pet 2l"", ""store"": ""Carrefour""}"
+What is the price per litre of Carrefour UHT whole milk 500ml at carefour?,unit_price,unit_price_08,formal,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Carrefour""}"
+What is the price per litre of Santa Maria spaghetti 400g at Naivas?,unit_price,unit_price_08,formal,"{""product"": ""santa maria pasta spaghetti 400g"", ""store"": ""Naivas""}"
+What is the price per litre of Farmnaivas Pakistani rice 2kg at carefour?,unit_price,unit_price_08,formal,"{""product"": ""farmnaivas pakistani rice 2kg"", ""store"": ""Carrefour""}"
+What i sthep rice per itre of Ck Zero 2L at Carrefour?,unit_price,unit_price_08,formal,"{""product"": ""coke zero 2l pet"", ""store"": ""Carrefour""}"
+What is the price per litre of Celine toilet tissue 10 pack at Carrefour?,unit_price,unit_price_08,formal,"{""product"": ""celine toilet tissue 10 pack"", ""store"": ""Carrefour""}"
+What is the price per litre of Brookside UHT whole milk 250ml at Quickmart?,unit_price,unit_price_08,formal,"{""product"": ""brookside uht whole milk 250ml"", ""store"": ""Quickmart""}"
+What is the price per litre of Isinya eggs tray of 15 at naivas?,unit_price,unit_price_08,formal,"{""product"": ""isinya eggs x15"", ""store"": ""Naivas""}"
+What is the price per litre of Coke Zero 2L at Naivas supermarket?,unit_price,unit_price_08,formal,"{""product"": ""coke zero 2l pet"", ""store"": ""Naivas""}"
+What is the price per litre of Naivas white sugar 1kg at Carrefour Westlands?,unit_price,unit_price_08,formal,"{""product"": ""naivas local sugar white 1kg"", ""store"": ""Carrefour""}"
+What is the price per litre of Fresh Fri cooking oil 5 litres at carefour?,unit_price,unit_price_08,formal,"{""product"": ""fresh fri cooking oil 5ltr"", ""store"": ""Carrefour""}"
+hWat s the price per lieto f Celine Petals tisseu at Quicmart?,unit_price,unit_price_08,formal,"{""product"": ""celine petals tissue 10 pack"", ""store"": ""Quickmart""}"
+What is the price per litre of Naivas white sugar 1kg at naivas?,unit_price,unit_price_08,formal,"{""product"": ""naivas local sugar white 1kg"", ""store"": ""Naivas""}"
+per litre Isinya eggs tray of 15 Carrefour,unit_price,unit_price_08,short,"{""product"": ""isinya eggs x15"", ""store"": ""Carrefour""}"
+per litre Golden butter cookies carefour,unit_price,unit_price_08,short,"{""product"": ""golden butter cookies 200g"", ""store"": ""Carrefour""}"
+per litre Fresh sweet bread 400g Quickmart,unit_price,unit_price_08,short,"{""product"": ""fresh sweet bread 400g"", ""store"": ""Quickmart""}"
+per litre Minute Maid apple juice 1L Carrefour Westlands,unit_price,unit_price_08,short,"{""product"": ""minute maid apple juice 1l"", ""store"": ""Carrefour""}"
+pr litre Minute Maid apple juice 1L Quickmart,unit_price,unit_price_08,short,"{""product"": ""minute maid apple juice 1l"", ""store"": ""Quickmart""}"
+per litre Naivas white sugar 2kg quick mart,unit_price,unit_price_08,short,"{""product"": ""naivas local sugar white 2kg"", ""store"": ""Quickmart""}"
+epr litre Cussons soap 100g navias,unit_price,unit_price_08,short,"{""product"": ""cussons fresh nourishing soap 100g"", ""store"": ""Naivas""}"
+per litre FantaO range 2L carefor,unit_price,unit_price_08,short,"{""product"": ""fanta orange pet 2l"", ""store"": ""Carrefour""}"
+per litre Fresh Fri cooking oil 5 litres Naivas supermarket,unit_price,unit_price_08,short,"{""product"": ""fresh fri cooking oil 5ltr"", ""store"": ""Naivas""}"
+per litre Ajab all purpose flour 2kg QuickMart,unit_price,unit_price_08,short,"{""product"": ""ajab all purpose flour 2kg"", ""store"": ""Quickmart""}"
+per liteBlue Bandmargarie 500g Quickmart,unit_price,unit_price_08,short,"{""product"": ""blue band margarine vanilla 500g"", ""store"": ""Quickmart""}"
+per ltre Naivas white suagr 2kg QuickMart,unit_price,unit_price_08,short,"{""product"": ""naivas local sugar white 2kg"", ""store"": ""Quickmart""}"
+per litre Blue Band margarine 500g Naivas supermarket,unit_price,unit_price_08,short,"{""product"": ""blue band margarine vanilla 500g"", ""store"": ""Naivas""}"
+per litre Ajab all purpose flour 2kg naivas,unit_price,unit_price_08,short,"{""product"": ""ajab all purpose flour 2kg"", ""store"": ""Naivas""}"
+per litre Santa Maria spaghetti 400g Naivas,unit_price,unit_price_08,short,"{""product"": ""santa maria pasta spaghetti 400g"", ""store"": ""Naivas""}"
+per litre Brookside strawberry yoghurt Naivas,unit_price,unit_price_08,short,"{""product"": ""brookside real strawberry probiotic yoghurt 250g"", ""store"": ""Naivas""}"
+per litre Isinya eggs tray of 15 quick mart,unit_price,unit_price_08,short,"{""product"": ""isinya eggs x15"", ""store"": ""Quickmart""}"
+per litre Coke Zero 2L QuickMart,unit_price,unit_price_08,short,"{""product"": ""coke zero 2l pet"", ""store"": ""Quickmart""}"
+per litre Carrefour UHT whole milk 500ml Quickmart,unit_price,unit_price_08,short,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Quickmart""}"
+per litre Fanta Blackcurrant 2L naivas,unit_price,unit_price_08,short,"{""product"": ""fanta blackcurrant pet 2l"", ""store"": ""Naivas""}"
+Carrefour Farmnaivas Pakistani rice 2kg cost per litre,unit_price,unit_price_08,casual,"{""product"": ""farmnaivas pakistani rice 2kg"", ""store"": ""Carrefour""}"
+carefour Isinya eggs tray of 15 cost per litre,unit_price,unit_price_08,casual,"{""product"": ""isinya eggs x15"", ""store"": ""Carrefour""}"
+Carrefour Fanta Orange 2L cost per itre,unit_price,unit_price_08,casual,"{""product"": ""fanta orange pet 2l"", ""store"": ""Carrefour""}"
+quick mart Fanta Blackcurrant 2L cost per litre,unit_price,unit_price_08,casual,"{""product"": ""fanta blackcurrant pet 2l"", ""store"": ""Quickmart""}"
+Carrefour Westlands Coke Zero 2L cost per litre,unit_price,unit_price_08,casual,"{""product"": ""coke zero 2l pet"", ""store"": ""Carrefour""}"
+Naivas supermarket Ajab all purpose flour 2kg cost per litre,unit_price,unit_price_08,casual,"{""product"": ""ajab all purpose flour 2kg"", ""store"": ""Naivas""}"
+Carrefour Minute Maid apple juice 1L cost per litre,unit_price,unit_price_08,casual,"{""product"": ""minute maid apple juice 1l"", ""store"": ""Carrefour""}"
+Carrefour Naivas white sugar2kg cost per litre,unit_price,unit_price_08,casual,"{""product"": ""naivas local sugar white 2kg"", ""store"": ""Carrefour""}"
+Carrefour Westlands Fresh Fri cooking oil 1 litre cost per litre,unit_price,unit_price_08,casual,"{""product"": ""fresh fri cooking oil 1ltr"", ""store"": ""Carrefour""}"
+carefour Fanta Orange 2L cost per litre,unit_price,unit_price_08,casual,"{""product"": ""fanta orange pet 2l"", ""store"": ""Carrefour""}"
+Carrefour Westlands Soko maize meal 2kg cost per litre,unit_price,unit_price_08,casual,"{""product"": ""soko flour maize meal 2kg"", ""store"": ""Carrefour""}"
+Quickmart Carrefour UH Twhole milk 500ml cost er litre,unit_price,unit_price_08,casual,"{""product"": ""carrefour uht whole milk 500ml"", ""store"": ""Quickmart""}"
+Carrefour Celine toilet tissue 10 pack cost per litre,unit_price,unit_price_08,casual,"{""product"": ""celine toilet tissue 10 pack"", ""store"": ""Carrefour""}"
+Carrefour Westlands Blue Band margarine 500g cost per litre,unit_price,unit_price_08,casual,"{""product"": ""blue band margarine vanilla 500g"", ""store"": ""Carrefour""}"
+Naivas supermarket Naivas white sugar 1kg cost per litre,unit_price,unit_price_08,casual,"{""product"": ""naivas local sugar white 1kg"", ""store"": ""Naivas""}"
+Naivas supermarket Naivas white sugar 2kg cost per ltire,unit_price,unit_price_08,casual,"{""product"": ""naivas local sugar white 2kg"", ""store"": ""Naivas""}"
+Quickmart Fresh Fri cooking oil 1 litre cost per litre,unit_price,unit_price_08,casual,"{""product"": ""fresh fri cooking oil 1ltr"", ""store"": ""Quickmart""}"
+Has the price of beans gone up in Kitui?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Kitui""}"
+Has the price of dry beans gone up in Turkana?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Turkana""}"
+Has the price of maize gone up in Makueni?,market_price,market_price_04,formal,"{""commodity"": ""maize"", ""county"": ""Makueni""}"
+Has the price of goat gone up in Marsabit?,market_price,market_price_04,formal,"{""commodity"": ""goat"", ""county"": ""Marsabit""}"
+Has the price of beans gnoe up in Lamu Wes?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Lamu West""}"
+Has the price of goat gone up in Turkana?,market_price,market_price_04,formal,"{""commodity"": ""goat"", ""county"": ""Turkana""}"
+Has teprcie of aize gone up in iKlifi?,market_price,market_price_04,formal,"{""commodity"": ""maize"", ""county"": ""Kilifi""}"
+Has the price of beans gon up in Baringo?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Baringo""}"
+Has the price of maize grain gone up in Turkana?,market_price,market_price_04,formal,"{""commodity"": ""maize"", ""county"": ""Turkana""}"
+Has the price of maize grain gone up in Baringo?,market_price,market_price_04,formal,"{""commodity"": ""maize"", ""county"": ""Baringo""}"
+Has the price of maize grain gone up in Marsabit?,market_price,market_price_04,formal,"{""commodity"": ""maize"", ""county"": ""Marsabit""}"
+Has the price of dry baens gone upin Garissa?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Garissa""}"
+Has the price of beans gone up in Kisumu?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Kisumu""}"
+Has the price of maize gone up in Isiolo?,market_price,market_price_04,formal,"{""commodity"": ""maize"", ""county"": ""Isiolo""}"
+Has the price of dry beans gone up in Kitui?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Kitui""}"
+Has the price of beans gone up in Isiolo?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Isiolo""}"
+Has the rpice f maize gone up in Isiolo?,market_price,market_price_04,formal,"{""commodity"": ""maize"", ""county"": ""Isiolo""}"
+Has the price of goat gone up in Mombasa?,market_price,market_price_04,formal,"{""commodity"": ""goat"", ""county"": ""Mombasa""}"
+Has the price of dry beans gone up in Lamu West?,market_price,market_price_04,formal,"{""commodity"": ""beans"", ""county"": ""Lamu West""}"
+maize grain Kisumu rising?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""Kisumu""}"
+beans Voiriing?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""Voi""}"
+beans Mombasa rising?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""Mombasa""}"
+maize grain Kajiado rising?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""Kajiado""}"
+goat North Imenti rising?,market_price,market_price_04,short,"{""commodity"": ""goat"", ""county"": ""North Imenti""}"
+dry beans Baringo rising?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""Baringo""}"
+dry beans Mandera rising?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""Mandera""}"
+maize Nairobi riisng?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""Nairobi""}"
+dry beans Kajiado rising?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""Kajiado""}"
+dry beans Mandera rising?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""Mandera""}"
+maize Marsabit rising?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""Marsabit""}"
+maize grain Marsabit rising?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""Marsabit""}"
+maize Isiolo rising?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""Isiolo""}"
+goat Makueni rising?,market_price,market_price_04,short,"{""commodity"": ""goat"", ""county"": ""Makueni""}"
+maize Kitui rising?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""Kitui""}"
+maize North Imenti rising?,market_price,market_price_04,short,"{""commodity"": ""maize"", ""county"": ""North Imenti""}"
+dry beans North Imenti rising?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""North Imenti""}"
+dry beans Turkana rising?,market_price,market_price_04,short,"{""commodity"": ""beans"", ""county"": ""Turkana""}"
+"Je, bei ya mahindi Kisumu imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""maize"", ""county"": ""Kisumu""}"
+"Je, bei ya mbuzi Voi imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""goat"", ""county"": ""Voi""}"
+"Je, bei ya mbuzi Turkana imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""goat"", ""county"": ""Turkana""}"
+"Je, bei ya mbuzi Kajiado imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""goat"", ""county"": ""Kajiado""}"
+"Je, bei ya maharagwe North Imenti imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""beans"", ""county"": ""North Imenti""}"
+"Je, beiya mahind iIsiolo imeada?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""maize"", ""county"": ""Isiolo""}"
+"Je, bei ya mbuzi North Imenti imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""goat"", ""county"": ""North Imenti""}"
+"Je, bei ya mahindi Kitui imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""maize"", ""county"": ""Kitui""}"
+"Je, bei ya mbuzi Kitui imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""goat"", ""county"": ""Kitui""}"
+"Je, bei ya maharagwe Makueni imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""beans"", ""county"": ""Makueni""}"
+"Je, bei ya maharagwe Garissa imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""beans"", ""county"": ""Garissa""}"
+"Je, bei ya mbuzi Garissa imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""goat"", ""county"": ""Garissa""}"
+"Je, bei ya mahindi Turkana imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""maize"", ""county"": ""Turkana""}"
+"Je, bei ya maharagwe Lamu West imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""beans"", ""county"": ""Lamu West""}"
+"Je,b ei ya maharagwe Baringo imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""beans"", ""county"": ""Baringo""}"
+"Je, bei ya maharagwe Mombasa imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""beans"", ""county"": ""Mombasa""}"
+"Je, bei ya mahindi Mandera imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""maize"", ""county"": ""Mandera""}"
+"Je, bei ya mahindi Kitui imepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""maize"", ""county"": ""Kitui""}"
+"Je, bei yamahindi Makueni mepanda?",market_price,market_price_04,swahili_mix,"{""commodity_sw"": ""maize"", ""county"": ""Makueni""}"
+Which county has the cheapest goat?,market_price,market_price_06,formal,"{""commodity"": ""goat""}"
+Which county has the cheapest maize grain?,market_price,market_price_06,formal,"{""commodity"": ""maize""}"
+Which county has the cheapest goat?,market_price,market_price_06,formal,"{""commodity"": ""goat""}"
+Which county has the cheapest maize?,market_price,market_price_06,formal,"{""commodity"": ""maize""}"
+Which county has the cheapest goat?,market_price,market_price_06,formal,"{""commodity"": ""goat""}"
+Which county has the cheapest maize?,market_price,market_price_06,formal,"{""commodity"": ""maize""}"
+Which county has the cheapest maize grain?,market_price,market_price_06,formal,"{""commodity"": ""maize""}"
+Which county has the cheapest goat?,market_price,market_price_06,formal,"{""commodity"": ""goat""}"
+Which county has the cheapest maize?,market_price,market_price_06,formal,"{""commodity"": ""maize""}"
+Which county has the cheapest beans?,market_price,market_price_06,formal,"{""commodity"": ""beans""}"
+Which county has the cheapest beans?,market_price,market_price_06,formal,"{""commodity"": ""beans""}"
+Which county has the cheapest goat?,market_price,market_price_06,formal,"{""commodity"": ""goat""}"
+Which county has the cheapest beans?,market_price,market_price_06,formal,"{""commodity"": ""beans""}"
+hWch county has the cheapest goat?,market_price,market_price_06,formal,"{""commodity"": ""goat""}"
+Wich county has the cheapest maize?,market_price,market_price_06,formal,"{""commodity"": ""maize""}"
+Which couty has te cheapest goat?,market_price,market_price_06,formal,"{""commodity"": ""goat""}"
+Which county has the cheapest beans?,market_price,market_price_06,formal,"{""commodity"": ""beans""}"
+cheapest goat county,market_price,market_price_06,short,"{""commodity"": ""goat""}"
+cheapest maize grain county,market_price,market_price_06,short,"{""commodity"": ""maize""}"
+cheapest beans county,market_price,market_price_06,short,"{""commodity"": ""beans""}"
+cheapest maize grain county,market_price,market_price_06,short,"{""commodity"": ""maize""}"
+cheapest maize county,market_price,market_price_06,short,"{""commodity"": ""maize""}"
+cheapest goat county,market_price,market_price_06,short,"{""commodity"": ""goat""}"
+cheapest beans county,market_price,market_price_06,short,"{""commodity"": ""beans""}"
+cheapest goat county,market_price,market_price_06,short,"{""commodity"": ""goat""}"
+cheapest beans county,market_price,market_price_06,short,"{""commodity"": ""beans""}"
+cheapest beans county,market_price,market_price_06,short,"{""commodity"": ""beans""}"
+cheapest maize grain county,market_price,market_price_06,short,"{""commodity"": ""maize""}"
+cheapest goat county,market_price,market_price_06,short,"{""commodity"": ""goat""}"
+cheapest goat county,market_price,market_price_06,short,"{""commodity"": ""goat""}"
+cheapest maize grain county,market_price,market_price_06,short,"{""commodity"": ""maize""}"
+cheapest maize grain county,market_price,market_price_06,short,"{""commodity"": ""maize""}"
+Kaunti ipi ina mahindi ya bein afuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""maize""}"
+Kaunti ipi ina maharagwe ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""beans""}"
+Kaunt ipi ina mbuziya bi nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""goat""}"
+Kaunti ipi ina mbuzi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""goat""}"
+Kaunti ipi ina mbuzi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""goat""}"
+Kaunti ipi ina mahindi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""maize""}"
+Kaunti ipi ina maharagwe ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""beans""}"
+Kaunti ipi ina maharagwe ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""beans""}"
+Kaunti ipi ina mahindi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""maize""}"
+Kaunti ipi ina mahindi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""maize""}"
+Kaunti ipi ina mbuzi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""goat""}"
+Kaunti ipi ina maharagwe ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""beans""}"
+Kaunti ipi ina mahindi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""maize""}"
+Kaunti ipi ina mbuzi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""goat""}"
+Kaunti ipi ina mbuzi ya bei nafuuzaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""goat""}"
+Kaunti ipi ina maharagwe ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""beans""}"
+Kaunti ipi ina mahindi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""maize""}"
+Kaunti ipi ina mbuzi ya bei nafuu zaidi?,market_price,market_price_06,swahili_mix,"{""commodity_sw"": ""goat""}"
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting mroe expensie in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is foo getting mre expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+s Ifood gettign more expensive in enya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+Is food getting more expensive in Kenya?,food_inflation,food_inflation_03,formal,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food price srising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices irsing,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+are food prices rising,food_inflation,food_inflation_03,short,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, beiya chakula aipanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, ebi ya chakula inapand?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakulainapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+"Je, bei ya chakula inapanda?",food_inflation,food_inflation_03,swahili_mix,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me th national food inflation ate.,food_inflation,food_inflation_06,formal,{}
+Give me the natioanl food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the natioal food inflation rate.,food_inflation,food_inflation_06,formal,{}
+Give me the national foo dinflation raet.,food_inflation,food_inflation_06,formal,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+nationl food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+anional food inflation,food_inflation,food_inflation_06,short,{}
+national food ifnlation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+national food inflation,food_inflation,food_inflation_06,short,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+atinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal fodi nflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+natinal food inflaton rate,food_inflation,food_inflation_06,typo,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hlelo,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hello,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hithere,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Hi there,out_of_scope,out_of_scope_greeting,short,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Habari,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo ipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vpii,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mamb ovipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo ipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+Mambo vipi,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+goo morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good mroning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good orning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+good morning,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+hey,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thank,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thanks,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thak you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+thank you,out_of_scope,out_of_scope_greeting,short,{}
+asanet sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante saan,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asante sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+asate sana,out_of_scope,out_of_scope_greeting,swahili_mix,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weatehr in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi tdaoy?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the weather in Nairobi today?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rin tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+Will it rain tomorrow?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+Wha tis the latet news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What isthe latst news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is he latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latets news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+What is the latest news?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match ysterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yestreday,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the footalbl match yeterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}
+Who won the football match yesterday?,out_of_scope,out_of_scope_weather_news,formal,{}

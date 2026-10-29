@@ -1,0 +1,92 @@
+question,expected_intent,expected_entities,notes,source
+which unga is the cheapest right now,cheapest_item,group=maize-meal-2kg,,ai_written
+"I'm looking for the lowest price on cooking oil, any store",cheapest_item,group=cooking-oil-1l,,ai_written
+cheapest milk anywhere?,cheapest_item,group=milk-1l,,ai_written
+where do I get rice for less,cheapest_item,term=rice,not a staple group yet,ai_written
+best deal on sugar 2kg,cheapest_item,group=sugar-2kg,,ai_written
+what's the least I can pay for a tray of eggs,cheapest_item,group=eggs-tray-15,,ai_written
+any cheaper bread than Fresh Sweet?,cheapest_item,term=bread;product=Fresh Sweet Bread 400G,,ai_written
+cheapest soda 2 litres,cheapest_item,term=soft drinks,,ai_written
+nipe bei rahisi zaidi ya mafuta ya kupikia,cheapest_item,group=cooking-oil-1l,Swahili,ai_written
+lowest priced toilet paper pls,cheapest_item,term=toilet tissue,,ai_written
+how much is Brookside UHT milk 250ml at Quickmart,price_at_store,store=Quickmart;product=Brookside UHT Whole Milk 250ml,,ai_written
+what's Naivas charging for 2kg sugar these days,price_at_store,store=Naivas;group=sugar-2kg,,ai_written
+Carrefour price for Isinya eggs?,price_at_store,store=Carrefour;product=Isinya Eggs X15,,ai_written
+is Fresh Fri 1 litre on sale at Naivas? what's the price,price_at_store,store=Naivas;product=Fresh Fri Cooking Oil 1Ltr,mentions sale but asks price,ai_written
+quickmart soko maize meal 2kg how much,price_at_store,store=Quickmart;product=Soko Flour Maize Meal 2kg,,ai_written
+Bei ya Fanta Orange 2L Carrefour,price_at_store,store=Carrefour;product=Fanta Orange Pet 2L,Swahili,ai_written
+price of Santa Maria spaghetti at naivas,price_at_store,store=Naivas;product=Santa Maria Pasta Spaghetti 400g,lowercase store,ai_written
+how much for Blue Band 500g at Quickmart,price_at_store,store=Quickmart;product=Blue Band Margarine Vanilla 500g,,ai_written
+what does Tuskys sell sugar for,price_at_store,store=UNKNOWN:Tuskys;group=sugar-2kg,unknown store -> not in snapshot,ai_written
+price of dog food at Naivas,price_at_store,store=Naivas;product=UNKNOWN:dog food,unknown product -> not in snapshot,ai_written
+kensalt salt 1kg price at carefour,price_at_store,store=Carrefour;product=Kensalt Premium Iodated Edible Table Salt 1kg,typos,ai_written
+"Naivas or Quickmart, which one is cheaper for cooking oil?",compare_stores,"store=Naivas,Quickmart;group=cooking-oil-1l",,ai_written
+compare Carrefour and Naivas on milk,compare_stores,"store=Carrefour,Naivas;group=milk-1l",,ai_written
+"where is Soko maize meal cheaper, Naivas or Carrefour",compare_stores,"store=Naivas,Carrefour;product=Soko Flour Maize Meal 2kg",,ai_written
+price of Fanta 2L in all three supermarkets,compare_stores,store=ALL;term=fanta 2l,,ai_written
+"which is cheaper overall, Quickmart or Naivas, if I buy sugar and unga",compare_stores,"store=Quickmart,Naivas;group=sugar-2kg,maize-meal-2kg",basket,ai_written
+how much more is Brookside milk at Carrefour than at Quickmart,compare_stores,"store=Carrefour,Quickmart;term=brookside milk",price difference,ai_written
+Quickmart vs Naivas for eggs,compare_stores,"store=Quickmart,Naivas;group=eggs-tray-15",,ai_written
+is it better to shop at Carrefour or Naivas for cooking oil and milk,compare_stores,"store=Carrefour,Naivas;group=cooking-oil-1l,milk-1l",basket,ai_written
+linganisha Naivas na Quickmart kwa bei ya sukari,compare_stores,"store=Naivas,Quickmart;group=sugar-2kg",Swahili,ai_written
+compare isinya eggs across the stores,compare_stores,store=ALL;product=Isinya Eggs X15,,ai_written
+what are the best offers today,biggest_discount,,,ai_written
+which products have been marked down the most,biggest_discount,,,ai_written
+show me things that are on promo at Quickmart,biggest_discount,store=Quickmart,,ai_written
+anything with a big discount at Carrefour?,biggest_discount,store=Carrefour,,ai_written
+biggest percentage off on dairy,biggest_discount,term=dairy,,ai_written
+what's cheaper than usual right now,biggest_discount,,regular vs advertised price,ai_written
+are there discounts on cooking oil,biggest_discount,group=cooking-oil-1l,,ai_written
+Naivas offers this week,biggest_discount,store=Naivas,,ai_written
+bidhaa gani zimepunguzwa bei zaidi?,biggest_discount,,Swahili,ai_written
+list the reduced items at Naivas,biggest_discount,store=Naivas,,ai_written
+which sugar pack is cheapest per kilo,unit_price,group=sugar-2kg,,ai_written
+is the 5 litre Fresh Fri cheaper per litre than the 1 litre,unit_price,"product=Fresh Fri Cooking Oil 5Ltr,Fresh Fri Cooking Oil 1Ltr",,ai_written
+price per kg of rice,unit_price,term=rice,,ai_written
+how much does one egg cost if I buy the tray,unit_price,group=eggs-tray-15,price per piece,ai_written
+per litre cost of milk at carrefour,unit_price,store=Carrefour;group=milk-1l,store named but unit price asked,ai_written
+what's the cost per 100g of butter cookies,unit_price,product=Golden Butter Cookies 200G,,ai_written
+best value maize flour by weight,unit_price,group=maize-meal-2kg,,ai_written
+is 2kg sugar better value than 1kg,unit_price,group=sugar-2kg,,ai_written
+bei kwa lita ya mafuta ya kupikia,unit_price,group=cooking-oil-1l,Swahili,ai_written
+unit cost of Naivas white sugar 1kg vs 2kg,unit_price,"product=Naivas Local Sugar White 1Kg,Naivas Local Sugar White 2Kg",,ai_written
+what's the maize price in Kitui lately,market_price,county=Kitui;commodity=maize,,ai_written
+beans prices Turkana 2024,market_price,county=Turkana;commodity=beans;year=2024,,ai_written
+has maize got more expensive in Garissa?,market_price,county=Garissa;commodity=maize,trend,ai_written
+which county sells maize for the least,market_price,commodity=maize,cross-county,ai_written
+how much is a goat in Marsabit,market_price,county=Marsabit;commodity=goat,goat is a per-animal price,ai_written
+compare beans in Makueni and Kilifi,market_price,"county=Makueni,Kilifi;commodity=beans",,ai_written
+bei ya mahindi Isiolo,market_price,county=Isiolo;commodity=maize,Swahili,ai_written
+maize price in Kisumu,market_price,county=Kisumu;commodity=maize,no price data -> say so,ai_written
+latest bean price for Nairobi,market_price,county=Nairobi;commodity=beans,old data (Jan 2022) -> say the date,ai_written
+market prices in Wajir,market_price,county=Wajir,,ai_written
+how's food inflation looking,food_inflation,,,ai_written
+food prices going up or down in Kenya,food_inflation,,,ai_written
+what was food inflation in March 2023,food_inflation,month=March;year=2023,,ai_written
+inflation rate for food in 2022,food_inflation,year=2022,,ai_written
+is food inflation worse than last year,food_inflation,,year-on-year,ai_written
+give me the latest food price index,food_inflation,,,ai_written
+mfumuko wa bei ya chakula mwaka huu,food_inflation,,Swahili,ai_written
+how much have food prices risen in Kenya,food_inflation,,,ai_written
+food inflation Kenya now,food_inflation,,,ai_written
+has the cost of food gone up this year,food_inflation,,,ai_written
+"hi, anyone there?",out_of_scope,,greeting,ai_written
+thanks a lot!,out_of_scope,,thanks,ai_written
+habari yako,out_of_scope,,Swahili greeting,ai_written
+got any good jokes?,out_of_scope,,chit-chat,ai_written
+what can you help me with?,out_of_scope,,app help,ai_written
+will sugar be more expensive next month,out_of_scope,,forecast,ai_written
+predict maize prices for 2027,out_of_scope,,forecast,ai_written
+should I stock up on cooking oil before prices rise,out_of_scope,,advice + forecast,ai_written
+is Naivas open now,out_of_scope,,opening hours not in data,ai_written
+is there sugar in stock at Quickmart today,out_of_scope,,stock not verified,ai_written
+how much is delivery to Westlands,out_of_scope,,delivery fee set by the store,ai_written
+where is my order,out_of_scope,,order tracking not a question for the assistant,ai_written
+who won the Premier League last season,out_of_scope,,sports,ai_written
+what's the weather like in Nairobi,out_of_scope,,weather,ai_written
+write me a poem about sugar,out_of_scope,,creative writing,ai_written
+what is 15% of 2400,out_of_scope,,maths,ai_written
+how do I make ugali,out_of_scope,,recipes,ai_written
+translate good morning to Swahili,out_of_scope,,translation,ai_written
+who is the governor of Kitui,out_of_scope,,politics,ai_written
+asdf jkl,out_of_scope,,gibberish,ai_written

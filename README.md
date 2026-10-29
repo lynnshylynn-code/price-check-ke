@@ -3,9 +3,9 @@
 Price Check KE is a Kenyan shopping-comparison prototype with a native Kotlin
 and Jetpack Compose Android app and an Expo web client. It follows the
 Pricewise mockup: Home, Search and product comparisons, Basket, Trends, and
-Profile. A FastAPI backend serves the Kenya food-market dataset and optional
-OpenAI-backed dataset Q&A.
-Supermarket-price feeds are not integrated.
+Profile. A FastAPI backend serves the Kenya food-market dataset and a locally
+trained, deterministic assistant. Advertised supermarket prices come from a
+dated listing snapshot and may differ in store.
 
 ## Project structure
 
@@ -15,7 +15,7 @@ price-check-ke/
 │   ├── data/              # Supplied 20.4 MB RTFP Kenya dataset
 │   ├── src/price_check_api/
 │   │   ├── main.py        # API routes and CORS
-│   │   ├── ai_insights.py # OpenAI-backed, dataset-grounded answers
+│   │   ├── trained_assistant.py # Trained intent routing and deterministic answers
 │   │   ├── market_data.py # Dataset loading and summary
 │   │   └── schemas.py     # Validated API response models
 │   ├── tests/
@@ -62,11 +62,12 @@ python -m pip install -e ".[dev]"
 ```
 
 The API runs at `http://127.0.0.1:8000`; interactive docs are at
-`http://127.0.0.1:8000/docs`. The startup script prompts for the OpenAI key
-using hidden input; press Enter to start without live AI access. `OPENAI_MODEL`
-is optional and defaults to `gpt-4.1-mini`. Never put this key in the Expo app.
-Without a configured key, live AI is unavailable, but Trends still supports
-dataset summaries and clearly labelled offline answers.
+`http://127.0.0.1:8000/docs`. Before the first run, build the synthetic
+question dataset and train the assistant and listing matcher using the steps in
+[backend/README.md](backend/README.md). The main assistant training path is
+`notebooks/assistant_intent_crisp_dm.ipynb`; generate and execute it with
+`python scripts/build_assistant_notebook.py` from `backend/`. The CLI training
+script remains a compatible alternate. No model-service key is required.
 
 ## Run the frontend
 
@@ -113,18 +114,15 @@ python -m pytest
 - The backend uses the supplied 55,224-row World Bank Kenya RTFP market CSV.
   Its national Market Average row has 236 months; the first 12 inflation
   values are blank, leaving 224 reported values from Jan 2008–Aug 2026.
-- Trends provides year-by-year descriptive exploration and optional
-  OpenAI-powered Q&A grounded in the historical RTFP data. AI answers are not
-  forecasts or supermarket prices. The deterministic summary works without an
-  OpenAI key.
-- For a presentation without a working OpenAI key, Trends has a clearly
-  labelled demo simulation. It uses fixed response rules and the loaded
-  historical figures; it does not call an AI model and must not be presented as
-  a live AI answer.
-- If a live OpenAI question fails, Trends shows the service error and a clearly
-  labelled offline answer calculated from the loaded dataset. This makes
-  supported historical questions usable without API availability, but it is
-  not a generated AI answer and cannot explain causes or forecast prices.
+- Trends provides year-by-year descriptive exploration and a locally trained
+  intent classifier connected to deterministic data lookups. Answers include
+  intent confidence and source information; the assistant does not forecast or
+  give buying advice.
+- Questions generated from the supplied templates are synthetic. The separate
+  AI-written held-out set is reported separately; human-authored question
+  metrics are not available yet.
+- If trained artifacts are missing, the assistant returns an unavailable
+  message and example questions. Train the artifacts before serving answers.
 - RTFP's national food-price index cannot substantiate product-specific
   supermarket comparisons. Real price comparisons need an approved retailer or
   user-verified feed with source, location, package size, and observation time.
@@ -133,7 +131,7 @@ python -m pytest
   retailer feeds and push notifications are not connected.
 - A backend Dockerfile is provided for deployment preparation. No hosting
   provider, production URL, or deployment has been configured.
-- Before exposing the AI endpoint publicly, configure authentication and
+- Before exposing the assistant endpoint publicly, configure authentication and
   request-rate/cost limits. It currently validates question length and is
   intended for local development until those protections are added.
 
