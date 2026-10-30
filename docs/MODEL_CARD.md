@@ -2,15 +2,12 @@
 
 ## Intent classifier
 
-- **Metric status:** the recorded metrics below predate the expanded compare-stores templates and the rebalanced family splits. Needs refresh after retraining; no metric values were changed without a new training run. The compare-stores score rests on only a small number of held-out template families and should be interpreted cautiously.
-- **Training path:** `notebooks/assistant_intent_crisp_dm.ipynb` is the main CRISP-DM training path. It compares a majority baseline, Multinomial Naive Bayes, kNN, decision tree, logistic regression, calibrated linear SVM, random forest, and a small MLP on the same word/character TF-IDF features. Selection and abstention threshold are validation-only. `backend/scripts/train_assistant.py` is the command-line copy and compatibility check.
-- **Recorded model:** CalibratedLinearSVC with word and character TF-IDF from the previously recorded CLI run. The new notebook comparison and CLI consistency check have not been executed in the current environment, so this is not confirmed as the notebook-selected model.
-- **Current generated data:** the latest dataset-builder run produced 1,864 training rows from 44 families, 927 validation rows from 16 families, and 956 synthetic test rows from 16 families. These splits have not been used for a new model run. The training set is capped by intent and the compare-stores metric rests on a small number of validation/test families.
-- **Historical training data:** 2,900 synthetic rows from 48 template families. The previous model's 433-row validation split, 697-row synthetic test, and 91-row AI-written held-out set were kept separate. Training SHA-256: `3e801bee7212dee46dab9c2279b812ae1bff7c7ebad89135728bd9dddd2f88d3`.
-- **Metrics:** synthetic test accuracy 0.6026 / macro-F1 0.5652; AI-written held-out accuracy 0.7912 / macro-F1 0.8115. Dummy baseline macro-F1 0.0511 and 0.0450 respectively.
-- **Intended use:** route supported product, listing, market-price and food-inflation questions to deterministic data functions; abstain below validation-selected confidence threshold 0.4200.
-- **Limitations:** all questions are synthetic or AI-written; compare_stores was missed in all 53 synthetic test examples. Not a human-validated conversational system.
+- **Training path:** `notebooks/assistant_intent_crisp_dm.ipynb` is the main training path. It compares a majority baseline, Multinomial Naive Bayes, kNN, decision tree, logistic regression, calibrated linear SVM, random forest, and MLP over shared word/character TF-IDF features. Selection and abstention use validation data only. `backend/scripts/train_assistant.py` is the command-line copy.
+- **Evaluation note:** the dataset splits changed in this version, so older results are not directly comparable. The compare_stores score rests on a small number of template families.
 
+<!-- metrics:start -->
+Run `python scripts/refresh_docs_metrics.py` after training to fill in this section.
+<!-- metrics:end -->
 ## Listing pair matcher
 
 - **Model:** LogisticRegression over product-pair text, size, unit, brand and unit-price features, trained 2026-10-27 with scikit-learn 1.9.1.

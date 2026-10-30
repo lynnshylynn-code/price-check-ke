@@ -586,6 +586,8 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
             entities["group"] = None
         group_term = group_row["surface_form"] if group_row else None
         group_mentions = _slot_mentions(text, ("group", "group2"))
+        category_row = _extract(text, "category")
+        category_term = category_row["surface_form"] if category_row else None
         unique_group_mentions: list[dict[str, str]] = []
         seen_groups: set[str] = set()
         for mention in group_mentions:
@@ -597,6 +599,101 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
             product is not None or bool(entities.get("group")) or bool(group_term)
             or bool(unique_group_mentions)
         ) and not unknown_product
+        if intent == "biggest_discount":
+            named_stores = [entry["store"] for entry in store_mentions if entry["store"]]
+            has_unknown_store = unknown_store or any(
+                entry["store"] is None for entry in store_mentions
+            )
+            if has_unknown_store:
+                answer = f"That store is not in the snapshot. {DATA_LABEL}."
+                return _base_response(text, intent, confidence, entities, answer, [])
+
+            discount_rows = [item for item in get_listings() if item.discount_pct is not None]
+            if named_stores:
+                requested_store_names = {name.casefold() for name in named_stores}
+                discount_rows = [
+                    item
+                    for item in discount_rows
+                    if item.supermarket.casefold()
+                    in requested_store_names
+                ]
+            filters = [
+                term
+                for term in (
+                    group_term,
+                    category_term,
+                    product_label
+                    if _extract(text, "product") or unknown_product
+                    else None,
+                )
+                if term
+            ]
+            category_map = {
+                "dairy": {"dairy"},
+                "milk and dairy": {"dairy"},
+                "soft drinks": {"beverages"},
+                "beverages": {"beverages"},
+                "snacks and biscuits": {"bakery", "pantry"},
+                "cooking oils and fats": {"pantry"},
+                "rice and pasta": {"pantry"},
+                "flours and cereals": {"pantry"},
+                "toilet paper and tissue": {"household"},
+                "soap and personal care": {"personal_care"},
+                "household cleaning": {"household"},
+            }
+            if filters:
+                def matches_filter(item: Any) -> bool:
+                    for term in filters:
+                        normalized = term.casefold().strip()
+                        categories = category_map.get(normalized)
+                        if categories and item.category in categories:
+                            continue
+                        words = re.findall(r"[a-z0-9]+", normalized)
+                        if words and all(word in item.item_name.casefold() for word in words):
+                            continue
+                        return False
+                    return True
+
+                discount_rows = [item for item in discount_rows if matches_filter(item)]
+            discount_rows.sort(key=lambda item: (-(item.discount_pct or 0), item.price_kes))
+            discount_rows = discount_rows[:5]
+            if not discount_rows:
+                answer = (
+                    "No discounted listing matches those filters in this snapshot. "
+                    f"{DATA_LABEL}."
+                )
+            else:
+                lines = [
+                    f"{item.item_name} at {item.supermarket}: advertised KES {item.price_kes:g}; "
+                    f"crossed-out KES {item.regular_price_kes:g}; "
+                    f"{item.discount_pct:g}% off; {item.product_url}"
+                    for item in discount_rows
+                ]
+                lines.append(
+                    "The discount compares the advertised price with the retailer's "
+                    "crossed-out price; this snapshot is skewed toward offers."
+                )
+                answer = "\n".join(lines) + f"\n{DATA_LABEL}."
+            sources = [
+                {
+                    "name": "Kenya supermarket listing snapshot",
+                    "url": item.product_url,
+                    "note": DATA_LABEL,
+                }
+                for item in discount_rows
+            ]
+            return _base_response(
+                text,
+                intent,
+                confidence,
+                entities,
+                answer,
+                sources,
+                "Kenya supermarket listing snapshot",
+                None,
+                "20 Oct 2026",
+                "20 Oct 2026",
+            )
         if unknown_store and intent != "compare_stores":
             return _base_response(
                 text,
@@ -655,13 +752,7 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
                 answer,
                 [],
             )
-        if intent == "biggest_discount":
-            rows = sorted(
-                (item for item in get_listings() if item.discount_pct is not None),
-                key=lambda item: item.discount_pct or 0,
-                reverse=True,
-            )[:5]
-        elif intent == "compare_stores" and entities.get("group"):
+        if intent == "compare_stores" and entities.get("group"):
             group = next(
                 (group for group in get_comparable_groups() if group.id == entities["group"]), None
             )

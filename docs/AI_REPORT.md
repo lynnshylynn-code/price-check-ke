@@ -15,83 +15,18 @@ Intent routing is a **model-based/goal-based agent**: it uses a trained model to
 
 ## Data provenance and splits
 
-The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The latest `python scripts/build_assistant_dataset.py` run generated 3,747 retained rows and split whole families: 1,864 training rows from 44 families, 927 validation rows from 16 families, and 956 test rows from 16 families. Every intent occurs in each split. The training set was capped by intent; 649 rows were removed by that cap and zero training questions met the held-out similarity removal threshold. The highest retained-training character-trigram Jaccard similarity was 0.8056 against the AI-written held-out set. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. No human-written held-out file is present.
+The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The dataset builder generates family-grouped splits, applies an intent cap, and removes training questions whose normalized character-trigram Jaccard similarity to AI-written or human-written held-out questions is at least 0.85. Current row counts and leakage results are populated from training metadata below. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. No human-written held-out file is present.
 
 ## Intent model results
 
 The main training path is `notebooks/assistant_intent_crisp_dm.ipynb`, generated and executed by `backend/scripts/build_assistant_notebook.py`. It compares a majority-class baseline with Multinomial Naive Bayes, kNN, a decision tree, logistic regression, calibrated linear SVM, random forest, and a small MLP neural network. Every candidate uses the same word and character TF-IDF feature union. Validation-only macro-F1 with abstentions, accepted accuracy, and coverage determine model and threshold selection; the synthetic test and provenance-labelled held-out sources are reported afterward. Tree-depth, neighbour-count, and regularization sweeps demonstrate train/validation gaps. The CLI script remains available as a consistency check and writes the same metadata and model format. Re-run the notebook builder to refresh the executed comparison table when training data or dependencies change.
 
-The result table below is the previously recorded command-line training run on the earlier dataset. Training on the rebalanced splits was not executable in the current offline environment because the installed Python runtime lacks joblib and scikit-learn; therefore the old metrics below are historical and are not results for the current data. The notebook builder also could not execute because matplotlib is unavailable. Do not use these historical scores as the current model evaluation; refresh after retraining in an environment with the existing project dependencies.
 
-The compare-stores templates now have a modest number of families in each held-out split, so its evaluation remains sensitive to a small number of template phrasings. **Needs refresh after retraining:** the metrics below describe the prior dataset and must not be used to assess the rebalanced compare-stores intent.
+The dataset splits changed in this version, so older scores are not directly comparable. The compare_stores score rests on a small number of template families.
 
-Training ran 2026-10-27 with scikit-learn 1.9.1. The selected model was `CalibratedLinearSVC`, using word and character TF-IDF features and a confidence threshold of 0.4200 selected on the synthetic validation split. Its training data SHA-256 is `3e801bee7212dee46dab9c2279b812ae1bff7c7ebad89135728bd9dddd2f88d3`.
-
-| Evaluation data | Model accuracy | Model macro-F1 | Dummy accuracy | Dummy macro-F1 | Rows |
-|---|---:|---:|---:|---:|---:|
-| Synthetic test split | 0.6026 | 0.5652 | 0.2568 | 0.0511 | 697 |
-| AI-written held-out set | 0.7912 | 0.8115 | 0.2198 | 0.0450 | 91 |
-
-The test reports below include abstention as `__abstain__`. Order is `biggest_discount`, `cheapest_item`, `compare_stores`, `food_inflation`, `market_price`, `out_of_scope`, `price_at_store`, `unit_price`, `__abstain__`.
-
-**Synthetic test per-intent precision / recall / F1 (support):**
-
-| Intent | Precision | Recall | F1 | Support |
-|---|---:|---:|---:|---:|
-| biggest_discount | 0.9796 | 0.4706 | 0.6358 | 102 |
-| cheapest_item | 0.8333 | 0.5000 | 0.6250 | 50 |
-| compare_stores | 0.0000 | 0.0000 | 0.0000 | 53 |
-| food_inflation | 1.0000 | 0.3824 | 0.5532 | 102 |
-| market_price | 0.5233 | 0.9783 | 0.6818 | 46 |
-| out_of_scope | 0.7898 | 0.7765 | 0.7831 | 179 |
-| price_at_store | 0.2500 | 0.6981 | 0.3682 | 53 |
-| unit_price | 1.0000 | 0.7768 | 0.8744 | 112 |
-
-**Synthetic test confusion matrix:**
-
-```text
-[[48, 3, 0, 0, 0, 19, 15, 0, 17],
- [0, 25, 0, 0, 6, 0, 8, 0, 11],
- [0, 0, 0, 0, 0, 0, 50, 0, 3],
- [0, 0, 0, 39, 17, 18, 13, 0, 15],
- [0, 0, 0, 0, 45, 0, 0, 0, 1],
- [1, 1, 17, 0, 18, 139, 0, 0, 3],
- [0, 1, 15, 0, 0, 0, 37, 0, 0],
- [0, 0, 0, 0, 0, 0, 25, 87, 0],
- [0, 0, 0, 0, 0, 0, 0, 0, 0]]
-```
-
-The Dummy baseline predicts only `out_of_scope`: precision/recall/F1 are 0/0/0 for the other seven intents and 0.2568/1.0000/0.4087 for `out_of_scope`. Its synthetic confusion matrix has 102, 50, 53, 102, 46, 179, 53 and 112 examples in the `out_of_scope` prediction column, respectively, and zero in other columns.
-
-**AI-written held-out per-intent precision / recall / F1 (support):**
-
-| Intent | Precision | Recall | F1 | Support |
-|---|---:|---:|---:|---:|
-| biggest_discount | 0.8750 | 0.7000 | 0.7778 | 10 |
-| cheapest_item | 0.8750 | 0.7000 | 0.7778 | 10 |
-| compare_stores | 0.6364 | 0.7000 | 0.6667 | 10 |
-| food_inflation | 1.0000 | 0.9000 | 0.9474 | 10 |
-| market_price | 0.7143 | 1.0000 | 0.8333 | 10 |
-| out_of_scope | 0.9333 | 0.7000 | 0.8000 | 20 |
-| price_at_store | 0.7143 | 0.9091 | 0.8000 | 11 |
-| unit_price | 1.0000 | 0.8000 | 0.8889 | 10 |
-
-**AI-written held-out confusion matrix:**
-
-```text
-[[7, 0, 1, 0, 1, 0, 0, 0, 1],
- [1, 7, 0, 0, 0, 1, 0, 0, 1],
- [0, 0, 7, 0, 0, 0, 2, 0, 1],
- [0, 0, 0, 9, 1, 0, 0, 0, 0],
- [0, 0, 0, 0, 10, 0, 0, 0, 0],
- [0, 1, 2, 0, 2, 14, 1, 0, 0],
- [0, 0, 1, 0, 0, 0, 10, 0, 0],
- [0, 0, 0, 0, 0, 0, 1, 8, 1],
- [0, 0, 0, 0, 0, 0, 0, 0, 0]]
-```
-
-Its Dummy baseline again predicts only `out_of_scope`, giving that class precision/recall/F1 0.2198/1.0000/0.3604 and zero scores for the other classes. Its confusion matrix has 10, 10, 10, 10, 10, 20, 11 and 10 examples in the `out_of_scope` column in the same intent order.
-
+<!-- metrics:start -->
+Run `python scripts/refresh_docs_metrics.py` after training to fill in this section.
+<!-- metrics:end -->
 ## Entity linking and listing matching
 
 Entity linking uses a character n-gram TF-IDF nearest-neighbour index over observed listing names and supplied product surface forms. Store, county and commodity resolution uses the supplied slot lexicon, with county/commodity names also checked against the RTFP directory. The product and store thresholds were selected on synthetic validation data: 0.05 product similarity (159 product cases, 0.9937 accuracy) and 0.875 store similarity (validation accuracy 1.0000). These high validation figures are synthetic and should not be read as real-world performance.

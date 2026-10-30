@@ -392,6 +392,11 @@ def main() -> None:
         },
         "confidence_threshold": threshold,
         "minimum_validation_coverage": MIN_VALIDATION_COVERAGE,
+        "leakage": (
+            json.loads((ASSISTANT_DIR / "dataset_build_metadata.json").read_text(encoding="utf-8"))
+            if (ASSISTANT_DIR / "dataset_build_metadata.json").is_file()
+            else {}
+        ),
         "metrics": metrics,
     }
     MODEL_DIR.mkdir(parents=True, exist_ok=True)

@@ -77,10 +77,22 @@ Changed: Logistic regression and calibrated linear SVM use balanced class weight
 Verification: Updated threshold and candidate tests; Python syntax compilation passed, but pytest and Ruff are unavailable in this offline environment.
 
 Task D — Retraining and metrics refresh attempted.
-Changed: Documentation now describes the generated balanced splits and marks model results as historical pending retraining; notebook comparison exposes class weights and shares model/threshold selection with the CLI candidates.
+Changed: Documentation now keeps prior model scores out of the current classifier metrics section until fresh metadata is available; notebook comparison exposes class weights and shares model/threshold selection with the CLI candidates.
 Verification: Dataset generation completed; model training stopped because joblib is missing and notebook execution stopped because matplotlib is missing. No new evaluation metrics are reported.
 
 Task E — Prevent confectionery false matches.
 Changed: Queries for generic sweets/candy/confectionery no longer use fuzzy matching that could return unrelated “sweet” items such as sweet corn.
 Verification: The exact local AI query returned “No matching advertised listing for sweets”; focused regression test passed and Ruff passed on the changed assistant files.
+
+Task F — Filter biggest-discount answers.
+Changed: Discount listings are sorted and filtered by recognized store, group, category, or product, with retailer markdown context and snapshot caveat.
+Verification: Added CSV-derived regression tests for generic, store, category, unknown-store, and empty-result questions; test execution remains unverified in this environment.
+
+Task G — Expand price-intent training data.
+Changed: Appended unit-price and discount template families, made the median cap configurable, and added a notebook validation-only comparison of 1.25 and 1.5 caps.
+Verification: Dataset build reported 2,657/1,004/893 train/validation/test rows, zero similarity drops, and 0.8056 maximum retained similarity; six dataset test functions passed by direct invocation.
+
+Task H — Refresh reported classifier metrics from metadata.
+Changed: Added a metadata-driven docs refresh script and metric markers; documented that the current dataset splits differ and compare_stores relies on few families.
+Verification: Both docs-metrics test functions passed by direct invocation; full pytest and Ruff remain unverified because those tools are unavailable in this environment.
 
