@@ -97,6 +97,6 @@ Changed: Added a metadata-driven docs refresh script and metric markers; documen
 Verification: Both docs-metrics test functions passed by direct invocation; full pytest and Ruff remain unverified because those tools are unavailable in this environment.
 
 Task I — Avoid false product matches from question wording.
-Changed: Fuzzy product search now strips request wording and recognized store names before comparing listing names; unmatched product terms receive an explicit no-match answer.
-Verification: Added regression coverage for “cheapest nyambite” and its cleaned search text; backend pytest and Ruff are unavailable in the current Python runtime.
+Changed: Fuzzy product search now strips request wording, corrects the supplied “nyambite” spelling to “nyamabite,” and rejects weak matches instead of returning unrelated listings.
+Verification: The listing snapshot contains no Nyamabite entry; regression coverage now expects a no-match response, with backend pytest and Ruff unavailable in this runtime.
 

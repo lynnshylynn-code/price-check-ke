@@ -17,6 +17,7 @@ from price_check_api.trained_assistant import (
     _extract,
     _price_comparison,
     _product_search_text,
+    _product_token_similarity,
     _resolve_product,
     answer_trained_question,
 )
@@ -404,7 +405,9 @@ def test_sweets_does_not_link_to_unrelated_sweet_corn(
 
 
 def test_product_search_text_removes_question_words_that_match_other_products() -> None:
-    assert _product_search_text("where can i get the cheapest nyambite?") == "nyambite"
+    assert _product_search_text("where can i get the cheapest nyambite?") == "nyamabite"
+    assert _product_token_similarity("milkk", "Brookside UHT Milk 1L") >= 0.72
+    assert _product_token_similarity("nyambite", "White Cap Can 500Ml") < 0.72
 
 
 def test_fuzzy_product_linker_uses_only_the_product_phrase(
@@ -412,7 +415,7 @@ def test_fuzzy_product_linker_uses_only_the_product_phrase(
 ) -> None:
     class RecordingVectorizer:
         def transform(self, questions: list[str]) -> np.ndarray:
-            assert questions == ["nyambite"]
+            assert questions == ["nyamabite"]
             return np.asarray([[0.0, 1.0]])
 
     monkeypatch.setattr(
@@ -429,8 +432,34 @@ def test_fuzzy_product_linker_uses_only_the_product_phrase(
     product, label, score = _resolve_product("where can i get the cheapest nyambite?")
 
     assert product is None
-    assert label == "nyambite"
+    assert label == "nyamabite"
     assert score == 0.0
+
+
+def test_fuzzy_product_linker_corrects_a_close_typo(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class RecordingVectorizer:
+        def transform(self, questions: list[str]) -> np.ndarray:
+            assert questions == ["milkk"]
+            return np.asarray([[1.0, 0.0]])
+
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._product_candidates",
+        lambda: (
+            RecordingVectorizer(),
+            np.asarray([[1.0, 0.0], [0.0, 1.0]]),
+            ["Brookside Milk", "White Cap Can"],
+            0.05,
+            {"Brookside Milk": "brookside milk"},
+        ),
+    )
+
+    product, label, score = _resolve_product("where can i get the cheapest milkk?")
+
+    assert product == "brookside milk"
+    assert label == "Brookside Milk"
+    assert score >= 0.72
 
 
 def test_unknown_cheapest_item_does_not_return_white_cap(
@@ -442,12 +471,12 @@ def test_unknown_cheapest_item_does_not_return_white_cap(
     )
     monkeypatch.setattr(
         "price_check_api.trained_assistant._resolve_product",
-        lambda _text: (None, "nyambite", 0.0),
+        lambda _text: (None, "nyamabite", 0.0),
     )
 
     response = answer_trained_question("where can i get the cheapest nyambite?")
 
-    assert "No matching listing was found for 'nyambite'" in response.answer
+    assert "No matching listing was found for 'nyamabite'" in response.answer
     assert "White Cap Can" not in response.answer
 
 
