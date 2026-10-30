@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 import sys
 from collections import Counter
 from math import floor
@@ -10,6 +11,7 @@ from statistics import median
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from build_assistant_dataset import (  # noqa: E402
+    CAP_MULTIPLIER,
     MAX_FILLINGS_PER_TEMPLATE,
     MIN_FILLINGS_PER_TEMPLATE,
     SEED,
@@ -84,7 +86,7 @@ def test_training_rows_are_capped_by_intent_and_sampled_across_families():
     assert first == second
     assert dropped == second_dropped
     raw_counts = Counter(row["intent"] for row in rows if row["family_id"] in train)
-    cap = floor(median(raw_counts.values()) * 1.25)
+    cap = floor(median(raw_counts.values()) * CAP_MULTIPLIER)
     counts = Counter(row["intent"] for row in first)
     assert all(count <= cap for count in counts.values())
     for intent, families in families_by_intent(TEMPLATES_PATH).items():
@@ -93,7 +95,17 @@ def test_training_rows_are_capped_by_intent_and_sampled_across_families():
         )
         assert set(included) == set(families) & train
         if raw_counts[intent] > cap:
-            assert max(included.values()) - min(included.values()) <= 1
+            capacities = Counter(
+                row["family_id"]
+                for row in rows
+                if row["intent"] == intent and row["family_id"] in train
+            )
+            highest_count = max(included.values())
+            assert all(
+                count == capacities[family_id]
+                for family_id, count in included.items()
+                if count < highest_count - 1
+            )
 
 
 def test_training_rows_at_or_above_heldout_similarity_threshold_are_removed(tmp_path, monkeypatch):
@@ -131,4 +143,22 @@ def test_ai_written_heldout_set_remains_separate():
     assert {row["question"] for row in heldout}.isdisjoint(
         row["question"] for row in training
     )
+
+
+def test_discount_and_unit_price_template_families_were_appended_sequentially():
+    rows = read_rows(TEMPLATES_PATH)
+    appended = rows[-24:]
+
+    assert [row["template_id"] for row in appended] == [
+        f"T{number:03d}" for number in range(229, 253)
+    ]
+    assert {row["family_id"] for row in appended[:12]} == {
+        f"unit_price_{number:02d}" for number in range(9, 13)
+    }
+    assert {row["family_id"] for row in appended[12:]} == {
+        f"biggest_discount_{number:02d}" for number in range(9, 13)
+    }
+    for row in appended:
+        slots = sorted(set(re.findall(r"\{(\w+)\}", row["template"])))
+        assert row["slots"] == ",".join(slots)
 

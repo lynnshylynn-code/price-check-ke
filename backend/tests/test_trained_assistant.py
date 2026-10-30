@@ -12,7 +12,11 @@ from price_check_api.listing_groups import get_comparable_groups
 from price_check_api.listings import get_listings
 from price_check_api.market_data import get_market_prices
 from price_check_api.schemas import AssistantAskRequest
-from price_check_api.trained_assistant import _price_comparison, answer_trained_question
+from price_check_api.trained_assistant import (
+    _extract,
+    _price_comparison,
+    answer_trained_question,
+)
 
 DATA = Path(__file__).parents[1] / "data/assistant"
 
@@ -394,3 +398,109 @@ def test_sweets_does_not_link_to_unrelated_sweet_corn(
     assert response.entities["product_label"] == "sweets"
     assert "No listing is categorized as sweets" in response.answer
     assert "Kol Sweet Corn" not in response.answer
+
+
+def _discounted_listings() -> list:
+    return [item for item in get_listings() if item.discount_pct is not None]
+
+
+def test_biggest_discount_lists_csv_top_five(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("biggest_discount", 0.9, None),
+    )
+    expected = sorted(
+        _discounted_listings(), key=lambda item: (-item.discount_pct, item.price_kes)
+    )[:5]
+
+    response = answer_trained_question("which items have the biggest discount")
+
+    for item in expected:
+        assert item.product_url in response.answer
+        assert f"advertised KES {item.price_kes:g}" in response.answer
+        assert f"crossed-out KES {item.regular_price_kes:g}" in response.answer
+        assert f"{item.discount_pct:g}% off" in response.answer
+    assert "crossed-out price" in response.answer
+    assert "snapshot is skewed toward offers" in response.answer
+
+
+@pytest.mark.parametrize(
+    ("question", "store"),
+    [
+        ("what's on offer at quick mart", "Quickmart"),
+        ("best deals at Naivas", "Naivas"),
+    ],
+)
+def test_biggest_discount_respects_named_store(
+    monkeypatch: pytest.MonkeyPatch, question: str, store: str
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("biggest_discount", 0.9, None),
+    )
+    expected = sorted(
+        (item for item in _discounted_listings() if item.supermarket == store),
+        key=lambda item: (-item.discount_pct, item.price_kes),
+    )[:5]
+
+    response = answer_trained_question(question)
+
+    assert expected
+    assert all(item.product_url in response.answer for item in expected)
+    assert all(item.supermarket == store for item in expected)
+    assert all(
+        name not in response.answer
+        for name in {"Carrefour", "Quickmart", "Naivas"} - {store}
+    )
+
+
+def test_biggest_discount_filters_category_by_listing_data(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("biggest_discount", 0.9, None),
+    )
+    expected = sorted(
+        (item for item in _discounted_listings() if item.category == "dairy"),
+        key=lambda item: (-item.discount_pct, item.price_kes),
+    )[:5]
+
+    response = answer_trained_question("which dairy products have the biggest discount")
+
+    assert expected
+    assert all(item.product_url in response.answer for item in expected)
+    assert all(item.category == "dairy" for item in expected)
+
+
+def test_biggest_discount_refuses_unknown_store(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("biggest_discount", 0.9, None),
+    )
+
+    response = answer_trained_question("Tuskys offers")
+
+    assert "store is not in the snapshot" in response.answer
+    assert not any(item.product_url in response.answer for item in _discounted_listings())
+
+
+def test_biggest_discount_reports_empty_filtered_results(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("biggest_discount", 0.9, None),
+    )
+    original_extract = _extract
+
+    def extract(question: str, slot: str):
+        if slot == "category":
+            return {"surface_form": "no-such-category", "canonical": ""}
+        return original_extract(question, slot)
+
+    monkeypatch.setattr("price_check_api.trained_assistant._extract", extract)
+
+    response = answer_trained_question("show biggest discount no-such-category")
+
+    assert "No discounted listing matches those filters" in response.answer

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import random
 import re
 import sys
@@ -24,6 +25,7 @@ SPLIT_SEED = SEED + 1
 MAX_FILLINGS_PER_TEMPLATE = 20
 MIN_FILLINGS_PER_TEMPLATE = 15
 NOISE_FRACTION = 0.20
+CAP_MULTIPLIER = float(os.environ.get("ASSISTANT_CAP_MULTIPLIER", "1.25"))
 PAIR_SLOTS = (("store", "store2"), ("county", "county2"), ("group", "group2"))
 
 def load_slots(path: Path) -> dict[str, list[dict[str, str]]]:
@@ -137,7 +139,7 @@ def split_families(rng: random.Random) -> tuple[set[str], set[str], set[str]]:
 def balance_training_rows(
     rows: list[dict[str, str]], train_families: set[str], rng: random.Random
 ) -> tuple[list[dict[str, str]], int]:
-    """Cap each intent at 1.25 times the median count, sampled evenly by family."""
+    """Cap intents by the configured median multiple, sampled evenly by family."""
     grouped: dict[str, dict[str, list[dict[str, str]]]] = defaultdict(
         lambda: defaultdict(list)
     )
@@ -151,7 +153,7 @@ def balance_training_rows(
     ]
     if not counts:
         return [], 0
-    cap = floor(median(counts) * 1.25)
+    cap = floor(median(counts) * CAP_MULTIPLIER)
     balanced: list[dict[str, str]] = []
     for families in grouped.values():
         family_ids = list(families)
@@ -367,8 +369,22 @@ def main() -> int:
     write_split_files(retained_rows, train, val, test, clean_train)
     print(f"\nWrote {len(retained_rows)} synthetic rows to {OUTPUT_PATH}")
     training_intent_counts = Counter(row["intent"] for row in leak_free_train)
-    row_cap = floor(median(training_intent_counts.values()) * 1.25)
+    row_cap = floor(median(training_intent_counts.values()) * CAP_MULTIPLIER)
     print("Maximum training rows per intent:", row_cap)
+    print("Training cap multiplier:", CAP_MULTIPLIER)
+    (ASSISTANT_DIR / "dataset_build_metadata.json").write_text(
+        json.dumps({
+            "cap_multiplier": CAP_MULTIPLIER,
+            "training_rows_dropped_for_similarity": leakage_dropped,
+            "highest_training_heldout_similarity": highest_similarity,
+            "closest_heldout_source": closest_source,
+            "training_rows_dropped_by_cap": balance_dropped,
+            "training_rows": len(clean_train),
+            "validation_rows": sum(row["family_id"] in val for row in retained_rows),
+            "synthetic_test_rows": sum(row["family_id"] in test for row in retained_rows),
+        }, indent=2),
+        encoding="utf-8",
+    )
     print(f"Family split: train={len(train)} validation={len(val)} test={len(test)}")
     return 0
 

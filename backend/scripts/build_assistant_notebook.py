@@ -192,6 +192,51 @@ for name, model in model_candidates.items():
 comparison_df = pd.DataFrame(comparison).sort_values(["validation_macro_f1", "validation_accuracy"], ascending=False).reset_index(drop=True)
 display(comparison_df)
 """),
+    markdown(15, """### Training-cap sensitivity
+
+The dataset builder supports the `ASSISTANT_CAP_MULTIPLIER` environment variable. This isolated comparison rebuilds temporary copies at 1.25 and 1.5, then chooses the best candidate within each cap by validation macro-F1 only. It does not replace the checked-in dataset used by the main notebook evaluation.
+"""),
+    code(16, """import shutil
+import tempfile
+
+import build_assistant_dataset as dataset_builder
+
+def best_validation_score_for_cap(multiplier):
+    with tempfile.TemporaryDirectory(prefix="assistant-cap-") as temporary:
+        temporary_dir = Path(temporary)
+        for filename in ["assistant_question_templates.csv", "assistant_slot_values.csv", "heldout_test_questions.csv", "human_test_questions.csv"]:
+            source = DATA_DIR / filename
+            if source.is_file():
+                shutil.copy2(source, temporary_dir / filename)
+        original = {name: getattr(dataset_builder, name) for name in ["ASSISTANT_DIR", "TEMPLATES_PATH", "SLOTS_PATH", "OUTPUT_PATH", "SPLIT_DIR", "CAP_MULTIPLIER"]}
+        try:
+            dataset_builder.ASSISTANT_DIR = temporary_dir
+            dataset_builder.TEMPLATES_PATH = temporary_dir / "assistant_question_templates.csv"
+            dataset_builder.SLOTS_PATH = temporary_dir / "assistant_slot_values.csv"
+            dataset_builder.OUTPUT_PATH = temporary_dir / "assistant_training_questions.csv"
+            dataset_builder.SPLIT_DIR = temporary_dir / "splits"
+            dataset_builder.CAP_MULTIPLIER = multiplier
+            dataset_builder.main()
+            capped_train = pd.read_csv(temporary_dir / "splits/train_questions.csv")
+            capped_validation = pd.read_csv(temporary_dir / "splits/validation_questions.csv")
+            x_fit = capped_train.question.astype(str).tolist()
+            y_fit = capped_train.intent.astype(str).tolist()
+            x_val = capped_validation.question.astype(str).tolist()
+            y_val = capped_validation.intent.astype(str).tolist()
+            scores = []
+            for candidate_name, candidate in candidates().items():
+                candidate.fit(x_fit, y_fit)
+                score = f1_score(y_val, candidate.predict(x_val), average="macro", zero_division=0)
+                scores.append((score, candidate_name))
+            score, name = max(scores, key=lambda result: result[0])
+            return {"cap_multiplier": multiplier, "selected_model": name, "validation_macro_f1": score}
+        finally:
+            for name, value in original.items():
+                setattr(dataset_builder, name, value)
+
+cap_comparison = pd.DataFrame([best_validation_score_for_cap(value) for value in (1.25, 1.5)])
+display(cap_comparison)
+"""),
     markdown(9, """## Evaluation
 
 First inspect overfitting by comparing training and validation accuracy while varying tree depth, k, and logistic-regression C. Then choose the model and confidence threshold using only validation labels and `choose_threshold()` from the CLI. The synthetic test split and each held-out provenance group are evaluated separately and only once for final reporting.
@@ -303,6 +348,7 @@ metadata = {
     "heldout_rows_by_source": {source: len(rows) for source, rows in heldout_by_source(heldout_df.to_dict("records")).items()},
     "confidence_threshold": threshold,
     "minimum_validation_coverage": MIN_VALIDATION_COVERAGE,
+    "leakage": json.loads((DATA_DIR / "dataset_build_metadata.json").read_text(encoding="utf-8")) if (DATA_DIR / "dataset_build_metadata.json").is_file() else {},
     "metrics": {
         "validation": validation_scores[chosen_name]["metrics"],
         "synthetic_test": synthetic_metrics,

@@ -1,0 +1,10 @@
+{
+  "cap_multiplier": 1.25,
+  "training_rows_dropped_for_similarity": 0,
+  "highest_training_heldout_similarity": 0.8055555555555556,
+  "closest_heldout_source": "AI-written held-out",
+  "training_rows_dropped_by_cap": 256,
+  "training_rows": 2657,
+  "validation_rows": 1004,
+  "synthetic_test_rows": 893
+}

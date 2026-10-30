@@ -251,3 +251,27 @@ T225,out_of_scope_gibberish,out_of_scope,short,...,
 T226,out_of_scope_gibberish,out_of_scope,formal,lorem ipsum dolor sit amet,
 T227,out_of_scope_gibberish,out_of_scope,short,qwerty 12345,
 T228,out_of_scope_gibberish,out_of_scope,short,ok,
+T229,unit_price_09,unit_price,formal,How much does {product} work out to per kilogram or litre?,product
+T230,unit_price_09,unit_price,short,{product} cost per kg or litre,product
+T231,unit_price_09,unit_price,swahili_mix,{product} inagharimu kiasi gani kwa kilo?,product
+T232,unit_price_10,unit_price,formal,Which size of {group} is the better deal per unit?,group
+T233,unit_price_10,unit_price,short,"{group}: bigger or smaller pack, which is better value?",group
+T234,unit_price_10,unit_price,swahili_mix,{group} ya kifurushi kipi ina thamani zaidi?,group
+T235,unit_price_11,unit_price,formal,Convert the price of {product} into a price per kg or per litre.,product
+T236,unit_price_11,unit_price,short,convert {product} price to per kg,product
+T237,unit_price_11,unit_price,casual,what would {product} cost per kilo,product
+T238,unit_price_12,unit_price,formal,Compare the per-unit prices of {group} across the supermarkets.,group
+T239,unit_price_12,unit_price,short,{group} unit prices by store,group
+T240,unit_price_12,unit_price,swahili_mix,Linganisha bei kwa kipimo ya {group} kwenye maduka,group
+T241,biggest_discount_09,biggest_discount,formal,Which {category} products have the largest markdown?,category
+T242,biggest_discount_09,biggest_discount,short,largest markdown {category},category
+T243,biggest_discount_09,biggest_discount,casual,what {category} stuff got slashed the most,category
+T244,biggest_discount_10,biggest_discount,formal,Show me items where the crossed-out price is far above today's price.,
+T245,biggest_discount_10,biggest_discount,short,big was/now gaps,
+T246,biggest_discount_10,biggest_discount,swahili_mix,Bidhaa zipi bei ya zamani ni kubwa kuliko ya sasa?,
+T247,biggest_discount_11,biggest_discount,formal,What are the top discounts at {store} today?,store
+T248,biggest_discount_11,biggest_discount,short,top discounts {store},store
+T249,biggest_discount_11,biggest_discount,swahili_mix,Punguzo kubwa zaidi {store} leo,store
+T250,biggest_discount_12,biggest_discount,formal,How much can I save on {group} right now?,group
+T251,biggest_discount_12,biggest_discount,short,{group} savings,group
+T252,biggest_discount_12,biggest_discount,casual,any savings on {group},group
