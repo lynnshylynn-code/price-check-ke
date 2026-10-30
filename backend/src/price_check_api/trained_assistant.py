@@ -27,6 +27,8 @@ EXAMPLES = (
     "or ‘food inflation latest’."
 )
 MODEL_VERSION = "synthetic-intent-v1"
+MIN_PRODUCT_TOKEN_SIMILARITY = 0.72
+PRODUCT_QUERY_CORRECTIONS = {"nyambite": "nyamabite"}
 
 
 @lru_cache(maxsize=1)
@@ -105,7 +107,22 @@ def _product_search_text(question: str) -> str:
         "where", "which", "with", "across", "stores", "supermarkets",
     }
     words = [word for word in re.findall(r"[a-z0-9]+", query) if word not in ignored]
-    return " ".join(words)
+    return " ".join(PRODUCT_QUERY_CORRECTIONS.get(word, word) for word in words)
+
+
+def _product_token_similarity(query: str, candidate: str) -> float:
+    query_words = re.findall(r"[a-z0-9]+", query.casefold())
+    candidate_words = re.findall(r"[a-z0-9]+", candidate.casefold())
+    if not query_words or not candidate_words:
+        return 0.0
+    best_matches = [
+        max(
+            SequenceMatcher(None, word, candidate_word).ratio()
+            for candidate_word in candidate_words
+        )
+        for word in query_words
+    ]
+    return sum(best_matches) / len(best_matches)
 
 
 def _resolve_all_stores(question: str) -> list[dict[str, str | None]]:
@@ -137,18 +154,21 @@ def _resolve_product(question: str) -> tuple[str | None, str | None, float]:
     if confectionery:
         return None, confectionery.group(0), 0.0
     candidates = _product_candidates()
-    vectorizer, matrix, names, threshold, aliases = candidates
+    vectorizer, matrix, names, _threshold, aliases = candidates
     from sklearn.metrics.pairwise import cosine_similarity
 
     query = _product_search_text(question)
     if not query:
         return None, None, 0.0
     scores = cosine_similarity(vectorizer.transform([query]), matrix)[0]
-    index = int(scores.argmax())
+    token_scores = [_product_token_similarity(query, name) for name in names]
+    index = max(range(len(names)), key=lambda item: (token_scores[item], float(scores[item])))
     score = float(scores[index])
     match = names[index]
     value = aliases.get(match, match).casefold()
-    return (value, match, score) if score >= threshold else (None, query, score)
+    if token_scores[index] >= MIN_PRODUCT_TOKEN_SIMILARITY:
+        return value, match, max(score, token_scores[index])
+    return None, query, score
 
 
 def _resolve_store(question: str) -> tuple[str | None, float, bool]:
