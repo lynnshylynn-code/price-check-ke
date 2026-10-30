@@ -85,6 +85,29 @@ def _slot_mentions(question: str, slot_names: tuple[str, ...]) -> list[dict[str,
     return [row for _, _, row in selected]
 
 
+def _product_search_text(question: str) -> str:
+    """Strip question wording and known store names before fuzzy product matching."""
+    query = question.casefold()
+    for mention in _slot_mentions(query, ("store", "store2", "other_store")):
+        surface = mention.get("surface_form", "").strip()
+        if surface:
+            query = re.sub(rf"(?<!\w){re.escape(surface.casefold())}(?!\w)", " ", query)
+    query = re.sub(
+        r"\b(where can i (?:get|find)|where do i get|can i get|find me|show me|"
+        r"what is|what's|how much|the cheapest|cheapest|lowest priced|lowest price|"
+        r"price of|price for|cost of|cost for)\b",
+        " ",
+        query,
+    )
+    ignored = {
+        "a", "an", "and", "at", "can", "do", "for", "from", "get", "i", "in",
+        "is", "it", "me", "of", "on", "please", "price", "cost", "the", "today",
+        "where", "which", "with", "across", "stores", "supermarkets",
+    }
+    words = [word for word in re.findall(r"[a-z0-9]+", query) if word not in ignored]
+    return " ".join(words)
+
+
 def _resolve_all_stores(question: str) -> list[dict[str, str | None]]:
     mentions = _slot_mentions(question, ("store", "store2", "other_store"))
     if not mentions:
@@ -117,12 +140,15 @@ def _resolve_product(question: str) -> tuple[str | None, str | None, float]:
     vectorizer, matrix, names, threshold, aliases = candidates
     from sklearn.metrics.pairwise import cosine_similarity
 
-    scores = cosine_similarity(vectorizer.transform([question]), matrix)[0]
+    query = _product_search_text(question)
+    if not query:
+        return None, None, 0.0
+    scores = cosine_similarity(vectorizer.transform([query]), matrix)[0]
     index = int(scores.argmax())
     score = float(scores[index])
     match = names[index]
     value = aliases.get(match, match).casefold()
-    return (value, match, score) if score >= threshold else (None, None, score)
+    return (value, match, score) if score >= threshold else (None, query, score)
 
 
 def _resolve_store(question: str) -> tuple[str | None, float, bool]:
@@ -742,6 +768,8 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
                     f"No listing is categorized as {product_label} in this snapshot. "
                     f"Try specifying a product name. {DATA_LABEL}."
                 )
+            elif product_label and product is None and not unknown_store:
+                answer = f"No matching listing was found for {product_label!r}. {DATA_LABEL}."
             else:
                 answer = f"That product or store is not in the snapshot. {DATA_LABEL}."
             return _base_response(
