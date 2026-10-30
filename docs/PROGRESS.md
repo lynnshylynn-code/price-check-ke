@@ -96,3 +96,7 @@ Task H — Refresh reported classifier metrics from metadata.
 Changed: Added a metadata-driven docs refresh script and metric markers; documented that the current dataset splits differ and compare_stores relies on few families.
 Verification: Both docs-metrics test functions passed by direct invocation; full pytest and Ruff remain unverified because those tools are unavailable in this environment.
 
+Task I — Avoid false product matches from question wording.
+Changed: Fuzzy product search now strips request wording and recognized store names before comparing listing names; unmatched product terms receive an explicit no-match answer.
+Verification: Added regression coverage for “cheapest nyambite” and its cleaned search text; backend pytest and Ruff are unavailable in the current Python runtime.
+

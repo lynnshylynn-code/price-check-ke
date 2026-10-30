@@ -2,6 +2,7 @@ import csv
 import json
 from pathlib import Path
 
+import numpy as np
 import pytest
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -15,6 +16,8 @@ from price_check_api.schemas import AssistantAskRequest
 from price_check_api.trained_assistant import (
     _extract,
     _price_comparison,
+    _product_search_text,
+    _resolve_product,
     answer_trained_question,
 )
 
@@ -398,6 +401,54 @@ def test_sweets_does_not_link_to_unrelated_sweet_corn(
     assert response.entities["product_label"] == "sweets"
     assert "No listing is categorized as sweets" in response.answer
     assert "Kol Sweet Corn" not in response.answer
+
+
+def test_product_search_text_removes_question_words_that_match_other_products() -> None:
+    assert _product_search_text("where can i get the cheapest nyambite?") == "nyambite"
+
+
+def test_fuzzy_product_linker_uses_only_the_product_phrase(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class RecordingVectorizer:
+        def transform(self, questions: list[str]) -> np.ndarray:
+            assert questions == ["nyambite"]
+            return np.asarray([[0.0, 1.0]])
+
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._product_candidates",
+        lambda: (
+            RecordingVectorizer(),
+            np.asarray([[1.0, 0.0]]),
+            ["White Cap Can 500Ml"],
+            0.05,
+            {},
+        ),
+    )
+
+    product, label, score = _resolve_product("where can i get the cheapest nyambite?")
+
+    assert product is None
+    assert label == "nyambite"
+    assert score == 0.0
+
+
+def test_unknown_cheapest_item_does_not_return_white_cap(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: ("cheapest_item", 0.9, None),
+    )
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._resolve_product",
+        lambda _text: (None, "nyambite", 0.0),
+    )
+
+    response = answer_trained_question("where can i get the cheapest nyambite?")
+
+    assert "No matching listing was found for 'nyambite'" in response.answer
+    assert "White Cap Can" not in response.answer
 
 
 def _discounted_listings() -> list:
