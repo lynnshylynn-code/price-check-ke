@@ -22,13 +22,21 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
             "synthetic_test": {
                 "accuracy": 0.8,
                 "macro_f1": 0.7,
+                "coverage": 0.8,
+                "abstained": 1,
                 "per_intent": {
                     "cheapest_item": {
                         "precision": 0.75,
                         "recall": 0.5,
                         "f1": 0.6,
                         "support": 2,
-                    }
+                    },
+                    "__abstain__": {
+                        "precision": 0.0,
+                        "recall": 0.0,
+                        "f1": 0.0,
+                        "support": 0,
+                    },
                 },
             },
             "heldout_by_source": {
@@ -59,6 +67,8 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
     assert rendered_once.endswith("<!-- metrics:end -->\nafter\n")
     assert "UnitTestModel" in rendered_once
     assert "| cheapest_item | 0.7500 | 0.5000 | 0.6000 | 2 |" in rendered_once
+    assert "__abstain__" not in rendered_once
+    assert "abstained 1" in rendered_once
 
 
 def test_metrics_renderer_marks_missing_metadata_as_unavailable() -> None:

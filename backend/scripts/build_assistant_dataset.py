@@ -26,6 +26,7 @@ MAX_FILLINGS_PER_TEMPLATE = 20
 MIN_FILLINGS_PER_TEMPLATE = 15
 NOISE_FRACTION = 0.20
 CAP_MULTIPLIER = float(os.environ.get("ASSISTANT_CAP_MULTIPLIER", "1.25"))
+MIN_TRAINING_MEDIAN_FRACTION = 0.70
 PAIR_SLOTS = (("store", "store2"), ("county", "county2"), ("group", "group2"))
 
 def load_slots(path: Path) -> dict[str, list[dict[str, str]]]:
@@ -137,7 +138,10 @@ def split_families(rng: random.Random) -> tuple[set[str], set[str], set[str]]:
 
 
 def balance_training_rows(
-    rows: list[dict[str, str]], train_families: set[str], rng: random.Random
+    rows: list[dict[str, str]],
+    train_families: set[str],
+    rng: random.Random,
+    cap_reference_counts: Counter[str] | None = None,
 ) -> tuple[list[dict[str, str]], int]:
     """Cap intents by the configured median multiple, sampled evenly by family."""
     grouped: dict[str, dict[str, list[dict[str, str]]]] = defaultdict(
@@ -147,13 +151,22 @@ def balance_training_rows(
         if row["family_id"] in train_families:
             grouped[row["intent"]][row["family_id"]].append(row)
 
-    counts = [
-        sum(len(family_rows) for family_rows in families.values())
-        for families in grouped.values()
-    ]
+    counts = (
+        list(cap_reference_counts.values())
+        if cap_reference_counts is not None
+        else [
+            sum(len(family_rows) for family_rows in families.values())
+            for families in grouped.values()
+        ]
+    )
     if not counts:
         return [], 0
     cap = floor(median(counts) * CAP_MULTIPLIER)
+    original_training_count = sum(
+        len(family_rows)
+        for families in grouped.values()
+        for family_rows in families.values()
+    )
     balanced: list[dict[str, str]] = []
     for families in grouped.values():
         family_ids = list(families)
@@ -173,8 +186,87 @@ def balance_training_rows(
                         break
             if not progressed:
                 break
-    original_count = sum(counts)
-    return balanced, original_count - len(balanced)
+    return balanced, original_training_count - len(balanced)
+
+
+def top_up_training_rows(
+    rows: list[dict[str, str]],
+    train_families: set[str],
+    rng: random.Random,
+) -> tuple[list[dict[str, str]], dict[str, int], int, float, int]:
+    """Add seeded, train-family fillings until each intent reaches 70% of the median."""
+    counts = Counter(row["intent"] for row in rows)
+    if not counts:
+        return rows, {}, 0, 0, 0
+    median_rows = median(counts.values())
+    minimum_rows = floor(median_rows * MIN_TRAINING_MEDIAN_FRACTION)
+    if minimum_rows <= 0:
+        return rows, {}, 0, median_rows, minimum_rows
+
+    intent_templates: dict[str, list[dict[str, str]]] = defaultdict(list)
+    with TEMPLATES_PATH.open(encoding="utf-8", newline="") as source:
+        for template in csv.DictReader(source):
+            if template["family_id"] in train_families:
+                intent_templates[template["intent"]].append(template)
+    slots = load_slots(SLOTS_PATH)
+    heldout_grams = [
+        (_character_trigrams(normalize_question(question)), provenance)
+        for question, provenance in heldout_questions()
+    ]
+    normalized_questions = {
+        normalize_question(row["question"])
+        for row in rows
+    }
+    added_rows: list[dict[str, str]] = []
+    added_by_intent: dict[str, int] = {}
+    dropped_for_similarity = 0
+
+    for intent in sorted(counts):
+        if counts[intent] >= minimum_rows:
+            continue
+        templates = intent_templates.get(intent, [])
+        if not templates:
+            raise ValueError(
+                f"No training-family templates found for underrepresented intent {intent!r}"
+            )
+        rng.shuffle(templates)
+        initial_count = counts[intent]
+        attempts = 0
+        max_attempts = (minimum_rows - initial_count) * 1000
+        while counts[intent] < minimum_rows:
+            if attempts >= max_attempts:
+                raise ValueError(
+                    f"Could not top up intent {intent!r} to {minimum_rows} clean training rows"
+                )
+            template = templates[attempts % len(templates)]
+            attempts += 1
+            question, entities = fill_template(template["template"], slots, rng)
+            if rng.random() < NOISE_FRACTION:
+                question = apply_character_noise(question, rng)
+            normalized = normalize_question(question)
+            if normalized in normalized_questions:
+                continue
+            if _max_similarity(question, heldout_grams) >= 0.85:
+                dropped_for_similarity += 1
+                continue
+            normalized_questions.add(normalized)
+            added_rows.append(
+                {
+                    "question": question,
+                    "intent": intent,
+                    "family_id": template["family_id"],
+                    "style": template["style"],
+                    "entities": json.dumps(entities, sort_keys=True),
+                }
+            )
+            counts[intent] += 1
+        added_by_intent[intent] = counts[intent] - initial_count
+
+    augmented = rows + added_rows
+    final_counts = Counter(row["intent"] for row in augmented)
+    if any(count < minimum_rows for count in final_counts.values()):
+        raise ValueError("At least one training intent remains below the median-based floor")
+    return augmented, added_by_intent, dropped_for_similarity, median_rows, minimum_rows
 
 
 def write_split_files(
@@ -334,8 +426,19 @@ def main() -> int:
     leak_free_train, leakage_dropped, _raw_similarity, _raw_source = remove_training_leaks(
         raw_train
     )
+    topped_up_train, additions_by_intent, top_up_leaks, median_rows, minimum_rows = (
+        top_up_training_rows(
+            leak_free_train,
+            train,
+            random.Random(SEED + 3),
+        )
+    )
+    leakage_dropped += top_up_leaks
     balanced_train, balance_dropped = balance_training_rows(
-        leak_free_train, train, random.Random(SEED + 2)
+        topped_up_train,
+        train,
+        random.Random(SEED + 2),
+        cap_reference_counts=Counter(row["intent"] for row in leak_free_train),
     )
     clean_train, final_leaks, highest_similarity, closest_source = remove_training_leaks(
         balanced_train
@@ -368,13 +471,28 @@ def main() -> int:
     print("compare_stores families by split:", compare_coverage)
     write_split_files(retained_rows, train, val, test, clean_train)
     print(f"\nWrote {len(retained_rows)} synthetic rows to {OUTPUT_PATH}")
-    training_intent_counts = Counter(row["intent"] for row in leak_free_train)
-    row_cap = floor(median(training_intent_counts.values()) * CAP_MULTIPLIER)
+    training_intent_counts = Counter(row["intent"] for row in clean_train)
+    baseline_counts = Counter(row["intent"] for row in leak_free_train)
+    row_cap = floor(median(baseline_counts.values()) * CAP_MULTIPLIER)
     print("Maximum training rows per intent:", row_cap)
     print("Training cap multiplier:", CAP_MULTIPLIER)
+    print(
+        "Training intent rows (before top-up / added / final; "
+        f"median={median_rows:g}, minimum={minimum_rows}):"
+    )
+    print("  intent | before top-up | added | final after cap")
+    for intent in sorted(training_intent_counts):
+        print(
+            f"  {intent} | {baseline_counts[intent]} | "
+            f"{additions_by_intent.get(intent, 0)} | {training_intent_counts[intent]}"
+        )
     (ASSISTANT_DIR / "dataset_build_metadata.json").write_text(
         json.dumps({
             "cap_multiplier": CAP_MULTIPLIER,
+            "minimum_training_median_fraction": MIN_TRAINING_MEDIAN_FRACTION,
+            "minimum_training_rows_per_intent": minimum_rows,
+            "training_rows_added_by_intent": additions_by_intent,
+            "training_intent_rows": dict(sorted(training_intent_counts.items())),
             "training_rows_dropped_for_similarity": leakage_dropped,
             "highest_training_heldout_similarity": highest_similarity,
             "closest_heldout_source": closest_source,

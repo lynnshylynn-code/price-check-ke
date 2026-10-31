@@ -275,3 +275,27 @@ T249,biggest_discount_11,biggest_discount,swahili_mix,Punguzo kubwa zaidi {store
 T250,biggest_discount_12,biggest_discount,formal,How much can I save on {group} right now?,group
 T251,biggest_discount_12,biggest_discount,short,{group} savings,group
 T252,biggest_discount_12,biggest_discount,casual,any savings on {group},group
+T253,cheapest_item_09,cheapest_item,formal,Which shop has the lowest price for {group}?,group
+T254,cheapest_item_09,cheapest_item,short,{group} lowest price shop,group
+T255,cheapest_item_09,cheapest_item,swahili_mix,Duka lipi lina bei ya chini zaidi ya {group}?,group
+T256,cheapest_item_10,cheapest_item,formal,Help me find the most budget-friendly {category}.,category
+T257,cheapest_item_10,cheapest_item,short,budget {category},category
+T258,cheapest_item_10,cheapest_item,casual,need something cheap in {category},category
+T259,cheapest_item_11,cheapest_item,formal,What is the lowest advertised price for {product}?,product
+T260,cheapest_item_11,cheapest_item,short,lowest advertised {product},product
+T261,cheapest_item_11,cheapest_item,swahili_mix,Bei ya chini kabisa ya {product} ni ipi?,product
+T262,cheapest_item_12,cheapest_item,formal,I want to spend as little as possible on {group}. What are my options?,group
+T263,cheapest_item_12,cheapest_item,short,spend less on {group},group
+T264,cheapest_item_12,cheapest_item,casual,{group} on a budget,group
+T265,biggest_discount_13,biggest_discount,formal,What deals does {store} have right now?,store
+T266,biggest_discount_13,biggest_discount,short,{store} deals now,store
+T267,biggest_discount_13,biggest_discount,swahili_mix,{store} wana ofa gani sasa?,store
+T268,biggest_discount_14,biggest_discount,formal,Which products at {store} cost less than normal?,store
+T269,biggest_discount_14,biggest_discount,short,{store} cheaper than usual items,store
+T270,biggest_discount_14,biggest_discount,casual,what's on sale at {store},store
+T271,biggest_discount_15,biggest_discount,formal,Show me everything that is currently on special.,
+T272,biggest_discount_15,biggest_discount,short,specials,
+T273,biggest_discount_15,biggest_discount,swahili_mix,Nionyeshe bidhaa zenye ofa,
+T274,biggest_discount_16,biggest_discount,formal,Which {category} items are on offer?,category
+T275,biggest_discount_16,biggest_discount,short,{category} offers,category
+T276,biggest_discount_16,biggest_discount,casual,{category} deals?,category

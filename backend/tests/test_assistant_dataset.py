@@ -23,6 +23,7 @@ from build_assistant_dataset import (  # noqa: E402
     families_by_intent,
     remove_training_leaks,
     split_families,
+    top_up_training_rows,
     validate_heldout_separation,
 )
 
@@ -147,7 +148,7 @@ def test_ai_written_heldout_set_remains_separate():
 
 def test_discount_and_unit_price_template_families_were_appended_sequentially():
     rows = read_rows(TEMPLATES_PATH)
-    appended = rows[-24:]
+    appended = rows[-48:-24]
 
     assert [row["template_id"] for row in appended] == [
         f"T{number:03d}" for number in range(229, 253)
@@ -161,4 +162,53 @@ def test_discount_and_unit_price_template_families_were_appended_sequentially():
     for row in appended:
         slots = sorted(set(re.findall(r"\{(\w+)\}", row["template"])))
         assert row["slots"] == ",".join(slots)
+
+
+def test_cheapest_and_discount_families_were_appended_sequentially():
+    appended = read_rows(TEMPLATES_PATH)[-24:]
+
+    assert [row["template_id"] for row in appended] == [
+        f"T{number:03d}" for number in range(253, 277)
+    ]
+    assert {row["family_id"] for row in appended[:12]} == {
+        f"cheapest_item_{number:02d}" for number in range(9, 13)
+    }
+    assert {row["family_id"] for row in appended[12:]} == {
+        f"biggest_discount_{number:02d}" for number in range(13, 17)
+    }
+    for row in appended:
+        slots = sorted(set(re.findall(r"\{(\w+)\}", row["template"])))
+        assert row["slots"] == ",".join(slots)
+
+
+def test_underrepresented_training_intent_is_topped_up_deterministically():
+    train, _validation, _test = split_families(Random(SPLIT_SEED))
+    families = families_by_intent(TEMPLATES_PATH)
+    rows = []
+    for intent, intent_families in families.items():
+        family_id = next(family for family in intent_families if family in train)
+        samples = 1 if intent == "cheapest_item" else 10
+        rows.extend(
+            {
+                "question": f"generated sample {intent} {index}",
+                "intent": intent,
+                "family_id": family_id,
+                "style": "formal",
+                "entities": "{}",
+            }
+            for index in range(samples)
+        )
+
+    first = top_up_training_rows(rows, train, Random(SEED + 3))
+    second = top_up_training_rows(rows, train, Random(SEED + 3))
+    augmented, added, _leaks_dropped, median_rows, minimum_rows = first
+    supplements = augmented[len(rows) :]
+    final_counts = Counter(row["intent"] for row in augmented)
+
+    assert first == second
+    assert added["cheapest_item"] == minimum_rows - 1
+    assert minimum_rows == floor(median_rows * 0.70)
+    assert all(count >= minimum_rows for count in final_counts.values())
+    assert all(row["family_id"] in train for row in augmented)
+    assert validate_heldout_separation(supplements)[0] < 0.85
 

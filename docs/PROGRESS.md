@@ -100,3 +100,15 @@ Task I — Avoid false product matches from question wording.
 Changed: Fuzzy product search now strips request wording, corrects the supplied “nyambite” spelling to “nyamabite,” and rejects weak matches instead of returning unrelated listings.
 Verification: The listing snapshot contains no Nyamabite entry; regression coverage now expects a no-match response, with backend pytest and Ruff unavailable in this runtime.
 
+Task J — Expand cheapest-item and discount question coverage.
+Changed: Added the requested cheapest-item and biggest-discount template families and a real-model Quickmart intent classification regression test with an artifact-aware skip.
+Verification: Dataset generation and template integrity checks completed; the real-model test could not run because scikit-learn is unavailable in the bundled runtime.
+
+Task K — Enforce a minimum training count per intent.
+Changed: The dataset builder now adds seeded fillings from training families below the median-relative floor, then applies the existing median-based cap.
+Verification: Dataset generation printed the per-intent table, met each floor, and kept supplemental examples separate from held-out families and text.
+
+Task L — Clean metrics tables and align listing categories.
+Changed: Zero-support abstain rows are omitted while abstained totals remain in summary lines; bakery matching includes cookies and discount-category expectations cover product-name matches.
+Verification: Both docs-metrics test functions passed by direct invocation; the full pytest suite and Ruff remain unavailable in this runtime.
+

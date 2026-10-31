@@ -25,6 +25,13 @@ def _intent_table(metrics: dict[str, Any]) -> list[str]:
     per_intent = metrics.get("per_intent")
     if not isinstance(per_intent, dict) or not per_intent:
         return ["Per-intent precision/recall: not available"]
+    per_intent = {
+        intent: values
+        for intent, values in per_intent.items()
+        if not (intent == "__abstain__" and values.get("support") == 0)
+    }
+    if not per_intent:
+        return ["Per-intent precision/recall: not available"]
     lines = ["| Intent | Precision | Recall | F1 | Support |", "|---|---:|---:|---:|---:|"]
     for intent, values in sorted(per_intent.items()):
         lines.append(
@@ -49,7 +56,9 @@ def render_metrics(metadata: dict[str, Any]) -> str:
         + ", validation " + _value(metadata.get("validation_rows"))
         + ", synthetic test " + _value(metadata.get("synthetic_test_rows")) + ".",
         "- Synthetic test: accuracy " + _value(synthetic.get("accuracy"))
-        + ", macro-F1 " + _value(synthetic.get("macro_f1")) + ".",
+        + ", macro-F1 " + _value(synthetic.get("macro_f1"))
+        + ", coverage " + _value(synthetic.get("coverage"))
+        + ", abstained " + _value(synthetic.get("abstained")) + ".",
         "- Synthetic test per-intent precision/recall:",
         *_intent_table(synthetic),
     ]
@@ -65,7 +74,9 @@ def render_metrics(metadata: dict[str, Any]) -> str:
         lines.extend(
             [
                 f"- {title}: rows {_value(result.get('rows', count))}; accuracy "
-                f"{_value(result.get('accuracy'))}; macro-F1 {_value(result.get('macro_f1'))}.",
+                f"{_value(result.get('accuracy'))}; macro-F1 {_value(result.get('macro_f1'))}; "
+                f"coverage {_value(result.get('coverage'))}; "
+                f"abstained {_value(result.get('abstained'))}.",
                 f"- {title} per-intent precision/recall:",
                 *_intent_table(result),
             ]

@@ -158,7 +158,8 @@ def parse_pack_size(
     normalized = re.sub(r"\s+", " ", text.casefold()).strip()
     # Multipacks like 70 g x 5 use the total content; the pack remains one listing.
     multipack = re.fullmatch(
-        r"(\d+(?:\.\d+)?)\s*(kg|kgs|kilograms?|g|gr|grams?|l|ltr|liters?|litres?|ml|millilit(?:er|re)s?)\s*[x×]\s*(\d+)",
+        r"(\d+(?:\.\d+)?)\s*(kg|kgs|kilograms?|g|gr|grams?|l|ltr|liters?|litres?|ml|"
+        r"millilit(?:er|re)s?)\s*[x×]\s*(\d+)",
         normalized,
     )
     if multipack:
@@ -171,7 +172,8 @@ def parse_pack_size(
         )
         compact_pieces = re.fullmatch(r"(\d+(?:\.\d+)?)(?:pieces?)(?:of[a-z]+)?", normalized)
         size = re.fullmatch(
-            r"(\d+(?:\.\d+)?)\s*(kg|kgs|kilograms?|g|gr|grams?|l|ltr|liters?|litres?|ml|millilit(?:er|re)s?)",
+            r"(\d+(?:\.\d+)?)\s*(kg|kgs|kilograms?|g|gr|grams?|l|ltr|liters?|litres?|ml|"
+            r"millilit(?:er|re)s?)",
             normalized,
         )
         if per_unit:
@@ -190,7 +192,8 @@ def parse_pack_size(
 
 
 _NON_GROCERY_NAME = re.compile(
-    r"\b(?:whisk(?:y|ey)|vodka|gin|rum|brandy|wine|luggage|suitcase|blender|appliance|television|tv)\b",
+    r"\b(?:whisk(?:y|ey)|vodka|gin|rum|brandy|wine|luggage|suitcase|blender|"
+    r"appliance|television|tv)\b",
     re.IGNORECASE,
 )
 
@@ -201,8 +204,8 @@ def _category(name: str, grocery: bool) -> str:
     name = name.casefold()
     groups = {
         "produce": r"tomato|onion|potato|avocado|banana|mango|fruit|vegetable|spinach|sukuma",
+        "bakery": r"bread|loaf|bun|cake|biscuit|cookie|cracker",
         "dairy": r"milk|yoghurt|yogurt|cheese|butter|margarine|egg",
-        "bakery": r"bread|loaf|bun|cake|biscuit|cracker",
         "beverages": r"juice|soda|cola|water|tea|coffee|drink|energy drink",
         "household": r"detergent|soap|tissue|toilet paper|cleaner|bleach|dishwash",
         "personal_care": r"toothpaste|shampoo|lotion|deodorant|sanitary|toothbrush",

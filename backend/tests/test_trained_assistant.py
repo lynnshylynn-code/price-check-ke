@@ -14,6 +14,7 @@ from price_check_api.listings import get_listings
 from price_check_api.market_data import get_market_prices
 from price_check_api.schemas import AssistantAskRequest
 from price_check_api.trained_assistant import (
+    _classify,
     _extract,
     _price_comparison,
     _product_search_text,
@@ -23,6 +24,7 @@ from price_check_api.trained_assistant import (
 )
 
 DATA = Path(__file__).parents[1] / "data/assistant"
+MODEL_DIR = Path(__file__).parents[1] / "models"
 
 
 def test_training_templates_are_not_served_as_heldout_questions() -> None:
@@ -541,8 +543,14 @@ def test_biggest_discount_filters_category_by_listing_data(
         "price_check_api.trained_assistant._classify",
         lambda _text: ("biggest_discount", 0.9, None),
     )
+    # The assistant matches the term against the category OR the product name
+    # (for example "Dairyland" ice cream), so the expected rows use the same rule.
     expected = sorted(
-        (item for item in _discounted_listings() if item.category == "dairy"),
+        (
+            item
+            for item in _discounted_listings()
+            if item.category == "dairy" or "dairy" in item.item_name.casefold()
+        ),
         key=lambda item: (-item.discount_pct, item.price_kes),
     )[:5]
 
@@ -550,7 +558,6 @@ def test_biggest_discount_filters_category_by_listing_data(
 
     assert expected
     assert all(item.product_url in response.answer for item in expected)
-    assert all(item.category == "dairy" for item in expected)
 
 
 def test_biggest_discount_refuses_unknown_store(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -584,3 +591,18 @@ def test_biggest_discount_reports_empty_filtered_results(
     response = answer_trained_question("show biggest discount no-such-category")
 
     assert "No discounted listing matches those filters" in response.answer
+
+
+@pytest.mark.skipif(
+    not (MODEL_DIR / "intent_pipeline.joblib").is_file()
+    or not (MODEL_DIR / "metadata.json").is_file(),
+    reason=(
+        "No trained assistant artifact in backend/models/; train the assistant before "
+        "checking the real-model intent regression."
+    ),
+)
+def test_real_trained_model_classifies_quickmart_offers_as_biggest_discount() -> None:
+    intent, _confidence, error = _classify("what's on offer at Quickmart")
+
+    assert error is None, error
+    assert intent == "biggest_discount"
