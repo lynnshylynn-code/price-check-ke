@@ -606,3 +606,57 @@ def test_real_trained_model_classifies_quickmart_offers_as_biggest_discount() ->
 
     assert error is None, error
     assert intent == "biggest_discount"
+
+
+def _classify_as(monkeypatch: pytest.MonkeyPatch, intent: str) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _text: (intent, 0.9, None),
+    )
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "what is the price of the cheapest soda",
+        "cheapest fizzy drink",
+        "cheapest soft drink 2 litres",
+    ],
+)
+def test_generic_soda_words_return_the_cheapest_soft_drink(
+    monkeypatch: pytest.MonkeyPatch, question: str
+) -> None:
+    _classify_as(monkeypatch, "cheapest_item")
+    soft_drinks = [item for item in get_listings() if item.category == "soft_drinks"]
+    assert soft_drinks
+    expected = min(
+        soft_drinks,
+        key=lambda item: item.unit_price if item.unit_price is not None else float("inf"),
+    )
+    response = answer_trained_question(question)
+    assert expected.product_url in response.answer
+    assert "Sweet Corn" not in response.answer
+
+
+@pytest.mark.parametrize(
+    ("question", "intent"),
+    [
+        ("price of an iPhone at Naivas", "price_at_store"),
+        ("how much is a sofa at Naivas", "price_at_store"),
+        ("price of a mattress at Carrefour", "price_at_store"),
+        ("cheapest dog biscuits", "cheapest_item"),
+    ],
+)
+def test_products_not_in_the_data_do_not_match_a_random_listing(
+    monkeypatch: pytest.MonkeyPatch, question: str, intent: str
+) -> None:
+    _classify_as(monkeypatch, intent)
+    response = answer_trained_question(question)
+    assert "KES" not in response.answer
+
+
+def test_swahili_product_words_are_understood(monkeypatch: pytest.MonkeyPatch) -> None:
+    _classify_as(monkeypatch, "price_at_store")
+    response = answer_trained_question("bei ya sukari Naivas")
+    assert "sugar" in response.answer.casefold()
+    assert "at Naivas" in response.answer

@@ -205,13 +205,18 @@ def _category(name: str, grocery: bool) -> str:
     groups = {
         "produce": r"tomato|onion|potato|avocado|banana|mango|fruit|vegetable|spinach|sukuma",
         "bakery": r"bread|loaf|bun|cake|biscuit|cookie|cracker",
-        "dairy": r"milk|yoghurt|yogurt|cheese|butter|margarine|egg",
-        "beverages": r"juice|soda|cola|water|tea|coffee|drink|energy drink",
+        "dairy": r"milk|yoghurt|yogurt|cheese|butter|margarine|eggs?\b",
+        "soft_drinks": r"fanta|coca|coke|sprite|pepsi|stoney|krest|mirinda|schweppes|soda|cola",
+        "beverages": r"juice|water|tea|coffee|drink|energy drink",
         "household": r"detergent|soap|tissue|toilet paper|cleaner|bleach|dishwash",
         "personal_care": r"toothpaste|shampoo|lotion|deodorant|sanitary|toothbrush",
     }
     return next(
-        (category for category, pattern in groups.items() if re.search(pattern, name)),
+        (
+            category
+            for category, pattern in groups.items()
+            if re.search(rf"\b(?:{pattern})", name)
+        ),
         "pantry",
     )
 

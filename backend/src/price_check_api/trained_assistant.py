@@ -30,6 +30,37 @@ MODEL_VERSION = "synthetic-intent-v1"
 MIN_PRODUCT_TOKEN_SIMILARITY = 0.72
 PRODUCT_QUERY_CORRECTIONS = {"nyambite": "nyamabite"}
 
+# Common Swahili product words mapped to English listing terms for entity lookup.
+_SWAHILI_TERMS = {
+    "sukari": "sugar",
+    "maziwa": "milk",
+    "mayai": "eggs",
+    "yai": "egg",
+    "mchele": "rice",
+    "mkate": "bread",
+    "chumvi": "salt",
+    "chai": "tea",
+    "maji": "water",
+    "mahindi": "maize",
+    "maharagwe": "beans",
+    "mbuzi": "goat",
+    "mafuta": "oil",
+    "kupikia": "cooking",
+    "siagi": "butter",
+    "jibini": "cheese",
+    "sabuni": "soap",
+}
+_SWAHILI_PATTERN = re.compile(
+    r"(?<!\w)(" + "|".join(_SWAHILI_TERMS) + r")(?!\w)", re.IGNORECASE
+)
+
+
+def _normalize_terms(question: str) -> str:
+    """Replace common Swahili product words with their listing equivalents."""
+    return _SWAHILI_PATTERN.sub(
+        lambda match: _SWAHILI_TERMS[match.group(1).casefold()], question
+    )
+
 
 @lru_cache(maxsize=1)
 def _slot_values() -> dict[str, list[dict[str, str]]]:
@@ -46,7 +77,7 @@ def _extract(question: str, slot: str) -> dict[str, str] | None:
     values = sorted(
         _slot_values().get(slot, []), key=lambda row: len(row["surface_form"]), reverse=True
     )
-    normalized = question.casefold()
+    normalized = _normalize_terms(question).casefold()
     for row in values:
         surface = row["surface_form"]
         if surface and re.search(rf"(?<!\w){re.escape(surface.casefold())}(?!\w)", normalized):
@@ -57,7 +88,7 @@ def _extract(question: str, slot: str) -> dict[str, str] | None:
 def _slot_mentions(question: str, slot_names: tuple[str, ...]) -> list[dict[str, str]]:
     """Return distinct slot mentions in question order, preferring longer aliases."""
     candidates: list[tuple[int, int, dict[str, str]]] = []
-    normalized = question.casefold()
+    normalized = _normalize_terms(question).casefold()
     for slot_name in slot_names:
         for row in _slot_values().get(slot_name, []):
             surface = row.get("surface_form", "").strip()
@@ -89,7 +120,7 @@ def _slot_mentions(question: str, slot_names: tuple[str, ...]) -> list[dict[str,
 
 def _product_search_text(question: str) -> str:
     """Strip question wording and known store names before fuzzy product matching."""
-    query = question.casefold()
+    query = _normalize_terms(question).casefold()
     for mention in _slot_mentions(query, ("store", "store2", "other_store")):
         surface = mention.get("surface_form", "").strip()
         if surface:
@@ -125,6 +156,22 @@ def _product_token_similarity(query: str, candidate: str) -> float:
     return sum(best_matches) / len(best_matches)
 
 
+_CATEGORY_WORDS: dict[str, tuple[str, frozenset[str]]] = {
+    r"\b(soda|sodas|soft drinks?|fizzy( drinks?)?|carbonated( drinks?)?)\b": (
+        "soft drinks",
+        frozenset({"soft_drinks"}),
+    ),
+    r"\b(juice|juices)\b": ("juice", frozenset({"beverages"})),
+}
+
+
+def _generic_category(question: str) -> tuple[str, frozenset[str]] | None:
+    for pattern, value in _CATEGORY_WORDS.items():
+        if re.search(pattern, question.casefold()):
+            return value
+    return None
+
+
 def _resolve_all_stores(question: str) -> list[dict[str, str | None]]:
     mentions = _slot_mentions(question, ("store", "store2", "other_store"))
     if not mentions:
@@ -153,6 +200,9 @@ def _resolve_product(question: str) -> tuple[str | None, str | None, float]:
     )
     if confectionery:
         return None, confectionery.group(0), 0.0
+    generic = _generic_category(question)
+    if generic:
+        return None, generic[0], 0.0
     candidates = _product_candidates()
     vectorizer, matrix, names, _threshold, aliases = candidates
     from sklearn.metrics.pairwise import cosine_similarity
@@ -298,6 +348,7 @@ def _lookup_rows(
     product_label: str | None,
     product_score: float,
     group_term: str | None = None,
+    generic_categories: frozenset[str] | None = None,
 ) -> list[Any]:
     """Find the listings to answer from.
 
@@ -333,7 +384,22 @@ def _lookup_rows(
             return []
         return list(search_listings(group_term, store, False, None, len(get_listings())))
 
+    def by_category() -> list[Any]:
+        if not generic_categories:
+            return []
+        return sorted(
+            (
+                item
+                for item in get_listings()
+                if item.category in generic_categories
+                and (not store or item.supermarket.casefold() == store.casefold())
+            ),
+            key=lambda item: (item.price_kes, item.supermarket),
+        )
+
     specific = product is not None and product_score >= 0.999
+    if generic_categories and not specific and not group_id:
+        return by_category() or by_name()
     if intent == "price_at_store" or specific:
         return by_name() or by_group() or by_term()
     if intent == "cheapest_item":
@@ -641,9 +707,10 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
             if identity not in seen_groups:
                 unique_group_mentions.append(mention)
                 seen_groups.add(identity)
+        generic = _generic_category(text) if not product and not group_term else None
         identified = (
             product is not None or bool(entities.get("group")) or bool(group_term)
-            or bool(unique_group_mentions)
+            or bool(unique_group_mentions) or generic is not None
         ) and not unknown_product
         if intent == "biggest_discount":
             named_stores = [entry["store"] for entry in store_mentions if entry["store"]]
@@ -677,7 +744,7 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
             category_map = {
                 "dairy": {"dairy"},
                 "milk and dairy": {"dairy"},
-                "soft drinks": {"beverages"},
+                "soft drinks": {"soft_drinks"},
                 "beverages": {"beverages"},
                 "snacks and biscuits": {"bakery", "pantry"},
                 "cooking oils and fats": {"pantry"},
@@ -811,7 +878,13 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
             rows = list(group.listings) if group else []
         else:
             rows = _lookup_rows(
-                intent, entities, product, product_label, product_score, group_term
+                intent,
+                entities,
+                product,
+                product_label,
+                product_score,
+                group_term,
+                generic[1] if generic else None,
             )
         if intent == "unit_price":
             rows = sorted(

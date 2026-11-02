@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from price_check_api import listings as listing_module
-from price_check_api.listings import _stable_id, get_listings, parse_pack_size
+from price_check_api.listings import _category, _stable_id, get_listings, parse_pack_size
 from price_check_api.main import app
 
 client = TestClient(app)
@@ -79,3 +79,18 @@ def test_invalid_snapshot_record_fails_validation(tmp_path, monkeypatch) -> None
     with pytest.raises(listing_module.ListingDataError, match="positive"):
         listing_module.get_listings()
     listing_module._load_listings.cache_clear()
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("Golden Chocolate Cookies 200G", "bakery"),
+        ("Golden Butter Cookies 200G", "bakery"),
+        ("Coca Cola Pet 2L", "soft_drinks"),
+        ("Fanta Orange Pet 2L", "soft_drinks"),
+        ("Brookside Uht Whole Milk 250Ml", "dairy"),
+        ("Fresh Eggplant 1Kg", "pantry"),
+    ],
+)
+def test_category_rules_use_word_boundaries(name: str, expected: str) -> None:
+    assert _category(name, True) == expected
