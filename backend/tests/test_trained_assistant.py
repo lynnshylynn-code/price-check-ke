@@ -10,7 +10,7 @@ from sklearn.pipeline import make_pipeline
 
 from price_check_api.assistant_model import AssistantModelState
 from price_check_api.listing_groups import get_comparable_groups
-from price_check_api.listings import get_listings
+from price_check_api.listings import get_listings, search_listings
 from price_check_api.market_data import get_market_prices
 from price_check_api.schemas import AssistantAskRequest
 from price_check_api.trained_assistant import (
@@ -660,3 +660,40 @@ def test_swahili_product_words_are_understood(monkeypatch: pytest.MonkeyPatch) -
     response = answer_trained_question("bei ya sukari Naivas")
     assert "sugar" in response.answer.casefold()
     assert "at Naivas" in response.answer
+
+
+def test_named_store_and_specific_product_override_cheapest_intent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _classify_as(monkeypatch, "cheapest_item")
+    candidates = search_listings(
+        "Brookside UHT Whole Milk 250Ml", "Quickmart", limit=len(get_listings())
+    )
+    assert candidates
+    expected = min(candidates, key=lambda item: item.price_kes)
+
+    response = answer_trained_question(
+        "how much is Brookside UHT whole milk 250ml at Quickmart"
+    )
+
+    assert response.intent == "price_at_store"
+    assert expected.product_url in response.answer
+    assert f"KES {expected.price_kes:g}" in response.answer
+    assert "Carrefour" not in response.answer
+
+
+@pytest.mark.skipif(
+    not (MODEL_DIR / "intent_pipeline.joblib").is_file()
+    or not (MODEL_DIR / "metadata.json").is_file(),
+    reason=(
+        "No trained assistant artifact in backend/models/; train the assistant before "
+        "checking punctuation robustness with the real model."
+    ),
+)
+def test_trailing_punctuation_preserves_isinya_eggs_intent_and_answer() -> None:
+    clean = answer_trained_question("how much is Isinya eggs at Carrefour")
+    assert clean.intent != "out_of_scope"
+    for suffix in ("'", '"', "?", "!"):
+        response = answer_trained_question(f"how much is Isinya eggs at Carrefour{suffix}")
+        assert response.intent == clean.intent
+        assert response.answer == clean.answer

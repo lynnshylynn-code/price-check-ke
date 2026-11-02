@@ -27,6 +27,7 @@ MIN_FILLINGS_PER_TEMPLATE = 15
 NOISE_FRACTION = 0.20
 CAP_MULTIPLIER = float(os.environ.get("ASSISTANT_CAP_MULTIPLIER", "1.25"))
 MIN_TRAINING_MEDIAN_FRACTION = 0.70
+STRAY_PUNCTUATION_FRACTION = 0.10
 PAIR_SLOTS = (("store", "store2"), ("county", "county2"), ("group", "group2"))
 
 def load_slots(path: Path) -> dict[str, list[dict[str, str]]]:
@@ -83,6 +84,19 @@ def apply_character_noise(text: str, rng: random.Random) -> str:
     noisy = "".join(chars)
     noisy = re.sub(r"\s+", " ", noisy).strip()
     return noisy
+
+
+def apply_stray_punctuation_noise(
+    rows: list[dict[str, str]], rng: random.Random
+) -> tuple[list[dict[str, str]], int]:
+    """Add one seeded stray trailing punctuation mark to about 10% of training rows."""
+    count = round(len(rows) * STRAY_PUNCTUATION_FRACTION)
+    if count == 0:
+        return rows, 0
+    noisy_rows = [dict(row) for row in rows]
+    for index in rng.sample(range(len(noisy_rows)), count):
+        noisy_rows[index]["question"] += rng.choice(("'", '"', "?", "!", "."))
+    return noisy_rows, count
 
 
 def expand_templates(rng: random.Random) -> list[dict[str, str]]:
@@ -440,6 +454,9 @@ def main() -> int:
         random.Random(SEED + 2),
         cap_reference_counts=Counter(row["intent"] for row in leak_free_train),
     )
+    balanced_train, punctuation_noisy = apply_stray_punctuation_noise(
+        balanced_train, random.Random(SEED + 4)
+    )
     clean_train, final_leaks, highest_similarity, closest_source = remove_training_leaks(
         balanced_train
     )
@@ -447,6 +464,7 @@ def main() -> int:
     retained_rows = clean_train + [row for row in rows if row["family_id"] not in train]
     validate_heldout_separation(retained_rows)
     print(f"Training rows dropped by intent balance cap: {balance_dropped}")
+    print(f"Training rows with stray punctuation noise: {punctuation_noisy}")
     print(f"Training rows dropped for held-out similarity >= 0.85: {leakage_dropped}")
     print(
         "Highest normalized character-trigram Jaccard similarity in retained training rows: "

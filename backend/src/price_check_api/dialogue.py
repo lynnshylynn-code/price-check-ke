@@ -12,22 +12,33 @@ from typing import Any
 
 from .listings import DATA_LABEL, get_listings
 from .market_data import (
-    COMMODITIES, SOURCE_NAME, SOURCE_URL, get_food_inflation_response,
-    get_market_directory, get_market_price_rows, get_market_prices,
+    COMMODITIES,
+    SOURCE_NAME,
+    SOURCE_URL,
+    get_food_inflation_response,
+    get_market_directory,
+    get_market_price_rows,
+    get_market_prices,
 )
 from .schemas import MarketQuestionResponse
 from .trained_assistant import (
     ASSISTANT_DATA,
     MIN_PRODUCT_TOKEN_SIMILARITY,
+    _classify,
+    _generic_category,
+    _normalize_terms,
     _resolve_county,
     _resolve_product,
     answer_trained_question,
+    normalize_question_text,
 )
 
 MAX_CONTEXT_BYTES = 2048
 MAX_TURNS = 20
 MAX_LISTINGS = 5
-ENTITY_KEYS = {"store", "product", "group", "category", "county", "commodity", "year"}
+ENTITY_KEYS = {
+    "store", "other_store", "product", "group", "category", "county", "commodity", "year"
+}
 INTENTS = {
     "price_at_store", "cheapest_item", "compare_stores", "biggest_discount",
     "market_price", "food_inflation", "unit_price", "out_of_scope",
@@ -45,6 +56,18 @@ FOLLOW_UPS = {
     "explain": re.compile(r"\b(why|why this result|how did you get that|explain)\??$", re.I),
     "acknowledge": re.compile(r"\b(thanks|thank you|ok|okay|sawa)\b", re.I),
 }
+INTENT_CUE = re.compile(
+    r"\b(?:cheapest|cheap|cheaper|lowest|price|prices|how much|bei ya|compare|"
+    r"comparison|discount|offer|offers|deal|deals|per\s+(?:kg|kilo|litre|liter)|"
+    r"inflation|market price)\b",
+    re.I,
+)
+FOLLOW_UP_STOPWORDS = frozenset(
+    {
+        "a", "an", "and", "at", "about", "do", "for", "is", "it", "me", "of",
+        "the", "what", "show", "more", "please",
+    }
+)
 
 
 @lru_cache(maxsize=1)
@@ -67,6 +90,7 @@ def _known_entities() -> dict[str, set[str]]:
                     if value and value.strip()
                 )
     result["store"].update(item.supermarket.casefold() for item in get_listings())
+    result["other_store"].update(result["store"])
     result["product"].update(item.item_name.casefold() for item in get_listings())
     counties, _ = get_market_directory()
     result["county"].update(value.casefold() for value in counties)
@@ -76,6 +100,31 @@ def _known_entities() -> dict[str, set[str]]:
         str(row.observation_date.year) for row in get_market_price_rows()
     )
     return result
+
+
+@lru_cache(maxsize=1)
+def _entity_surfaces() -> dict[str, dict[str, str]]:
+    entity_slots = {
+        "product": "product",
+        "group": "group",
+        "category": "category",
+    }
+    surfaces: dict[str, dict[str, str]] = {key: {} for key in entity_slots}
+    with (ASSISTANT_DATA / "assistant_slot_values.csv").open(
+        encoding="utf-8", newline=""
+    ) as stream:
+        for row in csv.DictReader(stream):
+            entity = entity_slots.get(row.get("slot", ""))
+            canonical = row.get("canonical", "").strip().casefold()
+            surface = row.get("surface_form", "").strip()
+            if entity and canonical and surface:
+                surfaces[entity].setdefault(canonical, surface)
+    return surfaces
+
+
+def _entity_surface(entity: str, value: Any) -> str:
+    normalized = str(value).strip().casefold()
+    return _entity_surfaces().get(entity, {}).get(normalized, str(value))
 
 
 def validate_context(value: Any) -> dict[str, Any]:
@@ -132,37 +181,60 @@ def validate_context(value: Any) -> dict[str, Any]:
         return {}
 
 
+@lru_cache(maxsize=1)
+def _load_follow_up_classifier() -> tuple[Any, float] | None:
+    model_path = Path(__file__).resolve().parents[2] / "models/followup_pipeline.joblib"
+    if not model_path.is_file():
+        return None
+    try:
+        import joblib
+
+        metadata_path = model_path.with_name("followup_metadata.json")
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        return joblib.load(model_path), float(metadata["confidence_threshold"])
+    except (OSError, ValueError, KeyError, TypeError, ImportError):
+        return None
+
+
 def _follow_up_type(question: str, context: dict[str, Any]) -> str | None:
     if not context.get("last_intent") or context["turn_count"] >= MAX_TURNS:
         return None
+    question = normalize_question_text(question)
+    if INTENT_CUE.search(question):
+        return None
     intent = context["last_intent"]
+    content_words = [
+        word for word in re.findall(r"[a-z0-9]+", question.casefold())
+        if word not in FOLLOW_UP_STOPWORDS
+    ]
+    short_follow_up = len(content_words) <= 4
     for label in ("acknowledge", "explain", "show_more", "refine_store"):
-        if FOLLOW_UPS[label].search(question.strip()):
+        if short_follow_up and FOLLOW_UPS[label].search(question.strip()):
             if label == "refine_store" and intent in {"food_inflation", "market_price"}:
                 return None
             return label
-    if intent not in {"food_inflation", "market_price"} and _slot_match(question, "store"):
+    if short_follow_up and intent not in {"food_inflation", "market_price"} and _slot_match(
+        question, "store"
+    ):
         return "swap_store"
-    if intent in {"food_inflation", "market_price"} and _slot_match(question, "year"):
+    if short_follow_up and intent in {"food_inflation", "market_price"} and _slot_match(
+        question, "year"
+    ):
         return "swap_year"
-    if intent == "market_price" and (
+    if short_follow_up and intent == "market_price" and (
         _slot_match(question, "county") or _slot_match(question, "commodity")
     ):
         return "swap_county_or_commodity"
-    if intent not in {"food_inflation", "market_price"} and (
+    if short_follow_up and intent not in {"food_inflation", "market_price"} and (
         _slot_match(question, "product")
         or _slot_match(question, "group")
         or _slot_match(question, "category")
     ):
         return "swap_product"
-    model_path = Path(__file__).resolve().parents[2] / "models/followup_pipeline.joblib"
-    if model_path.is_file():
+    model_state = _load_follow_up_classifier()
+    if model_state is not None:
         try:
-            import joblib
-
-            metadata_path = model_path.with_name("followup_metadata.json")
-            metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-            pipeline = joblib.load(model_path)
+            pipeline, model_threshold = model_state
             text = question.casefold()
             tags = []
             for slot, tag in (("store", "HAS_STORE"), ("product", "HAS_PRODUCT"),
@@ -176,7 +248,9 @@ def _follow_up_type(question: str, context: dict[str, Any]) -> str | None:
                 tags.append("IS_SHORT")
             probabilities = pipeline.predict_proba([text + " " + " ".join(tags)])[0]
             index = int(probabilities.argmax())
-            if float(probabilities[index]) >= float(metadata["confidence_threshold"]):
+            if float(probabilities[index]) >= max(
+                0.80, model_threshold
+            ):
                 label = str(pipeline.classes_[index])
                 if label != "new_question":
                     if label in {"swap_store", "refine_store", "swap_product"} and intent in {
@@ -193,23 +267,27 @@ def _follow_up_type(question: str, context: dict[str, Any]) -> str | None:
             pass
     explicit = ("acknowledge", "explain", "show_more", "refine_store")
     for label in explicit:
-        if FOLLOW_UPS[label].search(question.strip()):
+        if short_follow_up and FOLLOW_UPS[label].search(question.strip()):
             return label
-    if intent in {"food_inflation", "market_price"} and _slot_match(question, "year"):
+    if short_follow_up and intent in {"food_inflation", "market_price"} and _slot_match(
+        question, "year"
+    ):
         return "swap_year"
-    if _slot_match(question, "store"):
+    if short_follow_up and _slot_match(question, "store"):
         return "swap_store"
-    if intent == "market_price" and (
+    if short_follow_up and intent == "market_price" and (
         _slot_match(question, "county") or _slot_match(question, "commodity")
     ):
         return "swap_county_or_commodity"
-    if intent not in {"food_inflation", "market_price"} and (
+    if short_follow_up and intent not in {"food_inflation", "market_price"} and (
         _slot_match(question, "product")
         or _slot_match(question, "group")
         or _slot_match(question, "category")
     ):
         return "swap_product"
     for label, pattern in FOLLOW_UPS.items():
+        if not short_follow_up:
+            continue
         if label in explicit:
             continue
         if label in {"swap_year", "swap_county_or_commodity"} and intent not in {
@@ -232,6 +310,9 @@ def _merged_question(
     if follow_up == "swap_store":
         store = _slot_match(text, "store")
         if store:
+            previous_store = entities.get("store")
+            if previous_store and str(previous_store).casefold() != store.casefold():
+                entities["other_store"] = previous_store
             entities["store"] = store
     elif follow_up == "swap_product":
         product = _slot_match(text, "product") or _slot_match(text, "group")
@@ -262,7 +343,11 @@ def _merged_question(
     elif intent == "food_inflation":
         merged = f"food inflation in {entities.get('year', '')}".strip()
     else:
-        terms = [entities.get(key) for key in ("product", "group", "category") if entities.get(key)]
+        terms = [
+            _entity_surface(key, entities[key])
+            for key in ("product", "group", "category")
+            if entities.get(key)
+        ]
         store_term = f" at {entities['store']}" if entities.get("store") else ""
         action = {
             "price_at_store": "price of",
@@ -284,6 +369,7 @@ def intent_is_single_result(context: dict[str, Any]) -> bool:
 def _slot_match(text: str, slot: str) -> str | None:
     known = _known_entities()[slot]
     candidates = sorted(known, key=len, reverse=True)
+    text = _normalize_terms(normalize_question_text(text))
     return next(
         (
             value for value in candidates
@@ -300,8 +386,55 @@ def _unknown_store_mention(text: str) -> str | None:
     return None
 
 
+def _is_new_question(question: str, context: dict[str, Any]) -> bool:
+    """Protect explicit, entity-complete and confidently classified questions from stale context."""
+    normalized = normalize_question_text(question)
+    if INTENT_CUE.search(normalized):
+        return True
+    named_store = _slot_match(normalized, "store")
+    named_item = any(
+        _slot_match(normalized, slot) for slot in ("product", "group", "category")
+    ) or _generic_category(normalized) is not None
+    if named_store and named_item:
+        return True
+
+    follow_up = _follow_up_type(normalized, context)
+    if follow_up:
+        return False
+
+    content_words = [
+        word for word in re.findall(r"[a-z0-9]+", normalized.casefold())
+        if word not in FOLLOW_UP_STOPWORDS
+    ]
+    intent, _confidence, _error = _classify(normalized)
+    if len(content_words) >= 3 and intent != "out_of_scope":
+        return True
+    # Unrecognized short text cannot safely inherit an earlier intent.
+    return True
+
+
+def _contextual_comparison(question: str, context: dict[str, Any]) -> str | None:
+    entities = context.get("entities", {})
+    comparison_pattern = r"\b(which (?:one )?(?:is )?(?:cheaper|lower)|which costs less)\b"
+    if not re.search(comparison_pattern, question, re.I):
+        return None
+    product = entities.get("product") or entities.get("group")
+    first_store = entities.get("other_store")
+    second_store = entities.get("store")
+    if not (product and first_store and second_store):
+        return None
+    return f"compare {product} at {first_store} and {second_store}"
+
+
 def answer_dialogue(question: str, raw_context: Any = None) -> MarketQuestionResponse:
+    question = normalize_question_text(question)
     context = validate_context(raw_context)
+    comparison_question = _contextual_comparison(question, context) if context else None
+    if comparison_question:
+        question = comparison_question
+        context = {}
+    elif context and _is_new_question(question, context):
+        context = {}
     if context.get("pending_slot"):
         pending = context["pending_slot"]
         if pending == "product":
@@ -483,10 +616,20 @@ def answer_dialogue(question: str, raw_context: Any = None) -> MarketQuestionRes
         if isinstance(value, str) and value.casefold() in _known_entities()[key]:
             entities[key] = value
     missing: str | None = None
-    if intent == "price_at_store" and not entities.get("product") and not entities.get("group"):
-        missing = "product"
-    elif intent == "cheapest_item" and not any(
+    query_has_entity = any(
         entities.get(key) for key in ("product", "group", "category")
+    ) or any(
+        _slot_match(question, slot)
+        for slot in ("product", "group", "category")
+    ) or _generic_category(question) is not None
+    has_listing_candidates = any(
+        source.name == "Kenya supermarket listing snapshot" and source.url
+        for source in answer.sources
+    )
+    if (
+        intent in {"price_at_store", "cheapest_item"}
+        and not query_has_entity
+        and not has_listing_candidates
     ):
         missing = "product"
     elif intent == "market_price" and not entities.get("county"):

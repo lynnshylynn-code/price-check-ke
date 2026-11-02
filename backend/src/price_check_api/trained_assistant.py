@@ -28,7 +28,15 @@ EXAMPLES = (
 )
 MODEL_VERSION = "synthetic-intent-v1"
 MIN_PRODUCT_TOKEN_SIMILARITY = 0.72
+MIN_SINGLE_PRODUCT_TOKEN_SIMILARITY = 0.80
 PRODUCT_QUERY_CORRECTIONS = {"nyambite": "nyamabite"}
+
+
+def normalize_question_text(question: str) -> str:
+    """Normalize quotes, edge punctuation and whitespace before model or entity lookup."""
+    text = question.translate(str.maketrans({"“": '"', "”": '"', "‘": "'", "’": "'"}))
+    text = re.sub(r"\s+", " ", text)
+    return text.strip().strip("\"'`.,!?;:… \t\r\n")
 
 # Common Swahili product words mapped to English listing terms for entity lookup.
 _SWAHILI_TERMS = {
@@ -156,6 +164,18 @@ def _product_token_similarity(query: str, candidate: str) -> float:
     return sum(best_matches) / len(best_matches)
 
 
+def _product_tokens_match_confidently(query: str, candidate: str) -> bool:
+    query_words = re.findall(r"[a-z0-9]+", query.casefold())
+    candidate_words = re.findall(r"[a-z0-9]+", candidate.casefold())
+    return bool(query_words and candidate_words) and all(
+        max(
+            SequenceMatcher(None, word, candidate_word).ratio()
+            for candidate_word in candidate_words
+        ) >= MIN_SINGLE_PRODUCT_TOKEN_SIMILARITY
+        for word in query_words
+    )
+
+
 _CATEGORY_WORDS: dict[str, tuple[str, frozenset[str]]] = {
     r"\b(soda|sodas|soft drinks?|fizzy( drinks?)?|carbonated( drinks?)?)\b": (
         "soft drinks",
@@ -191,10 +211,15 @@ def _resolve_all_stores(question: str) -> list[dict[str, str | None]]:
     return resolved
 
 
-def _resolve_product(question: str) -> tuple[str | None, str | None, float]:
+def _resolve_product(
+    question: str, *, prefer_group: bool = False
+) -> tuple[str | None, str | None, float]:
     row = _extract(question, "product") or _extract(question, "unknown_product")
     if row:
         return row["canonical"], row["surface_form"], 1.0
+    group = _extract(question, "group")
+    if prefer_group and group:
+        return None, group["surface_form"], 0.0
     confectionery = re.search(
         r"\b(sweets|candy|candies|confectionery)\b", question.casefold()
     )
@@ -216,7 +241,10 @@ def _resolve_product(question: str) -> tuple[str | None, str | None, float]:
     score = float(scores[index])
     match = names[index]
     value = aliases.get(match, match).casefold()
-    if token_scores[index] >= MIN_PRODUCT_TOKEN_SIMILARITY:
+    if (
+        token_scores[index] >= MIN_PRODUCT_TOKEN_SIMILARITY
+        and _product_tokens_match_confidently(query, match)
+    ):
         return value, match, max(score, token_scores[index])
     return None, query, score
 
@@ -303,6 +331,7 @@ def _product_candidates() -> tuple[Any, Any, list[str], float, dict[str, str]]:
 
 
 def _classify(question: str) -> tuple[str, float, str | None]:
+    question = normalize_question_text(_normalize_terms(question))
     state = load_assistant_model()
     if state.pipeline is None:
         return "out_of_scope", 0.0, state.error
@@ -400,6 +429,12 @@ def _lookup_rows(
     specific = product is not None and product_score >= 0.999
     if generic_categories and not specific and not group_id:
         return by_category() or by_name()
+    generic_group = bool(
+        group_id and group_term and product_label
+        and group_term.casefold() == product_label.casefold()
+    )
+    if intent == "cheapest_item" and generic_group:
+        return by_group() or by_term() or by_name()
     if intent == "price_at_store" or specific:
         return by_name() or by_group() or by_term()
     if intent == "cheapest_item":
@@ -606,7 +641,7 @@ def _price_comparison(
 
 
 def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionResponse:
-    text = question.strip()
+    text = normalize_question_text(question)
     intent, confidence, load_error = _classify(text)
     if load_error:
         return _base_response(
@@ -660,7 +695,17 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
         unknown_store = store is None
     else:
         store, store_similarity, unknown_store = _resolve_store(text)
-    product, product_label, product_score = _resolve_product(text)
+    product, product_label, product_score = _resolve_product(
+        text,
+        prefer_group=intent == "cheapest_item" and _extract(text, "group") is not None,
+    )
+    specific_product = product is not None and product_score >= MIN_PRODUCT_TOKEN_SIMILARITY
+    if (
+        specific_product
+        and len(store_mentions) == 1
+        and intent in {"cheapest_item", "compare_stores"}
+    ):
+        intent = "price_at_store"
     unavailable_confectionery = product is None and product_score == 0.0 and product_label in {
         "sweets",
         "candy",
@@ -708,12 +753,16 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
                 unique_group_mentions.append(mention)
                 seen_groups.add(identity)
         generic = _generic_category(text) if not product and not group_term else None
+        if generic:
+            entities["category"] = generic[0]
         identified = (
             product is not None or bool(entities.get("group")) or bool(group_term)
             or bool(unique_group_mentions) or generic is not None
         ) and not unknown_product
         if intent == "biggest_discount":
             named_stores = [entry["store"] for entry in store_mentions if entry["store"]]
+            if not named_stores and store:
+                named_stores = [store]
             has_unknown_store = unknown_store or any(
                 entry["store"] is None for entry in store_mentions
             )

@@ -1588,6 +1588,138 @@
           ]
         }
       ]
+    },
+    {
+      "dialogue_id": "regression_new_questions_after_offers",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "Show current offers",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "intent_is", "intent": "biggest_discount"}
+          ]
+        },
+        {
+          "user": "cheapest milk",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "intent_is", "intent": "cheapest_item"},
+            {"type": "listing_sources_in_snapshot"},
+            {"type": "cited_listing_prices_match_snapshot"}
+          ]
+        },
+        {
+          "user": "bei ya sukari Naivas",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "intent_is", "intent": "price_at_store"},
+            {"type": "named_store_mentioned", "store": "Naivas"},
+            {"type": "cited_listing_prices_match_snapshot"}
+          ]
+        },
+        {
+          "user": "price of an iPhone at Naivas",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "intent_is", "intent": "price_at_store"},
+            {"type": "no_listing_price"}
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "regression_answerable_soft_drinks",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "what is the price of the cheapest soda",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "intent_is", "intent": "cheapest_item"},
+            {"type": "category_listing_present", "category": "soft_drinks"}
+          ]
+        },
+        {
+          "user": "and at Naivas?",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "follow_up_type_is", "follow_up_type": "swap_store"},
+            {
+              "type": "category_listing_present",
+              "category": "soft_drinks",
+              "store": "Naivas"
+            }
+          ]
+        },
+        {
+          "user": "show more",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "follow_up_type_is", "follow_up_type": "show_more"},
+            {"type": "listing_sources_in_snapshot"}
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "regression_store_comparison_context",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "how much is Brookside UHT whole milk 250ml at Quickmart",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "intent_is", "intent": "price_at_store"},
+            {
+              "type": "matching_listing_at_store",
+              "store": "Quickmart",
+              "name_tokens": ["brookside", "uht", "milk", "250ml"]
+            }
+          ]
+        },
+        {
+          "user": "and at Carrefour?",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "follow_up_type_is", "follow_up_type": "swap_store"},
+            {
+              "type": "matching_listing_at_store",
+              "store": "Carrefour",
+              "name_tokens": ["brookside", "uht", "milk", "250ml"]
+            }
+          ]
+        },
+        {
+          "user": "which is cheaper?",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "intent_is", "intent": "compare_stores"},
+            {"type": "source_stores_present", "stores": ["Quickmart", "Carrefour"]}
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "regression_trailing_punctuation",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "Isinya eggs at Carrefour'",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "any_matching_listing_at_store", "store": "Carrefour", "name_tokens": ["isinya", "egg"]}
+          ]
+        },
+        {
+          "user": "and at Naivas?",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "follow_up_type_is", "follow_up_type": "swap_store"},
+            {"type": "no_matching_listing_at_store", "store": "Naivas", "name_tokens": ["isinya", "egg"]}
+          ]
+        }
+      ]
     }
   ]
 }

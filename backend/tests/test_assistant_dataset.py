@@ -17,7 +17,9 @@ from build_assistant_dataset import (  # noqa: E402
     SEED,
     SPLIT_DIR,
     SPLIT_SEED,
+    STRAY_PUNCTUATION_FRACTION,
     TEMPLATES_PATH,
+    apply_stray_punctuation_noise,
     balance_training_rows,
     expand_templates,
     families_by_intent,
@@ -107,6 +109,22 @@ def test_training_rows_are_capped_by_intent_and_sampled_across_families():
                 for family_id, count in included.items()
                 if count < highest_count - 1
             )
+
+
+def test_stray_punctuation_noise_is_seeded_and_applies_to_about_ten_percent():
+    rows = [{"question": f"training question {index}"} for index in range(100)]
+    first, first_count = apply_stray_punctuation_noise(rows, Random(SEED + 4))
+    second, second_count = apply_stray_punctuation_noise(rows, Random(SEED + 4))
+
+    assert first == second
+    assert first_count == second_count == round(len(rows) * STRAY_PUNCTUATION_FRACTION)
+    changed = [
+        row["question"]
+        for row, original in zip(first, rows, strict=True)
+        if row["question"] != original["question"]
+    ]
+    assert len(changed) == first_count
+    assert all(question[-1] in "'\"?!." for question in changed)
 
 
 def test_training_rows_at_or_above_heldout_similarity_threshold_are_removed(tmp_path, monkeypatch):

@@ -136,3 +136,23 @@ Task R — Document the dialogue assistant and privacy limits.
 Changed: Updated root, backend, and Android documentation; added AI/model-card design notes, follow-up metrics markers, human dialogue authoring instructions, and a clearly marked demo placeholder.
 Verification: No dialogue/model metrics were added because follow-up training and dialogue replay could not run in this environment.
 
+Task S — Keep new questions separate from follow-ups.
+Changed: Added intent-cue, entity-pair, short-turn and confidence routing so explicit questions reset stale dialogue context.
+Verification: Regression conversations and focused dialogue tests confirmed the offers-to-price question transitions.
+
+Task T — Clarify only when lookups cannot answer.
+Changed: Use resolved listing sources and product/group/category detection before asking for a missing product.
+Verification: Soda and fizzy-drink questions return the data-ranked soft-drink listing; an unqualified “cheapest” still prompts.
+
+Task U — Honor store and product together.
+Changed: A confident named product/store request routes as a store price lookup and preserves the requested-store filter.
+Verification: The Quickmart Brookside query returns a listing selected from that store’s CSV records.
+
+Task V — Normalize trailing punctuation.
+Changed: Normalize curly quotes, edge punctuation and whitespace before classification/entity linking; add seeded punctuation noise to training rows.
+Verification: Dataset generation and real-model punctuation checks completed with the existing local artifacts.
+
+Task W — Add dialogue regression replay.
+Changed: Added four scripted conversations and data-derived listing checks; evaluator can select dialogue IDs and caches model loads.
+Verification: Focused regressions passed; full replay and docs refresh recorded 21/30 successful AI-written dialogues.
+
