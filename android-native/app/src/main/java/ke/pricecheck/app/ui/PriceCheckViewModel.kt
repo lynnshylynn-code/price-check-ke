@@ -31,6 +31,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import java.io.IOException
 import org.json.JSONException
+import org.json.JSONArray
+import org.json.JSONObject
 
 enum class PriceCheckTab {
     HOME,
@@ -46,6 +48,16 @@ enum class ProductSort {
     HIGHEST_PRICE,
     NAME,
 }
+
+data class AssistantChatMessage(
+    val role: String,
+    val text: String,
+    val intent: String? = null,
+    val sourceName: String? = null,
+    val coverageStart: String? = null,
+    val coverageEnd: String? = null,
+    val confidencePercent: Int? = null,
+)
 
 data class PriceCheckUiState(
     val preferences: AppPreferences = AppPreferences(),
@@ -82,6 +94,9 @@ data class PriceCheckUiState(
     val productDataLabel: String = "",
     val productsLoading: Boolean = true,
     val productsError: String? = null,
+    val assistantMessages: List<AssistantChatMessage> = emptyList(),
+    val assistantContextJson: String? = null,
+    val assistantSuggestions: List<String> = emptyList(),
 )
 
 class PriceCheckViewModel(
@@ -108,6 +123,7 @@ class PriceCheckViewModel(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), PriceCheckUiState())
 
     init {
+        viewModelScope.launch { restoreAssistantConversation() }
         refreshListings()
         refreshFoodInflation()
         refreshMarketAreas()
@@ -329,6 +345,59 @@ class PriceCheckViewModel(
         it.copy(question = question.take(500), aiError = null)
     }
 
+    fun useAssistantSuggestion(suggestion: String) = setQuestion(suggestion)
+
+    fun newAssistantChat() = clearAssistantConversation()
+
+    fun clearAssistantConversation() {
+        mutableState.update {
+            it.copy(
+                assistantMessages = emptyList(), assistantContextJson = null,
+                assistantSuggestions = emptyList(), answer = null, question = "",
+                answerIntent = null, answerIntentConfidence = null, aiError = null,
+            )
+        }
+        viewModelScope.launch { container.preferences.saveAssistantConversation("") }
+    }
+
+    private suspend fun restoreAssistantConversation() {
+        val saved = container.preferences.preferences.first().assistantConversation
+        if (saved.isBlank()) return
+        runCatching {
+            val json = JSONObject(saved)
+            val array = json.optJSONArray("messages") ?: JSONArray()
+            val messages = List(array.length()) { index ->
+                val row = array.getJSONObject(index)
+                AssistantChatMessage(
+                    role = row.optString("role"), text = row.optString("text"),
+                    intent = row.optString("intent").takeUnless { it.isBlank() || it == "null" },
+                    sourceName = row.optString("source_name").takeUnless { it.isBlank() || it == "null" },
+                    coverageStart = row.optString("coverage_start").takeUnless { it.isBlank() || it == "null" },
+                    coverageEnd = row.optString("coverage_end").takeUnless { it.isBlank() || it == "null" },
+                    confidencePercent = row.optInt("confidence_percent").takeIf { row.has("confidence_percent") },
+                )
+            }.takeLast(50)
+            val context = json.optJSONObject("context")?.toString()
+            mutableState.update { it.copy(assistantMessages = messages, assistantContextJson = context) }
+        }
+    }
+
+    private fun saveAssistantConversation(state: PriceCheckUiState) {
+        val messages = JSONArray()
+        state.assistantMessages.takeLast(50).forEach { message ->
+            messages.put(JSONObject().put("role", message.role).put("text", message.text)
+                .put("intent", message.intent).put("source_name", message.sourceName)
+                .put("coverage_start", message.coverageStart).put("coverage_end", message.coverageEnd)
+                .put("confidence_percent", message.confidencePercent))
+        }
+        val payload = JSONObject().put("messages", messages)
+        state.assistantContextJson?.let { runCatching { JSONObject(it) }.getOrNull() }
+            ?.let { payload.put("context", it) }
+        viewModelScope.launch {
+            container.preferences.saveAssistantConversation(payload.toString())
+        }
+    }
+
     fun askQuestion() {
         val state = mutableState.value
         val data = state.marketData ?: return
@@ -336,17 +405,20 @@ class PriceCheckViewModel(
         if (question.length < 3 || state.aiLoading) return
 
         val fallback = answerFromDataset(question, data)
+        val userMessage = AssistantChatMessage("user", question)
         mutableState.update {
             it.copy(
                 answer = fallback,
                 answerIsOffline = true,
                 aiLoading = true,
                 aiError = null,
+                assistantMessages = (it.assistantMessages + userMessage).takeLast(50),
             )
         }
+        saveAssistantConversation(mutableState.value)
         viewModelScope.launch {
             try {
-                val answer = container.market.askQuestion(question)
+                val answer = container.market.askQuestion(question, state.assistantContextJson)
                 mutableState.update {
                     it.copy(
                         answer = answer.answer,
@@ -359,8 +431,16 @@ class PriceCheckViewModel(
                         answerIntent = answer.intent,
                         answerIntentConfidence = answer.intentConfidence,
                         answerSources = answer.sources,
+                        assistantContextJson = answer.contextJson,
+                        assistantSuggestions = answer.suggestions,
+                        assistantMessages = (it.assistantMessages + AssistantChatMessage(
+                            "assistant", answer.answer, answer.intent, answer.sourceName,
+                            answer.coverageStart, answer.coverageEnd,
+                            (answer.intentConfidence * 100).toInt(),
+                        )).takeLast(50),
                     )
                 }
+                saveAssistantConversation(mutableState.value)
             } catch (error: IOException) {
                 mutableState.update {
                     it.copy(
@@ -372,8 +452,12 @@ class PriceCheckViewModel(
                         answerCoverageStart = data.series.coverageStart,
                         answerCoverageEnd = data.series.coverageEnd,
                         aiError = error.message ?: container.strings(R.string.live_ai_error),
+                        assistantMessages = (it.assistantMessages + AssistantChatMessage(
+                            "assistant", fallback,
+                        )).takeLast(50),
                     )
                 }
+                saveAssistantConversation(mutableState.value)
             } catch (error: JSONException) {
                 mutableState.update {
                     it.copy(
@@ -381,8 +465,12 @@ class PriceCheckViewModel(
                         answerIsOffline = true,
                         aiLoading = false,
                         aiError = error.message ?: container.strings(R.string.live_ai_error),
+                        assistantMessages = (it.assistantMessages + AssistantChatMessage(
+                            "assistant", fallback,
+                        )).takeLast(50),
                     )
                 }
+                saveAssistantConversation(mutableState.value)
             }
         }
     }

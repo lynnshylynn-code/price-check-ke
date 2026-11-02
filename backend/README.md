@@ -24,6 +24,7 @@ The trained artifacts are written to the ignored `backend/models/` directory. Th
 ## Assistant and data endpoints
 
 - `POST /api/v1/assistant/ask` — trained intent model with deterministic data lookups, intent, confidence, entities, source and coverage metadata.
+- `POST /api/v1/assistant/ask` also accepts an optional validated `context` object and returns the next context, up to three suggestions, clarification state, and follow-up type. The server remains stateless; send the returned context on the next turn.
 - `POST /api/v1/ai/market-question` — compatibility route backed by the same trained assistant.
 - `POST /api/v1/ai/market-question/simulate` — deterministic historic market-data answer.
 - `GET /api/v1/models/info` — model availability, training date, data hash and metrics.
@@ -36,6 +37,8 @@ The trained artifacts are written to the ignored `backend/models/` directory. Th
 The main assistant training path is the CRISP-DM notebook at `../notebooks/assistant_intent_crisp_dm.ipynb`. Run `python scripts/build_assistant_notebook.py` to regenerate and execute it with the installed local dependencies. In Colab, clone the repository (or upload `backend/data/assistant` and the training script) and configure `ASSISTANT_DATA_DIR` / `ASSISTANT_MODEL_DIR` as needed. The notebook compares a majority baseline, Naive Bayes, kNN, decision tree, logistic regression, calibrated linear SVM, random forest, and MLP using the same word/character TF-IDF features. It selects the model and abstention threshold on validation only, then reports test and held-out sources separately. Its cap sensitivity section compares `ASSISTANT_CAP_MULTIPLIER=1.25` and `1.5` by validation macro-F1. The dataset builder defaults to `1.25`; set `ASSISTANT_CAP_MULTIPLIER` before running it to change the cap. `python scripts/train_assistant.py` is the command-line copy of that pipeline and writes the same artifact format for compatibility.
 
 After training, run `python scripts/refresh_docs_metrics.py` to populate the marked intent metrics sections in the AI report and model card directly from `backend/models/metadata.json`.
+
+Follow-up dialogue training is separate from the intent model: run `python scripts/build_followup_dataset.py` and `python scripts/train_followup.py`. If the follow-up artifact is unavailable, the API gracefully uses deterministic follow-up rules. Run `python scripts/build_dialogue_eval.py` and `python scripts/evaluate_dialogues.py` to regenerate and replay the AI-written scripted dialogue set. Conversation context is never stored by the API.
 
 Question templates are AI-written and generated questions are synthetic. The separate `heldout_test_questions.csv` set is AI-written held-out data and is never used for training or tuning. The matcher uses human labels only when `label` is filled; otherwise it bootstraps synthetic noisy-copy positives and same-brand different-size negatives. Report these metrics as synthetic. The APHRC workbook is optional and excluded from Git; every endpoint must work when it is absent.
 

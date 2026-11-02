@@ -10,6 +10,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import orders
+from .dialogue import answer_dialogue
 from .ai_rate_limit import enforce_ai_rate_limit
 from .assistant_model import load_assistant_model
 from .basket_search import a_star_search, breadth_first_search, uniform_cost_search
@@ -450,7 +451,7 @@ async def market_question(request: MarketQuestionRequest) -> MarketQuestionRespo
     dependencies=[Depends(enforce_ai_rate_limit)],
 )
 def assistant_ask(request: AssistantAskRequest) -> MarketQuestionResponse:
-    return answer_trained_question(request.question)
+    return answer_dialogue(request.question, request.context)
 
 
 @app.get("/api/v1/models/info", tags=["trained assistant"])

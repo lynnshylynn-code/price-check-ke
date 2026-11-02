@@ -189,6 +189,14 @@
     <string name="live_ai_error">The trained assistant is unavailable.</string>
     <string name="assistant_understood_as">Understood as: %1$s (%2$d%%)</string>
     <string name="assistant_source_note">%1$s · %2$s</string>
+    <string name="assistant_chat_note">This assistant answers questions about the price data. It is not open chat.</string>
+    <string name="assistant_chat_privacy">Conversation is saved on this device only.</string>
+    <string name="assistant_new_chat">New chat</string>
+    <string name="assistant_clear_chat">Clear conversation</string>
+    <string name="assistant_send">Send</string>
+    <string name="assistant_typing">Assistant is typing…</string>
+    <string name="assistant_message_hint">Ask about prices, offers, or market data</string>
+    <string name="assistant_chat_source">Source: %1$s · %2$s–%3$s</string>
     <string name="predicted_food_group">Predicted food group: %1$s</string>
     <string name="predicted_nova">Predicted NOVA: %1$s</string>
     <string name="product_image_description">Product package image for %1$s</string>

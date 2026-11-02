@@ -16,6 +16,8 @@ interface MarketDataSource {
     suspend fun loadFoodInflation(): FoodInflationData
     suspend fun loadAreaPrices(county: String): AreaMarketData
     suspend fun askQuestion(question: String): MarketQuestionAnswer
+    suspend fun askQuestion(question: String, contextJson: String?): MarketQuestionAnswer =
+        askQuestion(question)
 }
 
 class MarketRepository(private val baseUrl: String) : MarketDataSource {
@@ -124,8 +126,15 @@ class MarketRepository(private val baseUrl: String) : MarketDataSource {
         )
     }
 
-    override suspend fun askQuestion(question: String): MarketQuestionAnswer = withContext(Dispatchers.IO) {
+    override suspend fun askQuestion(question: String): MarketQuestionAnswer =
+        askQuestion(question, null)
+
+    override suspend fun askQuestion(
+        question: String,
+        contextJson: String?,
+    ): MarketQuestionAnswer = withContext(Dispatchers.IO) {
         val payload = JSONObject().put("question", question)
+        contextJson?.let { runCatching { JSONObject(it) }.getOrNull() }?.let { payload.put("context", it) }
         val response = request("/api/v1/assistant/ask", payload)
         val sourceArray = response.optJSONArray("sources")
         val sources = (0 until (sourceArray?.length() ?: 0)).mapNotNull { index ->
@@ -146,6 +155,13 @@ class MarketRepository(private val baseUrl: String) : MarketDataSource {
             intent = response.optString("intent", "out_of_scope"),
             intentConfidence = response.optDouble("intent_confidence", 0.0),
             sources = sources,
+            contextJson = response.optJSONObject("context")?.toString(),
+            suggestions = response.optJSONArray("suggestions")?.let { values ->
+                List(values.length()) { values.optString(it) }.filter(String::isNotBlank)
+            }.orEmpty(),
+            needsClarification = response.optBoolean("needs_clarification", false),
+            followUpType = response.optString("follow_up_type")
+                .takeUnless { it.isBlank() || it == "null" },
         )
     }
 

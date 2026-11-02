@@ -11,6 +11,8 @@ DEFAULT_METADATA = ROOT / "backend/models/metadata.json"
 DEFAULT_DOCS = (ROOT / "docs/AI_REPORT.md", ROOT / "docs/MODEL_CARD.md")
 START = "<!-- metrics:start -->"
 END = "<!-- metrics:end -->"
+FOLLOWUP_START = "<!-- followup:start -->"
+FOLLOWUP_END = "<!-- followup:end -->"
 
 
 def _value(value: Any, digits: int = 4) -> str:
@@ -100,6 +102,31 @@ def render_metrics(metadata: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def render_followup_metrics(metadata: dict[str, Any], dialogues: dict[str, Any]) -> str:
+    metrics = metadata.get("metrics", {}).get("synthetic_test", {})
+    lines = [
+        f"- Selected follow-up model: `{_value(metadata.get('model_name'))}`; "
+        f"threshold {_value(metadata.get('confidence_threshold'))}.",
+        f"- Synthetic follow-up test: rows {_value(metadata.get('synthetic_test_rows'))}; "
+        f"accuracy {_value(metrics.get('accuracy'))}; macro-F1 {_value(metrics.get('macro_f1'))}.",
+        "- Synthetic test precision / recall / F1 by label:",
+        "| Label | Precision | Recall | F1 | Support |", "|---|---:|---:|---:|---:|",
+    ]
+    for label, values in sorted(metrics.get("per_label", {}).items()):
+        lines.append(
+            f"| {label} | {_value(values.get('precision'))} | {_value(values.get('recall'))} | "
+            f"{_value(values.get('f1'))} | {_value(values.get('support'))} |"
+        )
+    for key, title in (("ai_written", "AI-written"), ("human_written", "Human-written")):
+        result = dialogues.get(key)
+        if result:
+            lines.append(
+                f"- {title} dialogues: turn accuracy {_value(result.get('turn_accuracy'))}; "
+                f"dialogue success rate {_value(result.get('dialogue_success_rate'))}."
+            )
+    return "\n".join(lines)
+
+
 def replace_section(path: Path, content: str) -> None:
     text = path.read_text(encoding="utf-8")
     start = text.index(START) + len(START)
@@ -108,18 +135,61 @@ def replace_section(path: Path, content: str) -> None:
     path.write_text(updated, encoding="utf-8")
 
 
+def replace_optional_section(path: Path, start_marker: str, end_marker: str, content: str) -> None:
+    text = path.read_text(encoding="utf-8")
+    if start_marker not in text or end_marker not in text:
+        return
+    start = text.index(start_marker) + len(start_marker)
+    end = text.index(end_marker, start)
+    path.write_text(text[:start] + "\n" + content + "\n" + text[end:], encoding="utf-8")
+
+
 def refresh(metadata_path: Path, docs_paths: tuple[Path, ...]) -> None:
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     content = render_metrics(metadata)
+    followup_path = metadata_path.with_name("followup_metadata.json")
+    dialogue_path = metadata_path.with_name("dialogue_metrics.json")
+    followup = (
+        json.loads(followup_path.read_text(encoding="utf-8"))
+        if followup_path.is_file()
+        else {}
+    )
+    dialogues = (
+        json.loads(dialogue_path.read_text(encoding="utf-8"))
+        if dialogue_path.is_file()
+        else {}
+    )
+    followup_content = (
+        render_followup_metrics(followup, dialogues)
+        if followup
+        else "Follow-up classifier and dialogue evaluation metrics need refresh after training."
+    )
     for path in docs_paths:
         replace_section(path, content)
+        replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
 
 
 def main() -> int:
     metadata = json.loads(DEFAULT_METADATA.read_text(encoding="utf-8"))
     content = render_metrics(metadata)
+    followup_path = ROOT / "backend/models/followup_metadata.json"
+    followup = (
+        json.loads(followup_path.read_text(encoding="utf-8"))
+        if followup_path.is_file()
+        else {}
+    )
+    dialogue_path = ROOT / "backend/models/dialogue_metrics.json"
+    dialogues = (
+        json.loads(dialogue_path.read_text(encoding="utf-8"))
+        if dialogue_path.is_file()
+        else {}
+    )
+    followup_content = render_followup_metrics(followup, dialogues) if followup else (
+        "Follow-up classifier metrics need refresh after training."
+    )
     for path in DEFAULT_DOCS:
         replace_section(path, content)
+        replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
         print(f"Refreshed metrics in {path.relative_to(ROOT)}")
     return 0
 

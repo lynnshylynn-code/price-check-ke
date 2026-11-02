@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from refresh_docs_metrics import refresh, render_metrics  # noqa: E402
+from refresh_docs_metrics import render_followup_metrics, refresh, render_metrics  # noqa: E402
 
 
 def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) -> None:
@@ -77,3 +77,32 @@ def test_metrics_renderer_marks_missing_metadata_as_unavailable() -> None:
     assert "Selected model: `not available`" in rendered
     assert "not available" in rendered
     assert "AI-written held-out set: metrics not available" in rendered
+
+
+def test_followup_metrics_include_classifier_and_dialogue_scores() -> None:
+    rendered = render_followup_metrics(
+        {
+            "model_name": "FollowupModel",
+            "confidence_threshold": 0.6,
+            "synthetic_test_rows": 10,
+            "metrics": {
+                "synthetic_test": {
+                    "accuracy": 0.8,
+                    "macro_f1": 0.7,
+                    "per_label": {
+                        "swap_store": {
+                            "precision": 0.8,
+                            "recall": 0.7,
+                            "f1": 0.75,
+                            "support": 2,
+                        }
+                    },
+                }
+            },
+        },
+        {"ai_written": {"turn_accuracy": 0.9, "dialogue_success_rate": 0.8}},
+    )
+
+    assert "FollowupModel" in rendered
+    assert "| swap_store | 0.8000 | 0.7000 | 0.7500 | 2 |" in rendered
+    assert "AI-written dialogues: turn accuracy 0.9000; dialogue success rate 0.8000." in rendered

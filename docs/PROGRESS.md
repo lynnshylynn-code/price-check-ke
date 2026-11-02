@@ -112,3 +112,27 @@ Task L — Clean metrics tables and align listing categories.
 Changed: Zero-support abstain rows are omitted while abstained totals remain in summary lines; bakery matching includes cookies and discount-category expectations cover product-name matches.
 Verification: Both docs-metrics test functions passed by direct invocation; the full pytest suite and Ruff remain unavailable in this runtime.
 
+Task M — Add stateless assistant dialogue context and follow-up handling.
+Changed: Added optional validated request context and response suggestions/clarification fields, slot merging, bounded turns/results, deterministic follow-ups, and graceful optional follow-up-model loading.
+Verification: Added focused context/follow-up tests and passed Python syntax compilation; backend pytest, Ruff, and model training were unavailable because pytest, Ruff, scikit-learn, and joblib are missing.
+
+Task N — Add a synthetic follow-up classifier pipeline.
+Changed: Added AI-written follow-up templates, a family-isolated balanced dataset builder, a TF-IDF model-comparison trainer, and optional model loading with a rule-based fallback.
+Verification: Follow-up split, family/style, cap/floor, and leakage checks passed; model training was not run because joblib and scikit-learn are unavailable.
+
+Task O — Add scripted multi-turn dialogue evaluation.
+Changed: Added 26 AI-written conversations of 3–6 turns, checks derived from the listing snapshot, a replay script, and a teammate guide for writing human evaluation dialogues.
+Verification: Dialogue format and dataset invariants passed; replay was not run because the existing listing matcher requires unavailable joblib/scikit-learn.
+
+Task P — Make the web assistant a local multi-turn chat.
+Changed: Replaced the Trends assistant prompt/simulation card with chat bubbles, context round trips, suggestions, clear/new-chat controls, and on-device history.
+Verification: `npx tsc --noEmit` passed using existing frontend dependencies; browser interaction was not run.
+
+Task Q — Make the Android assistant a local multi-turn chat.
+Changed: Added Compose message bubbles and suggestions, context-aware repository calls, DataStore JSON persistence capped at 50 messages, and ViewModel plus Compose UI tests.
+Verification: Offline Gradle commands stalled without output and were interrupted; Android unit and instrumentation tests/build remain unverified.
+
+Task R — Document the dialogue assistant and privacy limits.
+Changed: Updated root, backend, and Android documentation; added AI/model-card design notes, follow-up metrics markers, human dialogue authoring instructions, and a clearly marked demo placeholder.
+Verification: No dialogue/model metrics were added because follow-up training and dialogue replay could not run in this environment.
+

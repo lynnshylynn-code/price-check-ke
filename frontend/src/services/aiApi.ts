@@ -11,6 +11,10 @@ export type MarketQuestionAnswer = {
   entities: Record<string, unknown>;
   model_version: string;
   sources: { name: string; url: string; note: string }[];
+  context: Record<string, unknown>;
+  suggestions: string[];
+  needs_clarification: boolean;
+  follow_up_type: string | null;
 };
 
 function isMarketQuestionAnswer(value: unknown): value is MarketQuestionAnswer {
@@ -31,6 +35,7 @@ function isMarketQuestionAnswer(value: unknown): value is MarketQuestionAnswer {
 async function requestMarketQuestion(
   endpoint: string,
   question: string,
+  context?: Record<string, unknown> | null,
   signal?: AbortSignal,
 ): Promise<MarketQuestionAnswer> {
   let response: Response;
@@ -38,7 +43,7 @@ async function requestMarketQuestion(
     response = await fetch(`${API_BASE_URL}/api/v1/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, context }),
       signal,
     });
   } catch (error) {
@@ -73,14 +78,15 @@ async function requestMarketQuestion(
 
 export function askMarketQuestion(
   question: string,
+  context?: Record<string, unknown> | null,
   signal?: AbortSignal,
 ): Promise<MarketQuestionAnswer> {
-  return requestMarketQuestion('assistant/ask', question, signal);
+  return requestMarketQuestion('assistant/ask', question, context, signal);
 }
 
 export function simulateMarketQuestion(
   question: string,
   signal?: AbortSignal,
 ): Promise<MarketQuestionAnswer> {
-  return requestMarketQuestion('ai/market-question/simulate', question, signal);
+  return requestMarketQuestion('ai/market-question/simulate', question, null, signal);
 }

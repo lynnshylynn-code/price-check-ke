@@ -50,6 +50,7 @@ the web application in `../frontend/`.
   market observations, and answers from the locally trained assistant with source, intent confidence, and coverage.
   User preferences, shopping area, and basket data are saved locally with
   DataStore.
+- The Trends assistant is a multi-turn task-oriented chat, not open chat. It sends back the validated context object returned by the stateless backend and stores its last 50 local messages in DataStore JSON. New chat and Clear conversation remove the stored thread; no server-side or cross-device history exists.
 
 ## Lecture topics demonstrated
 
@@ -75,6 +76,8 @@ the web application in `../frontend/`.
   estimated.
 - Supermarket product prices are labelled demo data and do not vary with the
   selected area. Market observations come from the World Bank RTFP dataset.
+
+The backend follow-up classifier is optional. When its model artifact is absent, deterministic follow-up rules remain available. Training templates and scripted dialogue evaluation are AI-written synthetic data; see `../backend/data/assistant/FOLLOWUP_DATA_README.md`.
 
 ## Run on an Android emulator
 

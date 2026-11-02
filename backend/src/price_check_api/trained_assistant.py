@@ -539,7 +539,7 @@ def _price_comparison(
     return "\n".join(answers) + f"\n{DATA_LABEL}.", used_rows
 
 
-def answer_trained_question(question: str) -> MarketQuestionResponse:
+def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionResponse:
     text = question.strip()
     intent, confidence, load_error = _classify(text)
     if load_error:
@@ -702,7 +702,11 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
 
                 discount_rows = [item for item in discount_rows if matches_filter(item)]
             discount_rows.sort(key=lambda item: (-(item.discount_pct or 0), item.price_kes))
-            discount_rows = discount_rows[:5]
+            discount_rows = (
+                discount_rows[offset : offset + 5]
+                if offset > 0
+                else discount_rows[:5]
+            )
             if not discount_rows:
                 answer = (
                     "No discounted listing matches those filters in this snapshot. "
@@ -816,10 +820,17 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
             )
         if intent == "cheapest_item" and _unit_basis(rows) == "unit_price":
             rows = sorted(rows, key=lambda item: item.unit_price or float("inf"))
+        source_rows = []
         if not rows:
             answer = f"No matching advertised listing was found in this snapshot. {DATA_LABEL}."
         else:
-            selected = rows if intent in {"compare_stores", "biggest_discount"} else rows[:1]
+            selected = (
+                rows[offset : offset + 5]
+                if intent in {"cheapest_item", "price_at_store", "unit_price"} and offset > 0
+                else rows if intent in {"compare_stores", "biggest_discount"}
+                else rows[:1]
+            )
+            source_rows = selected
             if intent == "unit_price":
                 answer = " ".join(
                     f"{item.item_name}: KES {item.unit_price:g} per {item.unit} "
@@ -850,17 +861,14 @@ def answer_trained_question(question: str) -> MarketQuestionResponse:
             confidence,
             entities,
             answer,
-            (
-                [
-                    {
-                        "name": "Kenya supermarket listing snapshot",
-                        "url": rows[0].product_url,
-                        "note": DATA_LABEL,
-                    }
-                ]
-                if rows
-                else []
-            ),
+            [
+                {
+                    "name": "Kenya supermarket listing snapshot",
+                    "url": item.product_url,
+                    "note": DATA_LABEL,
+                }
+                for item in source_rows
+            ],
             "Kenya supermarket listing snapshot",
             None,
             "20 Oct 2026",

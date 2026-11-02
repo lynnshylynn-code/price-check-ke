@@ -33,6 +33,7 @@ import ke.pricecheck.app.R
 import ke.pricecheck.app.data.FoodInflationData
 import ke.pricecheck.app.data.Product
 import ke.pricecheck.app.ui.PriceCheckUiState
+import ke.pricecheck.app.ui.AssistantChatMessage
 import ke.pricecheck.app.ui.PriceCheckTheme
 import ke.pricecheck.app.ui.components.DemoNotice
 import ke.pricecheck.app.ui.components.InfoCard
@@ -48,7 +49,7 @@ fun TrendsScreen(
     products: List<Product>,
     onQuestion: (String) -> Unit,
     onAsk: () -> Unit,
-    onSimulate: () -> Unit,
+    onNewChat: () -> Unit,
     onSelectYear: (Int) -> Unit,
     onRefresh: () -> Unit,
     onOpenProduct: (Product) -> Unit,
@@ -144,7 +145,7 @@ fun TrendsScreen(
                     ),
                 )
             }
-            item { AiQuestionCard(state, onQuestion, onAsk, onSimulate, data) }
+            item { AiQuestionCard(state, onQuestion, onAsk, onNewChat) }
             item { DemoNotice(stringResource(R.string.watchlist_local_notice)) }
             items(state.preferences.watchedProductIds.toList(), key = { it }) { id ->
                 val product = products.find { it.id == id }
@@ -206,25 +207,68 @@ private fun AiQuestionCard(
     state: PriceCheckUiState,
     onQuestion: (String) -> Unit,
     onAsk: () -> Unit,
-    onSimulate: () -> Unit,
-    data: FoodInflationData,
+    onNewChat: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(9.dp),
-        ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
             Text(stringResource(R.string.ai_card_title), style = MaterialTheme.typography.titleLarge)
             Text(stringResource(R.string.ai_card_description))
-            val prompts = listOf(
-                stringResource(R.string.ai_prompt_latest),
-                stringResource(R.string.ai_prompt_average),
-                stringResource(R.string.ai_prompt_month),
-            )
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(prompts) { prompt ->
-                    TextButton(onClick = { onQuestion(prompt) }) {
-                        Text(prompt.substringBefore('?'))
+            Text(stringResource(R.string.assistant_chat_note), style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(R.string.assistant_chat_privacy), style = MaterialTheme.typography.bodySmall)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onNewChat) { Text(stringResource(R.string.assistant_new_chat)) }
+                TextButton(onClick = onNewChat) { Text(stringResource(R.string.assistant_clear_chat)) }
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth().height(260.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(state.assistantMessages) { message: AssistantChatMessage ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = if (message.role == "user") Arrangement.End else Arrangement.Start,
+                    ) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(0.88f),
+                            colors = androidx.compose.material3.CardDefaults.cardColors(
+                                containerColor = if (message.role == "user")
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else MaterialTheme.colorScheme.surfaceVariant,
+                            ),
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Text(message.text)
+                                if (message.intent != null && message.confidencePercent != null) {
+                                    Text(
+                                        stringResource(
+                                            R.string.assistant_understood_as,
+                                            message.intent,
+                                            message.confidencePercent,
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                                if (message.role == "assistant" && message.sourceName != null) {
+                                    Text(
+                                        stringResource(
+                                            R.string.assistant_chat_source,
+                                            message.sourceName.orEmpty(),
+                                            message.coverageStart.orEmpty(),
+                                            message.coverageEnd.orEmpty(),
+                                        ),
+                                        style = MaterialTheme.typography.bodySmall,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                if (state.aiLoading) item { Text(stringResource(R.string.assistant_typing)) }
+            }
+            if (state.assistantSuggestions.isNotEmpty()) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(state.assistantSuggestions.take(3)) { suggestion ->
+                        FilterChip(selected = false, onClick = { onQuestion(suggestion) }, label = { Text(suggestion) })
                     }
                 }
             }
@@ -233,26 +277,13 @@ private fun AiQuestionCard(
                 onValueChange = onQuestion,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text(stringResource(R.string.your_question)) },
-                placeholder = { Text(stringResource(R.string.ai_question_hint)) },
-                minLines = 2,
-                maxLines = 4,
+                placeholder = { Text(stringResource(R.string.assistant_message_hint)) },
+                minLines = 1,
+                maxLines = 3,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(
-                    onClick = onAsk,
-                    enabled = state.question.trim().length >= 3 && !state.aiLoading,
-                ) {
-                    Text(
-                        if (state.aiLoading) stringResource(R.string.contacting_ai)
-                        else stringResource(R.string.ask_ai),
-                    )
-                }
-                OutlinedButton(
-                    onClick = onSimulate,
-                    enabled = state.question.trim().length >= 3 && !state.aiLoading,
-                ) {
-                    Text(stringResource(R.string.simulate))
-                }
+            Button(onClick = onAsk, enabled = state.question.isNotBlank() && !state.aiLoading) {
+                Text(if (state.aiLoading) stringResource(R.string.contacting_ai)
+                     else stringResource(R.string.assistant_send))
             }
             if (state.aiError != null) {
                 Text(
@@ -261,69 +292,9 @@ private fun AiQuestionCard(
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
-            AnimatedVisibility(visible = state.answer != null) {
-                state.answer?.let { answer ->
-                    Card(
-                        colors = androidx.compose.material3.CardDefaults.cardColors(
-                            containerColor = if (state.answerIsOffline) {
-                                MaterialTheme.colorScheme.tertiaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.secondaryContainer
-                            },
-                        ),
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(14.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            Text(
-                                when {
-                                    state.aiLoading -> stringResource(R.string.dataset_answer_live_pending)
-                                    state.answerIsOffline -> stringResource(R.string.offline_dataset_answer)
-                                    else -> stringResource(R.string.live_ai_answer)
-                                },
-                                style = MaterialTheme.typography.titleSmall,
-                            )
-                            Text(answer)
-                            state.answerIntent?.let { intent ->
-                                Text(
-                                    stringResource(
-                                        R.string.assistant_understood_as,
-                                        intent,
-                                        ((state.answerIntentConfidence ?: 0.0) * 100).toInt(),
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                            state.answerSourceName?.let { source ->
-                                Text(
-                                    stringResource(
-                                        R.string.answer_source_details,
-                                        source,
-                                        state.answerCoverageStart.orEmpty(),
-                                        state.answerCoverageEnd.orEmpty(),
-                                        state.answerSourceUrl.orEmpty(),
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                            state.answerSources.forEach { source ->
-                                Text(
-                                    stringResource(R.string.assistant_source_note, source.name, source.note),
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                                if (source.url.isNotBlank()) {
-                                    Text(source.url, style = MaterialTheme.typography.bodySmall)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 private fun TrendsTitlePreview() {

@@ -168,7 +168,7 @@ fun PriceCheckApp(
                         products = viewModel.products,
                         onQuestion = viewModel::setQuestion,
                         onAsk = viewModel::askQuestion,
-                        onSimulate = viewModel::simulateQuestion,
+                        onNewChat = viewModel::newAssistantChat,
                         onSelectYear = viewModel::selectYear,
                         onRefresh = viewModel::refreshMarket,
                         onOpenProduct = openProduct,

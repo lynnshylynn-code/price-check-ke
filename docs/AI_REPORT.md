@@ -11,6 +11,16 @@ The user enters a natural-language question about advertised listings or Kenya f
 - **Actuators:** deterministic answers with source, coverage, product URL, entities and model confidence; or a refusal with example questions.
 - **Sensors:** question text, trained intent probabilities, listing snapshot, comparable groups, and RTFP market series.
 
+## Stateless task-oriented dialogue
+
+The assistant is a rule-and-model based task-oriented dialogue system, not open chat and not an LLM. The model-based agent receives its internal conversation state as a client-supplied context object on every request; the API stores no conversation state. Context is size-limited, entity values and listing identifiers are checked against current data, and invalid context starts a new turn. The dialogue layer classifies follow-up turns, merges only the changed slot, requests missing entities, and reuses the existing deterministic lookup functions. Context turn count and stored result IDs are capped.
+
+The web and Android clients keep up to 50 messages and the latest context on the device. Clear conversation removes this local history. There is no cross-device or server-side memory. Training examples for follow-up types and scripted dialogue evaluations are AI-written synthetic data; human-written dialogue evaluation is optional. This assistant answers questions about the price data; it is not open chat.
+
+<!-- followup:start -->
+Follow-up classifier and dialogue evaluation metrics need refresh after training and replay.
+<!-- followup:end -->
+
 Intent routing is a **model-based/goal-based agent**: it uses a trained model to classify the request and deterministic data functions to reach a source-grounded answer. In the learning-agent mapping, the **learning element** is the CRISP-DM notebook `notebooks/assistant_intent_crisp_dm.ipynb` and the dataset builder; `train_assistant.py` is its command-line copy. The notebook makes data inspection, feature preparation, model comparison, threshold selection, and held-out evaluation visible. The **performance element** is the API serving path, and the **critic** is the validation/test evaluation in the notebook.
 
 ## Data provenance and splits

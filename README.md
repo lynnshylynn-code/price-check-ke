@@ -7,6 +7,8 @@ Profile. A FastAPI backend serves the Kenya food-market dataset and a locally
 trained, deterministic assistant. Advertised supermarket prices come from a
 dated listing snapshot and may differ in store.
 
+The assistant supports stateless multi-turn task-oriented conversations: clients return its validated context on each turn, while chat history and context are saved locally on the device. It is a rule-and-model based price-data assistant, not open chat or a hosted LLM. Follow-up templates and scripted dialogues are AI-written synthetic data.
+
 ## Project structure
 
 ```text

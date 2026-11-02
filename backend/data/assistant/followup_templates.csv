@@ -1,0 +1,217 @@
+template_id,family_id,label,style,template,slots
+1,new_question_01,new_question,formal,What is the cheapest {group}?,group
+2,new_question_01,new_question,short,cheapest {group}?,group
+3,new_question_01,new_question,casual,wich is the cheepest {group},group
+4,new_question_02,new_question,formal,Where can I find the lowest price for {product}?,product
+5,new_question_02,new_question,short,lowest price {product},product
+6,new_question_02,new_question,casual,Nitapata wapi {product} kwa bei nafuu zaidi?,product
+7,new_question_03,new_question,formal,Find me the cheapest {category}.,category
+8,new_question_03,new_question,short,cheapest {category} items,category
+9,new_question_03,new_question,casual,Ni {category} gani ina bei rahisi zaidi?,category
+10,new_question_04,new_question,formal,Which store sells {product} for the least?,product
+11,new_question_04,new_question,short,who sells {product} cheapest,product
+12,new_question_04,new_question,casual,wich shop sels {product} the cheapest,product
+13,new_question_05,new_question,formal,I want the best price on {group}.,group
+14,new_question_05,new_question,short,best price {group},group
+15,new_question_05,new_question,casual,need the best price for {group} pls,group
+16,new_question_06,new_question,formal,What is the most affordable {group} right now?,group
+17,new_question_06,new_question,short,most affordable {group},group
+18,new_question_06,new_question,casual,most afordable {group} rite now,group
+19,new_question_07,new_question,formal,cheapest {group} pls,group
+20,new_question_07,new_question,short,chepest {group},group
+21,new_question_07,new_question,casual,{group} ya bei rahisi zaidi ni ipi?,group
+22,new_question_08,new_question,formal,Show me the lowest priced {category}.,category
+23,new_question_08,new_question,short,lowest priced {category},category
+24,new_question_08,new_question,casual,show cheap {category},category
+25,swap_store_01,swap_store,formal,Please compare the same item at {store}.,store
+26,swap_store_01,swap_store,short,{store}?,store
+27,swap_store_01,swap_store,swahili_mix,and {store} too?,store
+28,swap_store_02,swap_store,formal,Could you check that product at {store} instead?,store
+29,swap_store_02,swap_store,short,at {store} instead,store
+30,swap_store_02,swap_store,casual,what about {store},store
+31,swap_store_03,swap_store,formal,How does the price look at {store}?,store
+32,swap_store_03,swap_store,short,{store} price,store
+33,swap_store_03,swap_store,casual,and {store},store
+34,swap_store_04,swap_store,formal,Please switch the retailer to {store}.,store
+35,swap_store_04,swap_store,short,switch to {store},store
+36,swap_store_04,swap_store,casual,try {store},store
+37,swap_store_05,swap_store,formal,Can you show the listing from {store}?,store
+38,swap_store_05,swap_store,short,show {store},store
+39,swap_store_05,swap_store,casual,check {store},store
+40,swap_store_06,swap_store,formal,What is the result for {store}?,store
+41,swap_store_06,swap_store,short,for {store}?,store
+42,swap_store_06,swap_store,casual,how about {store},store
+43,swap_store_07,swap_store,formal,"Compare this one at {store}, please.",store
+44,swap_store_07,swap_store,short,compare {store},store
+45,swap_store_07,swap_store,casual,also {store},store
+46,swap_store_08,swap_store,formal,Would you look at {store} as well?,store
+47,swap_store_08,swap_store,short,{store} too,store
+48,swap_store_08,swap_store,casual,na {store} pia,store
+49,swap_product_01,swap_product,formal,Please check {product} instead.,product
+50,swap_product_01,swap_product,short,{product}?,product
+51,swap_product_01,swap_product,swahili_mix,na {product} je?,product
+52,swap_product_02,swap_product,formal,Could you find the price of {product}?,product
+53,swap_product_02,swap_product,short,price {product},product
+54,swap_product_02,swap_product,casual,and {product},product
+55,swap_product_03,swap_product,formal,Now compare {group}.,group
+56,swap_product_03,swap_product,short,{group} now,group
+57,swap_product_03,swap_product,casual,try {group},group
+58,swap_product_04,swap_product,formal,Please switch the item to {product}.,product
+59,swap_product_04,swap_product,short,switch to {product},product
+60,swap_product_04,swap_product,casual,badili {product},product
+61,swap_product_05,swap_product,formal,How about the {group} option?,group
+62,swap_product_05,swap_product,short,{group}?,group
+63,swap_product_05,swap_product,casual,na {group},group
+64,swap_product_06,swap_product,formal,I meant {product}.,product
+65,swap_product_06,swap_product,short,I meant {product},product
+66,swap_product_06,swap_product,casual,actually {product},product
+67,swap_product_07,swap_product,formal,Could you also look up {group}?,group
+68,swap_product_07,swap_product,short,look up {group},group
+69,swap_product_07,swap_product,casual,check {group},group
+70,swap_product_08,swap_product,formal,What is the result for {product}?,product
+71,swap_product_08,swap_product,short,{product} price,product
+72,swap_product_08,swap_product,casual,vipi {product},product
+73,swap_county_or_commodity_01,swap_county_or_commodity,formal,Please check prices in {county}.,county
+74,swap_county_or_commodity_01,swap_county_or_commodity,short,in {county}?,county
+75,swap_county_or_commodity_01,swap_county_or_commodity,swahili_mix,na {county} pia?,county
+76,swap_county_or_commodity_02,swap_county_or_commodity,formal,What is the market reading for {commodity}?,commodity
+77,swap_county_or_commodity_02,swap_county_or_commodity,short,{commodity} reading,commodity
+78,swap_county_or_commodity_02,swap_county_or_commodity,casual,what about {commodity},commodity
+79,swap_county_or_commodity_03,swap_county_or_commodity,formal,Could you switch the county to {county}?,county
+80,swap_county_or_commodity_03,swap_county_or_commodity,short,county {county},county
+81,swap_county_or_commodity_03,swap_county_or_commodity,casual,try {county},county
+82,swap_county_or_commodity_04,swap_county_or_commodity,formal,Now look at {commodity} in {county}.,"commodity,county"
+83,swap_county_or_commodity_04,swap_county_or_commodity,short,{commodity} {county},"commodity,county"
+84,swap_county_or_commodity_04,swap_county_or_commodity,casual,na {commodity} {county},"commodity,county"
+85,swap_county_or_commodity_05,swap_county_or_commodity,formal,Can you show the {commodity} data?,commodity
+86,swap_county_or_commodity_05,swap_county_or_commodity,short,{commodity} data,commodity
+87,swap_county_or_commodity_05,swap_county_or_commodity,casual,check {commodity},commodity
+88,swap_county_or_commodity_06,swap_county_or_commodity,formal,Please use {county} for this lookup.,county
+89,swap_county_or_commodity_06,swap_county_or_commodity,short,use {county},county
+90,swap_county_or_commodity_06,swap_county_or_commodity,casual,kwa {county},county
+91,swap_county_or_commodity_07,swap_county_or_commodity,formal,How about {commodity} prices?,commodity
+92,swap_county_or_commodity_07,swap_county_or_commodity,short,{commodity} price,commodity
+93,swap_county_or_commodity_07,swap_county_or_commodity,casual,na {commodity},commodity
+94,swap_county_or_commodity_08,swap_county_or_commodity,formal,Compare the county result for {county}.,county
+95,swap_county_or_commodity_08,swap_county_or_commodity,short,{county} result,county
+96,swap_county_or_commodity_08,swap_county_or_commodity,casual,vipi {county},county
+97,swap_year_01,swap_year,formal,Please show the result for {year}.,year
+98,swap_year_01,swap_year,short,{year}?,year
+99,swap_year_01,swap_year,swahili_mix,vipi kwa {year}?,year
+100,swap_year_02,swap_year,formal,What about the year {year}?,year
+101,swap_year_02,swap_year,short,year {year},year
+102,swap_year_02,swap_year,casual,how about {year},year
+103,swap_year_03,swap_year,formal,Could you switch to {year}?,year
+104,swap_year_03,swap_year,short,switch {year},year
+105,swap_year_03,swap_year,casual,try {year},year
+106,swap_year_04,swap_year,formal,I meant {year}.,year
+107,swap_year_04,swap_year,short,I meant {year},year
+108,swap_year_04,swap_year,casual,actually {year},year
+109,swap_year_05,swap_year,formal,Please use {year} for this comparison.,year
+110,swap_year_05,swap_year,short,use {year},year
+111,swap_year_05,swap_year,casual,kwa {year},year
+112,swap_year_06,swap_year,formal,Can you check the data in {year}?,year
+113,swap_year_06,swap_year,short,data {year},year
+114,swap_year_06,swap_year,casual,look at {year},year
+115,swap_year_07,swap_year,formal,Now show {year} instead.,year
+116,swap_year_07,swap_year,short,{year} instead,year
+117,swap_year_07,swap_year,casual,na {year},year
+118,swap_year_08,swap_year,formal,How did it look during {year}?,year
+119,swap_year_08,swap_year,short,during {year},year
+120,swap_year_08,swap_year,casual,vipi {year},year
+121,show_more_01,show_more,formal,Please show me more matching results.,
+122,show_more_01,show_more,short,show more,
+123,show_more_01,show_more,swahili_mix,na zingine?,
+124,show_more_02,show_more,formal,Are there other results?,
+125,show_more_02,show_more,short,other results,
+126,show_more_02,show_more,casual,others?,
+127,show_more_03,show_more,formal,Continue with the next listings.,
+128,show_more_03,show_more,short,next listings,
+129,show_more_03,show_more,casual,next,
+130,show_more_04,show_more,formal,Could you list additional matches?,
+131,show_more_04,show_more,short,more matches,
+132,show_more_04,show_more,casual,ongeza,
+133,show_more_05,show_more,formal,Show another set of options.,
+134,show_more_05,show_more,short,another set,
+135,show_more_05,show_more,casual,zingine,
+136,show_more_06,show_more,formal,Please continue the results.,
+137,show_more_06,show_more,short,continue,
+138,show_more_06,show_more,casual,endelea,
+139,show_more_07,show_more,formal,Are there any more listings?,
+140,show_more_07,show_more,short,any more,
+141,show_more_07,show_more,casual,more please,
+142,show_more_08,show_more,formal,I would like to see further options.,
+143,show_more_08,show_more,short,further options,
+144,show_more_08,show_more,casual,zaidi,
+145,refine_store_01,refine_store,formal,Limit the results to {store}.,store
+146,refine_store_01,refine_store,short,only {store},store
+147,refine_store_01,refine_store,swahili_mix,"weka {store} tu, please",store
+148,refine_store_02,refine_store,formal,Please filter these listings by {store}.,store
+149,refine_store_02,refine_store,short,filter {store},store
+150,refine_store_02,refine_store,casual,just {store},store
+151,refine_store_03,refine_store,formal,Show results from {store} only.,store
+152,refine_store_03,refine_store,short,{store} only,store
+153,refine_store_03,refine_store,casual,{store} tu,store
+154,refine_store_04,refine_store,formal,Keep only products at {store}.,store
+155,refine_store_04,refine_store,short,keep {store},store
+156,refine_store_04,refine_store,casual,onyesha {store} tu,store
+157,refine_store_05,refine_store,formal,Restrict this search to {store}.,store
+158,refine_store_05,refine_store,short,restrict {store},store
+159,refine_store_05,refine_store,casual,kwa {store} pekee,store
+160,refine_store_06,refine_store,formal,I only want the {store} options.,store
+161,refine_store_06,refine_store,short,{store} options,store
+162,refine_store_06,refine_store,casual,nataka {store},store
+163,refine_store_07,refine_store,formal,Can you narrow this to {store}?,store
+164,refine_store_07,refine_store,short,narrow {store},store
+165,refine_store_07,refine_store,casual,weka {store} tu,store
+166,refine_store_08,refine_store,formal,Filter the current results to {store}.,store
+167,refine_store_08,refine_store,short,filter to {store},store
+168,refine_store_08,refine_store,casual,chagua {store},store
+169,explain_01,explain,formal,Please explain how this result was obtained.,
+170,explain_01,explain,short,explain this,
+171,explain_01,explain,swahili_mix,"explain tafadhali, kwa nini?",
+172,explain_02,explain,formal,What data supports that answer?,
+173,explain_02,explain,short,supporting data,
+174,explain_02,explain,casual,how did you get that?,
+175,explain_03,explain,formal,Could you describe the comparison method?,
+176,explain_03,explain,short,comparison method,
+177,explain_03,explain,casual,how?,
+178,explain_04,explain,formal,Why was this listing selected?,
+179,explain_04,explain,short,why selected,
+180,explain_04,explain,casual,kwa nini?,
+181,explain_05,explain,formal,Please explain the source used.,
+182,explain_05,explain,short,explain source,
+183,explain_05,explain,casual,source?,
+184,explain_06,explain,formal,How are the prices compared?,
+185,explain_06,explain,short,price method,
+186,explain_06,explain,casual,umejuaje?,
+187,explain_07,explain,formal,Can you clarify this result?,
+188,explain_07,explain,short,clarify result,
+189,explain_07,explain,casual,fafanua,
+190,explain_08,explain,formal,What is the basis for the answer?,
+191,explain_08,explain,short,answer basis,
+192,explain_08,explain,casual,ilichukuliwa aje?,
+193,acknowledge_01,acknowledge,formal,Thank you for the information.,
+194,acknowledge_01,acknowledge,short,thanks,
+195,acknowledge_01,acknowledge,swahili_mix,"sawa, thanks",
+196,acknowledge_02,acknowledge,formal,"That answers my question, thank you.",
+197,acknowledge_02,acknowledge,short,thank you,
+198,acknowledge_02,acknowledge,casual,sawa,
+199,acknowledge_03,acknowledge,formal,"All right, I understand.",
+200,acknowledge_03,acknowledge,short,all right,
+201,acknowledge_03,acknowledge,casual,okay,
+202,acknowledge_04,acknowledge,formal,"Thanks, that is helpful.",
+203,acknowledge_04,acknowledge,short,thanks helpful,
+204,acknowledge_04,acknowledge,casual,asante sana,
+205,acknowledge_05,acknowledge,formal,"Understood, thank you.",
+206,acknowledge_05,acknowledge,short,understood,
+207,acknowledge_05,acknowledge,casual,nimeelewa,
+208,acknowledge_06,acknowledge,formal,"Okay, that is clear.",
+209,acknowledge_06,acknowledge,short,okay clear,
+210,acknowledge_06,acknowledge,casual,poa,
+211,acknowledge_07,acknowledge,formal,I appreciate the response.,
+212,acknowledge_07,acknowledge,short,appreciate it,
+213,acknowledge_07,acknowledge,casual,shukran,
+214,acknowledge_08,acknowledge,formal,"Good, thank you.",
+215,acknowledge_08,acknowledge,short,good thanks,
+216,acknowledge_08,acknowledge,casual,sawa basi,

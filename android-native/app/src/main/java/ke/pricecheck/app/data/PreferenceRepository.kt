@@ -22,6 +22,7 @@ data class AppPreferences(
     val shoppingArea: String = "Kitui",
     val basketStrategy: BasketStrategy = BasketStrategy.LOWEST_PER_ITEM,
     val lastOrderId: String? = null,
+    val assistantConversation: String = "",
 )
 
 enum class BasketStrategy {
@@ -37,6 +38,7 @@ interface PreferencesStore {
     suspend fun setBasketStrategy(strategy: BasketStrategy)
     suspend fun setShoppingArea(county: String)
     suspend fun setLastOrderId(orderId: String?) = Unit
+    suspend fun saveAssistantConversation(json: String) = Unit
 }
 
 class PreferenceRepository(context: Context) : PreferencesStore {
@@ -66,6 +68,7 @@ class PreferenceRepository(context: Context) : PreferencesStore {
                 }
                 ?: BasketStrategy.LOWEST_PER_ITEM,
             lastOrderId = values[LAST_ORDER_ID],
+            assistantConversation = values[ASSISTANT_CONVERSATION].orEmpty(),
         )
     }
 
@@ -104,6 +107,13 @@ class PreferenceRepository(context: Context) : PreferencesStore {
         }
     }
 
+    override suspend fun saveAssistantConversation(json: String) {
+        dataStore.edit { values ->
+            if (json.isBlank()) values.remove(ASSISTANT_CONVERSATION)
+            else values[ASSISTANT_CONVERSATION] = json
+        }
+    }
+
     private companion object {
         val BASKET = stringPreferencesKey("basket")
         val WATCHED = androidx.datastore.preferences.core.stringSetPreferencesKey("watched")
@@ -111,5 +121,6 @@ class PreferenceRepository(context: Context) : PreferencesStore {
         val AREA = stringPreferencesKey("shopping_area")
         val STRATEGY = stringPreferencesKey("basket_strategy")
         val LAST_ORDER_ID = stringPreferencesKey("last_order_id")
+        val ASSISTANT_CONVERSATION = stringPreferencesKey("assistant_conversation")
     }
 }

@@ -87,6 +87,10 @@ data class MarketQuestionAnswer(
     val intent: String = "out_of_scope",
     val intentConfidence: Double = 0.0,
     val sources: List<MarketAnswerSource> = emptyList(),
+    val contextJson: String? = null,
+    val suggestions: List<String> = emptyList(),
+    val needsClarification: Boolean = false,
+    val followUpType: String? = null,
 )
 
 data class MarketAnswerSource(val name: String, val url: String, val note: String)

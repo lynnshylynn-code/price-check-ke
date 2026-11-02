@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
 
@@ -72,6 +72,7 @@ class MarketQuestionRequest(BaseModel):
 
 class AssistantAskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=300)
+    context: Any | None = None
 
     @field_validator("question")
     @classmethod
@@ -103,6 +104,10 @@ class MarketQuestionResponse(BaseModel):
     intent_confidence: float = 0.0
     entities: dict[str, object] = Field(default_factory=dict)
     model_version: str = "unavailable"
+    context: dict[str, object] = Field(default_factory=dict)
+    suggestions: list[str] = Field(default_factory=list)
+    needs_clarification: bool = False
+    follow_up_type: str | None = None
 
 
 class Commodity(BaseModel):

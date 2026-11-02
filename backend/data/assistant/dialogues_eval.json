@@ -1,0 +1,1593 @@
+{
+  "source": "ai_written",
+  "dialogues": [
+    {
+      "dialogue_id": "eval_01",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "Where is the cheapest milk?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and at Naivas?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Naivas"
+            }
+          ]
+        },
+        {
+          "user": "show more",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "why?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_02",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "What is the price of sugar at Naivas?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Naivas"
+            }
+          ]
+        },
+        {
+          "user": "what about Quickmart?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Quickmart"
+            }
+          ]
+        },
+        {
+          "user": "and for eggs?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_03",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "beans price in Kitui",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and in Garissa?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what about maize?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and in 2023?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_04",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "cheapest maize flour",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "only at Carrefour",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Carrefour"
+            }
+          ]
+        },
+        {
+          "user": "others?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_05",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "what is the latest food inflation?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "why?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "thanks",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_06",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "what offers are at Naivas?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Naivas"
+            }
+          ]
+        },
+        {
+          "user": "only at Quickmart",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Quickmart"
+            }
+          ]
+        },
+        {
+          "user": "show more",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_07",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "cheapest bread",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "at Tuskys?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "unknown_store_declared",
+              "store": "Tuskys"
+            }
+          ]
+        },
+        {
+          "user": "why?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_08",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "price of maize in Nairobi",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and beans?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "in 2022?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_09",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "cheapest cooking oil",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what about rice?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and at Carrefour?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Carrefour"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_10",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "food inflation latest",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "show more",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what is the cheapest milk?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_11",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "where is cheapest sugar?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "only at Quickmart",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Quickmart"
+            }
+          ]
+        },
+        {
+          "user": "thanks",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_12",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "beans price in Mombasa",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what about maize?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "in 2024?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_13",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "best deal on yoghurt",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and at Naivas?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Naivas"
+            }
+          ]
+        },
+        {
+          "user": "explain",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_14",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "find the price of eggs",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what about bread?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "show more",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_15",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "latest maize price in Kisumu",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and in Nakuru?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "why?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_16",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "cheapest tea",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "at Quickmart?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Quickmart"
+            }
+          ]
+        },
+        {
+          "user": "others?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_17",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "food inflation average",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "in 2020?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "thank you",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_18",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "cheapest beans",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and for maize flour?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "at Naivas?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Naivas"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_19",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "what deals are on at Carrefour?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Carrefour"
+            }
+          ]
+        },
+        {
+          "user": "only at Naivas",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Naivas"
+            }
+          ]
+        },
+        {
+          "user": "why?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_20",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "price of maize in Kitui",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what about beans?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and in Garissa?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_21",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "cheapest milk",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "show more",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "at Quickmart?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Quickmart"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_22",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "does it rain tomorrow?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "cheapest sugar",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "why?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_23",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "cheapest cooking oil",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "at Tuskys?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "unknown_store_declared",
+              "store": "Tuskys"
+            }
+          ]
+        },
+        {
+          "user": "what about eggs?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_24",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "latest food inflation",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what about 2021?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "cheapest bread",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_25",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "price of maize in Nairobi",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and in 2023?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "what about beans?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "dialogue_id": "eval_26",
+      "source": "ai_written",
+      "turns": [
+        {
+          "user": "What is the price at Quickmart?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Quickmart"
+            }
+          ]
+        },
+        {
+          "user": "milk",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            }
+          ]
+        },
+        {
+          "user": "and at Naivas?",
+          "CHECKS": [
+            {
+              "type": "response_shape"
+            },
+            {
+              "type": "no_advice_or_forecast"
+            },
+            {
+              "type": "listing_sources_in_snapshot"
+            },
+            {
+              "type": "cited_listing_prices_match_snapshot"
+            },
+            {
+              "type": "named_store_mentioned",
+              "store": "Naivas"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

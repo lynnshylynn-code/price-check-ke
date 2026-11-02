@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
+import { AssistantChat } from '../components/AssistantChat';
 import {
   ActivityIndicator,
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { MetricCard, ScreenHeader, SectionHeading } from '../components/Common';
@@ -13,11 +13,6 @@ import { COLORS } from '../constants/theme';
 import { styles } from '../constants/styles';
 import { categoryCode } from '../data/products';
 import { useFoodInflation } from '../hooks/useFoodInflation';
-import {
-  askMarketQuestion,
-  MarketQuestionAnswer,
-  simulateMarketQuestion,
-} from '../services/aiApi';
 import { bestPrice, money } from '../utils/pricing';
 import { Product } from '../types';
 
@@ -38,12 +33,6 @@ export function TrendsScreen({
 }) {
   const { data, error, isLoading, retry } = useFoodInflation();
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [question, setQuestion] = useState('');
-  const [aiAnswer, setAiAnswer] = useState<MarketQuestionAnswer | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [simulationAnswer, setSimulationAnswer] = useState<MarketQuestionAnswer | null>(null);
-  const [fallbackMode, setFallbackMode] = useState(false);
-  const [isAsking, setIsAsking] = useState(false);
   const watchedProducts = products.filter((product) => watchedIds.includes(product.id));
   const availableYears = [...new Set(data?.observations.map((item) => item.year) ?? [])];
   const displayedYear =
@@ -52,55 +41,6 @@ export function TrendsScreen({
       : (data?.series.year ?? 0);
   const observations = data?.observations.filter((item) => item.year === displayedYear) ?? [];
   const chartMaximum = Math.max(...observations.map((item) => Math.abs(item.value)), 1);
-
-  async function submitQuestion() {
-    const submittedQuestion = question.trim();
-    if (!submittedQuestion || isAsking) return;
-
-    setIsAsking(true);
-    setAiError(null);
-    setAiAnswer(null);
-    setSimulationAnswer(null);
-    const requestController = new AbortController();
-    const requestTimeout = setTimeout(() => requestController.abort(), 22_000);
-    try {
-      const answer = await askMarketQuestion(submittedQuestion, requestController.signal);
-      setAiAnswer(answer);
-      setFallbackMode(false);
-    } catch (error) {
-      setAiError(
-        requestController.signal.aborted
-          ? 'The assistant request timed out.'
-          : error instanceof Error
-            ? error.message
-            : 'The trained assistant could not answer.',
-      );
-    } finally {
-      clearTimeout(requestTimeout);
-      setIsAsking(false);
-    }
-  }
-
-  async function runDemoSimulation() {
-    const submittedQuestion = question.trim();
-    if (!submittedQuestion || isAsking) return;
-    setIsAsking(true);
-    setAiError(null);
-    setAiAnswer(null);
-    setSimulationAnswer(null);
-    try {
-      setSimulationAnswer(await simulateMarketQuestion(submittedQuestion));
-      setFallbackMode(false);
-    } catch (simulationError) {
-      setAiError(
-        simulationError instanceof Error
-          ? `Dataset simulation unavailable: ${simulationError.message}`
-          : 'Dataset simulation unavailable.',
-      );
-    } finally {
-      setIsAsking(false);
-    }
-  }
 
   return (
     <ScrollView contentContainerStyle={styles.screenContent} showsVerticalScrollIndicator={false}>
@@ -219,163 +159,7 @@ export function TrendsScreen({
               {data.series.source_note}
             </Text>
           </View>
-          <View style={styles.aiCard}>
-            <View style={styles.aiCardHeader}>
-              <View style={styles.aiIcon}>
-                <Ionicons name="sparkles" size={18} color={COLORS.green} />
-              </View>
-              <Text style={styles.aiLabel}>RTFP dataset exploration</Text>
-              <View style={styles.ruleBasedTag}>
-                <Text style={styles.ruleBasedTagText}>DESCRIPTIVE</Text>
-              </View>
-            </View>
-            <Text style={styles.aiHeadline}>
-              Summary of {data.summary.observation_count} monthly observations
-            </Text>
-            <Text style={styles.aiBody}>{data.summary.narrative}</Text>
-            <Text style={styles.aiBody}>
-              Mean: {data.summary.mean_value.toFixed(2)}% · Lowest: {data.summary.minimum_value}% (
-              {data.summary.minimum_month}) · Highest: {data.summary.peak_value}% (
-              {data.summary.peak_month})
-            </Text>
-            <View style={styles.aiSource}>
-              <Ionicons name="document-text-outline" size={15} color={COLORS.green} />
-              <Text style={styles.aiSourceText}>
-                {data.series.source_name} · {data.series.country}
-              </Text>
-            </View>
-            <Text style={styles.aiFootnote}>
-              Descriptive analysis of the supplied RTFP dataset. It is not a generative AI result,
-              forecast, or supermarket price.
-            </Text>
-          </View>
-          <View style={styles.aiCard}>
-            <View style={styles.aiCardHeader}>
-              <View style={styles.aiIcon}>
-                <Ionicons name="chatbubble-ellipses-outline" size={18} color={COLORS.green} />
-              </View>
-              <Text style={styles.aiLabel}>Ask AI about this dataset</Text>
-              <View style={styles.ruleBasedTag}>
-                <Text style={styles.ruleBasedTagText}>AI + FALLBACK</Text>
-              </View>
-            </View>
-            <Text style={styles.aiBody}>
-              Ask about historical trends from {data.series.coverage_start} to{' '}
-              {data.series.coverage_end}. Avoid entering personal information.
-            </Text>
-            <View style={styles.simulationPromptRow}>
-              <Pressable
-                style={styles.filterChip}
-                onPress={() => setQuestion('What was the latest food inflation reading?')}
-                accessibilityRole="button"
-              >
-                <Text style={styles.filterChipText}>Latest reading</Text>
-              </Pressable>
-              <Pressable
-                style={styles.filterChip}
-                onPress={() => setQuestion('What was the average food inflation?')}
-                accessibilityRole="button"
-              >
-                <Text style={styles.filterChipText}>Average reading</Text>
-              </Pressable>
-            </View>
-            <TextInput
-              style={styles.aiQuestionInput}
-              value={question}
-              onChangeText={setQuestion}
-              placeholder="e.g. What was the biggest change?"
-              placeholderTextColor={COLORS.muted}
-              maxLength={500}
-              multiline
-              accessibilityLabel="Ask a question about Kenya food-price history"
-              textAlignVertical="top"
-            />
-            <Pressable
-              style={[styles.primaryButton, isAsking && styles.aiSubmitDisabled]}
-              onPress={submitQuestion}
-              disabled={isAsking || !question.trim()}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: isAsking || !question.trim() }}
-            >
-              {isAsking ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <Ionicons name="sparkles-outline" size={16} color="#FFFFFF" />
-              )}
-              <Text style={styles.primaryButtonText}>{isAsking ? 'Thinking…' : 'Ask AI'}</Text>
-            </Pressable>
-            <Pressable
-              style={styles.simulationButton}
-              onPress={runDemoSimulation}
-              disabled={!question.trim() || isAsking}
-              accessibilityRole="button"
-              accessibilityState={{ disabled: !question.trim() || isAsking }}
-            >
-              <Ionicons name="play-circle-outline" size={17} color={COLORS.green} />
-              <Text style={styles.simulationButtonText}>Run data simulation</Text>
-            </Pressable>
-            {aiError && (
-              <Text style={styles.aiError} accessibilityRole="alert">
-                {aiError}
-              </Text>
-            )}
-            {simulationAnswer && (
-              <View style={styles.simulationAnswer} accessibilityRole="summary">
-                <View style={styles.aiCardHeader}>
-                  <Text style={styles.aiHeadline}>
-                    {fallbackMode ? 'Dataset answer' : 'Simulated response'}
-                  </Text>
-                  <View style={styles.simulationTag}>
-                    <Text style={styles.simulationTagText}>
-                      {fallbackMode
-                        ? isAsking
-                          ? 'ASSISTANT PENDING'
-                          : 'OFFLINE FALLBACK'
-                        : 'DATASET ANSWER'}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={styles.aiBody}>{simulationAnswer.answer}</Text>
-                <Text style={styles.aiSourceText}>
-                  Source: {simulationAnswer.source_name} · {simulationAnswer.coverage_start}–
-                  {simulationAnswer.coverage_end}
-                </Text>
-                <Text style={styles.aiSourceText}>{simulationAnswer.source_url}</Text>
-              </View>
-            )}
-            {aiAnswer && (
-              <View style={styles.aiAnswer}>
-                <View style={styles.aiCardHeader}>
-                  <Text style={styles.aiHeadline}>Trained assistant</Text>
-                  <View style={styles.liveAiTag}>
-                    <Text style={styles.liveAiTagText}>LOCAL MODEL</Text>
-                  </View>
-                </View>
-                <Text style={styles.aiBody}>{aiAnswer.answer}</Text>
-                <Text style={styles.aiSourceText}>
-                  Understood as: {aiAnswer.intent} ({(aiAnswer.intent_confidence * 100).toFixed(1)}%)
-                </Text>
-                <Text style={styles.aiSourceText}>
-                  Source: {aiAnswer.source_name}
-                  {aiAnswer.coverage_start && aiAnswer.coverage_end
-                    ? ` · ${aiAnswer.coverage_start}–${aiAnswer.coverage_end}`
-                    : ''}
-                </Text>
-                {aiAnswer.source_url && (
-                  <Text style={styles.aiSourceText}>{aiAnswer.source_url}</Text>
-                )}
-                {aiAnswer.sources.map((source) => (
-                  <Text key={`${source.name}-${source.url}`} style={styles.aiSourceText}>
-                    {source.name}: {source.note} {source.url}
-                  </Text>
-                ))}
-              </View>
-            )}
-            <Text style={styles.aiFootnote}>
-              Answers use a model trained on synthetic questions and deterministic data lookups.
-              They are not live supermarket prices or forecasts.
-            </Text>
-          </View>
+          <AssistantChat />
         </>
       )}
       <View style={styles.watchedSection}>

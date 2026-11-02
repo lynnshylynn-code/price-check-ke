@@ -8,6 +8,17 @@
 <!-- metrics:start -->
 Run `python scripts/refresh_docs_metrics.py` after training to fill in this section.
 <!-- metrics:end -->
+
+## Follow-up classifier and dialogue system
+
+- **Architecture:** deterministic task-oriented dialogue, with a client-supplied and validated context object; the API is stateless. A follow-up classifier identifies store/product/county/commodity/year changes, more-results requests, filters, explanations, acknowledgements, or a new question. Slot merging and clarification route into the existing deterministic answer functions.
+- **Model candidates:** word and character TF-IDF with entity-type indicators; logistic regression, calibrated linear SVM, and random forest compared against a majority dummy baseline. The validation set selects the model and abstention threshold.
+- **Training data:** `backend/data/assistant/followup_templates.csv` is AI-written synthetic data, split by family ID. `dialogues_eval.json` is AI-written scripted evaluation. Human-written dialogue evaluation is optional and reported separately.
+- **Use and limits:** not open chat, not a hosted LLM, and cannot provide forecasts or advice. Follow-up wording remains synthetic; no memory is stored on the server or shared across devices. Client history is stored on device only and can be cleared.
+
+<!-- followup:start -->
+Follow-up classifier and dialogue evaluation metrics need refresh after training and replay.
+<!-- followup:end -->
 ## Listing pair matcher
 
 - **Model:** LogisticRegression over product-pair text, size, unit, brand and unit-price features, trained 2026-10-27 with scikit-learn 1.9.1.

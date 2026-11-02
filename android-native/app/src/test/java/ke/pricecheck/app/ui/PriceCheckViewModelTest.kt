@@ -91,6 +91,41 @@ class PriceCheckViewModelTest {
         assertEquals(listOf(MarketAnswerSource("World Bank RTFP", "https://example.org/data", "Monthly market prices")), state.answerSources)
     }
 
+    @Test fun assistantContextRoundTripsAndSuggestionFillsTheInput() = runTest {
+        val market = FakeMarket()
+        val viewModel = viewModel(FakePreferences(), market, testScheduler)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        advanceUntilIdle()
+        viewModel.setQuestion("cheapest milk")
+        viewModel.askQuestion()
+        advanceUntilIdle()
+        assertEquals("{\"last_intent\":\"cheapest_item\"}", viewModel.uiState.value.assistantContextJson)
+        assertEquals(listOf("show more"), viewModel.uiState.value.assistantSuggestions)
+        viewModel.useAssistantSuggestion("show more")
+        assertEquals("show more", viewModel.uiState.value.question)
+        viewModel.askQuestion()
+        advanceUntilIdle()
+        assertEquals("{\"last_intent\":\"cheapest_item\"}", market.lastContext)
+        assertEquals(listOf("user", "assistant", "user", "assistant"),
+            viewModel.uiState.value.assistantMessages.map { it.role })
+    }
+
+    @Test fun newChatResetsContextAndClearsPersistedConversation() = runTest {
+        val store = FakePreferences()
+        val viewModel = viewModel(store, FakeMarket(), testScheduler)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        advanceUntilIdle()
+        viewModel.setQuestion("cheapest milk")
+        viewModel.askQuestion()
+        advanceUntilIdle()
+        assertTrue(store.state.value.assistantConversation.isNotBlank())
+        viewModel.newAssistantChat()
+        advanceUntilIdle()
+        assertNull(viewModel.uiState.value.assistantContextJson)
+        assertTrue(viewModel.uiState.value.assistantMessages.isEmpty())
+        assertEquals("", store.state.value.assistantConversation)
+    }
+
     private fun viewModel(
         preferences: FakePreferences,
         market: FakeMarket,
@@ -124,11 +159,15 @@ class PriceCheckViewModelTest {
         override suspend fun setBudget(amount: Int) { state.update { it.copy(weeklyBudget = amount) } }
         override suspend fun setBasketStrategy(strategy: BasketStrategy) { state.update { it.copy(basketStrategy = strategy) } }
         override suspend fun setShoppingArea(county: String) { state.update { it.copy(shoppingArea = county) } }
+        override suspend fun saveAssistantConversation(json: String) {
+            state.update { it.copy(assistantConversation = json) }
+        }
     }
 
     private class FakeMarket : MarketDataSource {
         var areaError: Exception? = null
         var emptyArea = false
+        var lastContext: String? = null
         override suspend fun loadMarketAreas() = listOf(
             MarketArea("Kitui", listOf("Kitui"), setOf("beans", "maize")),
             MarketArea("Mombasa", listOf("Mombasa"), setOf("beans")),
@@ -142,7 +181,13 @@ class PriceCheckViewModelTest {
             "The dataset answer", "World Bank RTFP", "https://example.org/data", "2022-01-01", "2022-08-01",
             intent = "market_price", intentConfidence = 0.91,
             sources = listOf(MarketAnswerSource("World Bank RTFP", "https://example.org/data", "Monthly market prices")),
+            contextJson = "{\"last_intent\":\"cheapest_item\"}",
+            suggestions = listOf("show more"),
         )
+        override suspend fun askQuestion(question: String, contextJson: String?): MarketQuestionAnswer {
+            lastContext = contextJson
+            return askQuestion(question)
+        }
     }
 
     private object TestProducts : ProductRepository {

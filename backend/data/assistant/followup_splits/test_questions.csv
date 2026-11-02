@@ -1,0 +1,635 @@
+question,label,family_id,style,entities
+What is the most affordable cooking oil right now?,new_question,new_question_06,formal,"{""group"": ""cooking-oil-1l""}"
+What is the most affordable maize flour right now?,new_question,new_question_06,formal,"{""group"": ""maize-meal-2kg""}"
+What is the most affordable fizzy drinks right now?,new_question,new_question_06,formal,"{""group"": """"}"
+What is the most affordable bread right now?,new_question,new_question_06,formal,"{""group"": """"}"
+What is the most affordable sugar right now?,new_question,new_question_06,formal,"{""group"": ""sugar-2kg""}"
+What is the most affordable maize meal right now?,new_question,new_question_06,formal,"{""group"": ""maize-meal-2kg""}"
+What is the most affordable spaghetti right now?,new_question,new_question_06,formal,"{""group"": """"}"
+What is the most affordable margarine right now?,new_question,new_question_06,formal,"{""group"": """"}"
+What is the most affordable unga right now?,new_question,new_question_06,formal,"{""group"": ""maize-meal-2kg""}"
+What is the most affordable cooking oil right now?,new_question,new_question_06,formal,"{""group"": ""cooking-oil-1l""}"
+What is the most affordable maize flour right now?,new_question,new_question_06,formal,"{""group"": ""maize-meal-2kg""}"
+What is the most affordable rice right now?,new_question,new_question_06,formal,"{""group"": """"}"
+most affordable cooking oil,new_question,new_question_06,short,"{""group"": ""cooking-oil-1l""}"
+most affordable salt,new_question,new_question_06,short,"{""group"": """"}"
+most affordable maize meal,new_question,new_question_06,short,"{""group"": ""maize-meal-2kg""}"
+most affordable maize meal,new_question,new_question_06,short,"{""group"": ""maize-meal-2kg""}"
+most affordable salt,new_question,new_question_06,short,"{""group"": """"}"
+most affordable unga,new_question,new_question_06,short,"{""group"": ""maize-meal-2kg""}"
+most affordable margarine,new_question,new_question_06,short,"{""group"": """"}"
+most affordable rice,new_question,new_question_06,short,"{""group"": """"}"
+most affordable maize flour,new_question,new_question_06,short,"{""group"": ""maize-meal-2kg""}"
+most affordable salt,new_question,new_question_06,short,"{""group"": """"}"
+most affordable maize meal,new_question,new_question_06,short,"{""group"": ""maize-meal-2kg""}"
+most affordable maize flour,new_question,new_question_06,short,"{""group"": ""maize-meal-2kg""}"
+most afordable fizzy drinks rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable yoghurt rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable bread rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable rice rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable bread rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable spaghetti rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable milk rite now,new_question,new_question_06,casual,"{""group"": ""milk-1l""}"
+most afordable spaghetti rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable salt rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable yoghurt rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable rice rite now,new_question,new_question_06,casual,"{""group"": """"}"
+most afordable unga rite now,new_question,new_question_06,casual,"{""group"": ""maize-meal-2kg""}"
+cheapest rice pls,new_question,new_question_07,formal,"{""group"": """"}"
+cheapest yoghurt pls,new_question,new_question_07,formal,"{""group"": """"}"
+cheapest eggs pls,new_question,new_question_07,formal,"{""group"": ""eggs-tray-15""}"
+cheapest cooking oil pls,new_question,new_question_07,formal,"{""group"": ""cooking-oil-1l""}"
+cheapest fizzy drinks pls,new_question,new_question_07,formal,"{""group"": """"}"
+cheapest maize meal pls,new_question,new_question_07,formal,"{""group"": ""maize-meal-2kg""}"
+cheapest fizzy drinks pls,new_question,new_question_07,formal,"{""group"": """"}"
+cheapest salt pls,new_question,new_question_07,formal,"{""group"": """"}"
+cheapest maize meal pls,new_question,new_question_07,formal,"{""group"": ""maize-meal-2kg""}"
+cheapest yoghurt pls,new_question,new_question_07,formal,"{""group"": """"}"
+cheapest margarine pls,new_question,new_question_07,formal,"{""group"": """"}"
+cheapest salt pls,new_question,new_question_07,formal,"{""group"": """"}"
+chepest margarine,new_question,new_question_07,short,"{""group"": """"}"
+chepest salt,new_question,new_question_07,short,"{""group"": """"}"
+chepest cooking oil,new_question,new_question_07,short,"{""group"": ""cooking-oil-1l""}"
+chepest milk,new_question,new_question_07,short,"{""group"": ""milk-1l""}"
+chepest maize flour,new_question,new_question_07,short,"{""group"": ""maize-meal-2kg""}"
+chepest spaghetti,new_question,new_question_07,short,"{""group"": """"}"
+chepest margarine,new_question,new_question_07,short,"{""group"": """"}"
+chepest yoghurt,new_question,new_question_07,short,"{""group"": """"}"
+chepest spaghetti,new_question,new_question_07,short,"{""group"": """"}"
+chepest maize flour,new_question,new_question_07,short,"{""group"": ""maize-meal-2kg""}"
+chepest margarine,new_question,new_question_07,short,"{""group"": """"}"
+chepest salt,new_question,new_question_07,short,"{""group"": """"}"
+salt ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": """"}"
+maize flour ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": ""maize-meal-2kg""}"
+eggs ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": ""eggs-tray-15""}"
+rice ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": """"}"
+bread ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": """"}"
+yoghurt ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": """"}"
+cooking oil ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": ""cooking-oil-1l""}"
+sugar ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": ""sugar-2kg""}"
+sugar ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": ""sugar-2kg""}"
+fizzy drinks ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": """"}"
+salt ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": """"}"
+yoghurt ya bei rahisi zaidi ni ipi?,new_question,new_question_07,casual,"{""group"": """"}"
+Please compare the same item at Carrefour.,swap_store,swap_store_01,formal,"{""store"": ""Carrefour""}"
+Please compare the same item at Naivas supermarket.,swap_store,swap_store_01,formal,"{""store"": ""Naivas""}"
+Please compare the same item at carefour.,swap_store,swap_store_01,formal,"{""store"": ""Carrefour""}"
+Please compare the same item at Naivas supermarket.,swap_store,swap_store_01,formal,"{""store"": ""Naivas""}"
+Please compare the same item at Carrefour Westlands.,swap_store,swap_store_01,formal,"{""store"": ""Carrefour""}"
+Please compare the same item at Carrefour Westlands.,swap_store,swap_store_01,formal,"{""store"": ""Carrefour""}"
+Please compare the same item at quick mart.,swap_store,swap_store_01,formal,"{""store"": ""Quickmart""}"
+Please compare the same item at Carrefour.,swap_store,swap_store_01,formal,"{""store"": ""Carrefour""}"
+Please compare the same item at quick mart.,swap_store,swap_store_01,formal,"{""store"": ""Quickmart""}"
+Please compare the same item at naivas.,swap_store,swap_store_01,formal,"{""store"": ""Naivas""}"
+Please compare the same item at Naivas supermarket.,swap_store,swap_store_01,formal,"{""store"": ""Naivas""}"
+Please compare the same item at QuickMart.,swap_store,swap_store_01,formal,"{""store"": ""Quickmart""}"
+Carrefour?,swap_store,swap_store_01,short,"{""store"": ""Carrefour""}"
+quick mart?,swap_store,swap_store_01,short,"{""store"": ""Quickmart""}"
+quick mart?,swap_store,swap_store_01,short,"{""store"": ""Quickmart""}"
+Naivas supermarket?,swap_store,swap_store_01,short,"{""store"": ""Naivas""}"
+quick mart?,swap_store,swap_store_01,short,"{""store"": ""Quickmart""}"
+Carrefour Westlands?,swap_store,swap_store_01,short,"{""store"": ""Carrefour""}"
+Carrefour Westlands?,swap_store,swap_store_01,short,"{""store"": ""Carrefour""}"
+quick mart?,swap_store,swap_store_01,short,"{""store"": ""Quickmart""}"
+Naivas supermarket?,swap_store,swap_store_01,short,"{""store"": ""Naivas""}"
+naivas?,swap_store,swap_store_01,short,"{""store"": ""Naivas""}"
+Naivas?,swap_store,swap_store_01,short,"{""store"": ""Naivas""}"
+Carrefour?,swap_store,swap_store_01,short,"{""store"": ""Carrefour""}"
+and naivas too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Naivas""}"
+and Carrefour too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Carrefour""}"
+and QuickMart too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Quickmart""}"
+and QuickMart too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Quickmart""}"
+and Naivas too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Naivas""}"
+and quick mart too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Quickmart""}"
+and Naivas supermarket too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Naivas""}"
+and QuickMart too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Quickmart""}"
+and quick mart too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Quickmart""}"
+and carefour too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Carrefour""}"
+and Quickmart too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Quickmart""}"
+and carefour too?,swap_store,swap_store_01,swahili_mix,"{""store"": ""Carrefour""}"
+Could you check that product at Carrefour instead?,swap_store,swap_store_02,formal,"{""store"": ""Carrefour""}"
+Could you check that product at Quickmart instead?,swap_store,swap_store_02,formal,"{""store"": ""Quickmart""}"
+Could you check that product at carefour instead?,swap_store,swap_store_02,formal,"{""store"": ""Carrefour""}"
+Could you check that product at QuickMart instead?,swap_store,swap_store_02,formal,"{""store"": ""Quickmart""}"
+Could you check that product at Naivas instead?,swap_store,swap_store_02,formal,"{""store"": ""Naivas""}"
+Could you check that product at carefour instead?,swap_store,swap_store_02,formal,"{""store"": ""Carrefour""}"
+Could you check that product at Naivas supermarket instead?,swap_store,swap_store_02,formal,"{""store"": ""Naivas""}"
+Could you check that product at Carrefour instead?,swap_store,swap_store_02,formal,"{""store"": ""Carrefour""}"
+Could you check that product at Quickmart instead?,swap_store,swap_store_02,formal,"{""store"": ""Quickmart""}"
+Could you check that product at Carrefour instead?,swap_store,swap_store_02,formal,"{""store"": ""Carrefour""}"
+Could you check that product at QuickMart instead?,swap_store,swap_store_02,formal,"{""store"": ""Quickmart""}"
+Could you check that product at carefour instead?,swap_store,swap_store_02,formal,"{""store"": ""Carrefour""}"
+at QuickMart instead,swap_store,swap_store_02,short,"{""store"": ""Quickmart""}"
+at quick mart instead,swap_store,swap_store_02,short,"{""store"": ""Quickmart""}"
+at QuickMart instead,swap_store,swap_store_02,short,"{""store"": ""Quickmart""}"
+at Naivas supermarket instead,swap_store,swap_store_02,short,"{""store"": ""Naivas""}"
+at Naivas supermarket instead,swap_store,swap_store_02,short,"{""store"": ""Naivas""}"
+at Quickmart instead,swap_store,swap_store_02,short,"{""store"": ""Quickmart""}"
+at Carrefour instead,swap_store,swap_store_02,short,"{""store"": ""Carrefour""}"
+at Naivas supermarket instead,swap_store,swap_store_02,short,"{""store"": ""Naivas""}"
+at Quickmart instead,swap_store,swap_store_02,short,"{""store"": ""Quickmart""}"
+at carefour instead,swap_store,swap_store_02,short,"{""store"": ""Carrefour""}"
+at quick mart instead,swap_store,swap_store_02,short,"{""store"": ""Quickmart""}"
+at QuickMart instead,swap_store,swap_store_02,short,"{""store"": ""Quickmart""}"
+what about carefour,swap_store,swap_store_02,casual,"{""store"": ""Carrefour""}"
+what about Carrefour,swap_store,swap_store_02,casual,"{""store"": ""Carrefour""}"
+what about Carrefour,swap_store,swap_store_02,casual,"{""store"": ""Carrefour""}"
+what about Carrefour,swap_store,swap_store_02,casual,"{""store"": ""Carrefour""}"
+what about Naivas supermarket,swap_store,swap_store_02,casual,"{""store"": ""Naivas""}"
+what about Naivas supermarket,swap_store,swap_store_02,casual,"{""store"": ""Naivas""}"
+what about quick mart,swap_store,swap_store_02,casual,"{""store"": ""Quickmart""}"
+what about quick mart,swap_store,swap_store_02,casual,"{""store"": ""Quickmart""}"
+what about Carrefour,swap_store,swap_store_02,casual,"{""store"": ""Carrefour""}"
+what about carefour,swap_store,swap_store_02,casual,"{""store"": ""Carrefour""}"
+Please check Naivas white sugar 2kg instead.,swap_product,swap_product_01,formal,"{""product"": ""naivas local sugar white 2kg""}"
+Please check Brookside UHT whole milk 250ml instead.,swap_product,swap_product_01,formal,"{""product"": ""brookside uht whole milk 250ml""}"
+Please check Cussons soap 100g instead.,swap_product,swap_product_01,formal,"{""product"": ""cussons fresh nourishing soap 100g""}"
+Please check Fresh Fri cooking oil 5 litres instead.,swap_product,swap_product_01,formal,"{""product"": ""fresh fri cooking oil 5ltr""}"
+Please check Brookside strawberry yoghurt instead.,swap_product,swap_product_01,formal,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+Please check Santa Maria spaghetti 400g instead.,swap_product,swap_product_01,formal,"{""product"": ""santa maria pasta spaghetti 400g""}"
+Please check Coke Zero 2L instead.,swap_product,swap_product_01,formal,"{""product"": ""coke zero 2l pet""}"
+Please check Santa Maria spaghetti 400g instead.,swap_product,swap_product_01,formal,"{""product"": ""santa maria pasta spaghetti 400g""}"
+Please check Carrefour UHT whole milk 500ml instead.,swap_product,swap_product_01,formal,"{""product"": ""carrefour uht whole milk 500ml""}"
+Please check Brookside strawberry yoghurt instead.,swap_product,swap_product_01,formal,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+Please check Fresh sweet bread 400g instead.,swap_product,swap_product_01,formal,"{""product"": ""fresh sweet bread 400g""}"
+Please check Naivas white sugar 1kg instead.,swap_product,swap_product_01,formal,"{""product"": ""naivas local sugar white 1kg""}"
+Fresh Fri cooking oil 1 litre?,swap_product,swap_product_01,short,"{""product"": ""fresh fri cooking oil 1ltr""}"
+Santa Maria spaghetti 400g?,swap_product,swap_product_01,short,"{""product"": ""santa maria pasta spaghetti 400g""}"
+Ajab all purpose flour 2kg?,swap_product,swap_product_01,short,"{""product"": ""ajab all purpose flour 2kg""}"
+Coke Zero 2L?,swap_product,swap_product_01,short,"{""product"": ""coke zero 2l pet""}"
+Celine Petals tissue?,swap_product,swap_product_01,short,"{""product"": ""celine petals tissue 10 pack""}"
+Ajab all purpose flour 2kg?,swap_product,swap_product_01,short,"{""product"": ""ajab all purpose flour 2kg""}"
+Coke Zero 2L?,swap_product,swap_product_01,short,"{""product"": ""coke zero 2l pet""}"
+Brookside strawberry yoghurt?,swap_product,swap_product_01,short,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+Fanta Orange 2L?,swap_product,swap_product_01,short,"{""product"": ""fanta orange pet 2l""}"
+Brookside UHT whole milk 250ml?,swap_product,swap_product_01,short,"{""product"": ""brookside uht whole milk 250ml""}"
+Fanta Blackcurrant 2L?,swap_product,swap_product_01,short,"{""product"": ""fanta blackcurrant pet 2l""}"
+Fresh Fri cooking oil 5 litres?,swap_product,swap_product_01,short,"{""product"": ""fresh fri cooking oil 5ltr""}"
+na Naivas white sugar 1kg je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""naivas local sugar white 1kg""}"
+na Naivas white sugar 2kg je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""naivas local sugar white 2kg""}"
+na Minute Maid apple juice 1L je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""minute maid apple juice 1l""}"
+na Santa Maria spaghetti 400g je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""santa maria pasta spaghetti 400g""}"
+na Fresh Fri cooking oil 1 litre je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""fresh fri cooking oil 1ltr""}"
+na Naivas white sugar 1kg je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""naivas local sugar white 1kg""}"
+na Farmnaivas Pakistani rice 2kg je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""farmnaivas pakistani rice 2kg""}"
+na Soko maize meal 2kg je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""soko flour maize meal 2kg""}"
+na Minute Maid apple juice 1L je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""minute maid apple juice 1l""}"
+na Brookside strawberry yoghurt je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+na Fanta Orange 2L je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""fanta orange pet 2l""}"
+na Celine toilet tissue 10 pack je?,swap_product,swap_product_01,swahili_mix,"{""product"": ""celine toilet tissue 10 pack""}"
+I meant Santa Maria spaghetti 400g.,swap_product,swap_product_06,formal,"{""product"": ""santa maria pasta spaghetti 400g""}"
+I meant Carrefour UHT whole milk 500ml.,swap_product,swap_product_06,formal,"{""product"": ""carrefour uht whole milk 500ml""}"
+I meant Brookside UHT whole milk 250ml.,swap_product,swap_product_06,formal,"{""product"": ""brookside uht whole milk 250ml""}"
+I meant Isinya eggs tray of 15.,swap_product,swap_product_06,formal,"{""product"": ""isinya eggs x15""}"
+I meant Golden butter cookies.,swap_product,swap_product_06,formal,"{""product"": ""golden butter cookies 200g""}"
+I meant Minute Maid apple juice 1L.,swap_product,swap_product_06,formal,"{""product"": ""minute maid apple juice 1l""}"
+I meant Kensalt table salt 1kg.,swap_product,swap_product_06,formal,"{""product"": ""kensalt premium iodated edible table salt 1kg""}"
+I meant Fresh sweet bread 400g.,swap_product,swap_product_06,formal,"{""product"": ""fresh sweet bread 400g""}"
+I meant Golden butter cookies.,swap_product,swap_product_06,formal,"{""product"": ""golden butter cookies 200g""}"
+I meant Fresh Fri cooking oil 5 litres.,swap_product,swap_product_06,formal,"{""product"": ""fresh fri cooking oil 5ltr""}"
+I meant Naivas white sugar 2kg.,swap_product,swap_product_06,formal,"{""product"": ""naivas local sugar white 2kg""}"
+I meant Celine Petals tissue.,swap_product,swap_product_06,formal,"{""product"": ""celine petals tissue 10 pack""}"
+I meant Fresh Fri cooking oil 5 litres,swap_product,swap_product_06,short,"{""product"": ""fresh fri cooking oil 5ltr""}"
+I meant Fresh sweet bread 400g,swap_product,swap_product_06,short,"{""product"": ""fresh sweet bread 400g""}"
+I meant Coke Zero 2L,swap_product,swap_product_06,short,"{""product"": ""coke zero 2l pet""}"
+I meant Soko maize meal 2kg,swap_product,swap_product_06,short,"{""product"": ""soko flour maize meal 2kg""}"
+I meant Kensalt table salt 1kg,swap_product,swap_product_06,short,"{""product"": ""kensalt premium iodated edible table salt 1kg""}"
+I meant Blue Band margarine 500g,swap_product,swap_product_06,short,"{""product"": ""blue band margarine vanilla 500g""}"
+I meant Minute Maid apple juice 1L,swap_product,swap_product_06,short,"{""product"": ""minute maid apple juice 1l""}"
+I meant Minute Maid apple juice 1L,swap_product,swap_product_06,short,"{""product"": ""minute maid apple juice 1l""}"
+I meant Cussons soap 100g,swap_product,swap_product_06,short,"{""product"": ""cussons fresh nourishing soap 100g""}"
+I meant Brookside strawberry yoghurt,swap_product,swap_product_06,short,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+I meant Golden butter cookies,swap_product,swap_product_06,short,"{""product"": ""golden butter cookies 200g""}"
+I meant Naivas white sugar 2kg,swap_product,swap_product_06,short,"{""product"": ""naivas local sugar white 2kg""}"
+actually Fresh sweet bread 400g,swap_product,swap_product_06,casual,"{""product"": ""fresh sweet bread 400g""}"
+actually Fresh Fri cooking oil 5 litres,swap_product,swap_product_06,casual,"{""product"": ""fresh fri cooking oil 5ltr""}"
+actually Coke Zero 2L,swap_product,swap_product_06,casual,"{""product"": ""coke zero 2l pet""}"
+actually Isinya eggs tray of 15,swap_product,swap_product_06,casual,"{""product"": ""isinya eggs x15""}"
+actually Coke Zero 2L,swap_product,swap_product_06,casual,"{""product"": ""coke zero 2l pet""}"
+actually Naivas white sugar 1kg,swap_product,swap_product_06,casual,"{""product"": ""naivas local sugar white 1kg""}"
+actually Brookside strawberry yoghurt,swap_product,swap_product_06,casual,"{""product"": ""brookside real strawberry probiotic yoghurt 250g""}"
+actually Kensalt table salt 1kg,swap_product,swap_product_06,casual,"{""product"": ""kensalt premium iodated edible table salt 1kg""}"
+actually Minute Maid apple juice 1L,swap_product,swap_product_06,casual,"{""product"": ""minute maid apple juice 1l""}"
+actually Naivas white sugar 2kg,swap_product,swap_product_06,casual,"{""product"": ""naivas local sugar white 2kg""}"
+actually Fresh Fri cooking oil 1 litre,swap_product,swap_product_06,casual,"{""product"": ""fresh fri cooking oil 1ltr""}"
+actually Isinya eggs tray of 15,swap_product,swap_product_06,casual,"{""product"": ""isinya eggs x15""}"
+Now look at maize grain in Nairobi.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""maize"", ""county"": ""Nairobi""}"
+Now look at maize grain in North Imenti.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""maize"", ""county"": ""North Imenti""}"
+Now look at maize grain in Wajir.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""maize"", ""county"": ""Wajir""}"
+Now look at dry beans in Kajiado.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""beans"", ""county"": ""Kajiado""}"
+Now look at maize grain in Kajiado.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""maize"", ""county"": ""Kajiado""}"
+Now look at beans in Garissa.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""beans"", ""county"": ""Garissa""}"
+Now look at maize in Baringo.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""maize"", ""county"": ""Baringo""}"
+Now look at dry beans in Nakuru.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""beans"", ""county"": ""Nakuru""}"
+Now look at goat in Makueni.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""goat"", ""county"": ""Makueni""}"
+Now look at maize in Mandera.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""maize"", ""county"": ""Mandera""}"
+Now look at goat in Voi.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""goat"", ""county"": ""Voi""}"
+Now look at beans in Isiolo.,swap_county_or_commodity,swap_county_or_commodity_04,formal,"{""commodity"": ""beans"", ""county"": ""Isiolo""}"
+dry beans Kilifi,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""beans"", ""county"": ""Kilifi""}"
+goat Lamu West,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""goat"", ""county"": ""Lamu West""}"
+goat Makueni,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""goat"", ""county"": ""Makueni""}"
+beans Marsabit,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""beans"", ""county"": ""Marsabit""}"
+goat Kisumu,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""goat"", ""county"": ""Kisumu""}"
+dry beans Isiolo,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""beans"", ""county"": ""Isiolo""}"
+maize grain Nakuru,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""maize"", ""county"": ""Nakuru""}"
+maize grain Nakuru,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""maize"", ""county"": ""Nakuru""}"
+dry beans Kisumu,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""beans"", ""county"": ""Kisumu""}"
+goat Isiolo,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""goat"", ""county"": ""Isiolo""}"
+dry beans Isiolo,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""beans"", ""county"": ""Isiolo""}"
+dry beans Voi,swap_county_or_commodity,swap_county_or_commodity_04,short,"{""commodity"": ""beans"", ""county"": ""Voi""}"
+na dry beans Lamu West,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Lamu West""}"
+na maize Marsabit,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""maize"", ""county"": ""Marsabit""}"
+na beans Kilifi,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Kilifi""}"
+na dry beans Makueni,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Makueni""}"
+na goat Kajiado,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""goat"", ""county"": ""Kajiado""}"
+na maize Garissa,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""maize"", ""county"": ""Garissa""}"
+na beans Kajiado,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Kajiado""}"
+na beans Mandera,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Mandera""}"
+na maize Turkana,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""maize"", ""county"": ""Turkana""}"
+na beans Isiolo,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Isiolo""}"
+na beans Baringo,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Baringo""}"
+na dry beans Kitui,swap_county_or_commodity,swap_county_or_commodity_04,casual,"{""commodity"": ""beans"", ""county"": ""Kitui""}"
+Please use Kitui for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Kitui""}"
+Please use Kisumu for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Kisumu""}"
+Please use Mombasa for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Mombasa""}"
+Please use Isiolo for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Isiolo""}"
+Please use North Imenti for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""North Imenti""}"
+Please use North Imenti for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""North Imenti""}"
+Please use Nairobi for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Nairobi""}"
+Please use Nakuru for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Nakuru""}"
+Please use Kitui for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Kitui""}"
+Please use Voi for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Voi""}"
+Please use Baringo for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Baringo""}"
+Please use Isiolo for this lookup.,swap_county_or_commodity,swap_county_or_commodity_06,formal,"{""county"": ""Isiolo""}"
+use Baringo,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Baringo""}"
+use Voi,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Voi""}"
+use Baringo,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Baringo""}"
+use North Imenti,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""North Imenti""}"
+use Wajir,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Wajir""}"
+use Kajiado,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Kajiado""}"
+use Isiolo,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Isiolo""}"
+use Isiolo,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Isiolo""}"
+use North Imenti,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""North Imenti""}"
+use Voi,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Voi""}"
+use Makueni,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Makueni""}"
+use Voi,swap_county_or_commodity,swap_county_or_commodity_06,short,"{""county"": ""Voi""}"
+kwa Makueni,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Makueni""}"
+kwa Voi,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Voi""}"
+kwa Garissa,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Garissa""}"
+kwa Kisumu,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Kisumu""}"
+kwa Nakuru,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Nakuru""}"
+kwa Turkana,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Turkana""}"
+kwa Marsabit,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Marsabit""}"
+kwa Nakuru,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Nakuru""}"
+kwa Kitui,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Kitui""}"
+kwa Nairobi,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Nairobi""}"
+kwa Mandera,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Mandera""}"
+kwa Kajiado,swap_county_or_commodity,swap_county_or_commodity_06,casual,"{""county"": ""Kajiado""}"
+What about the year 2019?,swap_year,swap_year_02,formal,"{""year"": ""2019""}"
+What about the year 2022?,swap_year,swap_year_02,formal,"{""year"": ""2022""}"
+What about the year 2023?,swap_year,swap_year_02,formal,"{""year"": ""2023""}"
+What about the year 2020?,swap_year,swap_year_02,formal,"{""year"": ""2020""}"
+What about the year 2023?,swap_year,swap_year_02,formal,"{""year"": ""2023""}"
+What about the year 2025?,swap_year,swap_year_02,formal,"{""year"": ""2025""}"
+What about the year 2020?,swap_year,swap_year_02,formal,"{""year"": ""2020""}"
+What about the year 2023?,swap_year,swap_year_02,formal,"{""year"": ""2023""}"
+What about the year 2022?,swap_year,swap_year_02,formal,"{""year"": ""2022""}"
+What about the year 2022?,swap_year,swap_year_02,formal,"{""year"": ""2022""}"
+What about the year 2024?,swap_year,swap_year_02,formal,"{""year"": ""2024""}"
+What about the year 2022?,swap_year,swap_year_02,formal,"{""year"": ""2022""}"
+year 2024,swap_year,swap_year_02,short,"{""year"": ""2024""}"
+year 2019,swap_year,swap_year_02,short,"{""year"": ""2019""}"
+year 2024,swap_year,swap_year_02,short,"{""year"": ""2024""}"
+year 2022,swap_year,swap_year_02,short,"{""year"": ""2022""}"
+year 2022,swap_year,swap_year_02,short,"{""year"": ""2022""}"
+year 2024,swap_year,swap_year_02,short,"{""year"": ""2024""}"
+year 2019,swap_year,swap_year_02,short,"{""year"": ""2019""}"
+year 2024,swap_year,swap_year_02,short,"{""year"": ""2024""}"
+year 2020,swap_year,swap_year_02,short,"{""year"": ""2020""}"
+year 2021,swap_year,swap_year_02,short,"{""year"": ""2021""}"
+year 2023,swap_year,swap_year_02,short,"{""year"": ""2023""}"
+year 2022,swap_year,swap_year_02,short,"{""year"": ""2022""}"
+how about 2021,swap_year,swap_year_02,casual,"{""year"": ""2021""}"
+how about 2023,swap_year,swap_year_02,casual,"{""year"": ""2023""}"
+how about 2019,swap_year,swap_year_02,casual,"{""year"": ""2019""}"
+how about 2021,swap_year,swap_year_02,casual,"{""year"": ""2021""}"
+how about 2024,swap_year,swap_year_02,casual,"{""year"": ""2024""}"
+how about 2019,swap_year,swap_year_02,casual,"{""year"": ""2019""}"
+how about 2023,swap_year,swap_year_02,casual,"{""year"": ""2023""}"
+how about 2023,swap_year,swap_year_02,casual,"{""year"": ""2023""}"
+how about 2025,swap_year,swap_year_02,casual,"{""year"": ""2025""}"
+how about 2019,swap_year,swap_year_02,casual,"{""year"": ""2019""}"
+how about 2021,swap_year,swap_year_02,casual,"{""year"": ""2021""}"
+how about 2025,swap_year,swap_year_02,casual,"{""year"": ""2025""}"
+Could you switch to 2021?,swap_year,swap_year_03,formal,"{""year"": ""2021""}"
+Could you switch to 2024?,swap_year,swap_year_03,formal,"{""year"": ""2024""}"
+Could you switch to 2020?,swap_year,swap_year_03,formal,"{""year"": ""2020""}"
+Could you switch to 2021?,swap_year,swap_year_03,formal,"{""year"": ""2021""}"
+Could you switch to 2022?,swap_year,swap_year_03,formal,"{""year"": ""2022""}"
+Could you switch to 2021?,swap_year,swap_year_03,formal,"{""year"": ""2021""}"
+Could you switch to 2021?,swap_year,swap_year_03,formal,"{""year"": ""2021""}"
+Could you switch to 2025?,swap_year,swap_year_03,formal,"{""year"": ""2025""}"
+Could you switch to 2022?,swap_year,swap_year_03,formal,"{""year"": ""2022""}"
+Could you switch to 2020?,swap_year,swap_year_03,formal,"{""year"": ""2020""}"
+Could you switch to 2025?,swap_year,swap_year_03,formal,"{""year"": ""2025""}"
+Could you switch to 2025?,swap_year,swap_year_03,formal,"{""year"": ""2025""}"
+switch 2025,swap_year,swap_year_03,short,"{""year"": ""2025""}"
+switch 2020,swap_year,swap_year_03,short,"{""year"": ""2020""}"
+switch 2021,swap_year,swap_year_03,short,"{""year"": ""2021""}"
+switch 2019,swap_year,swap_year_03,short,"{""year"": ""2019""}"
+switch 2021,swap_year,swap_year_03,short,"{""year"": ""2021""}"
+switch 2025,swap_year,swap_year_03,short,"{""year"": ""2025""}"
+switch 2020,swap_year,swap_year_03,short,"{""year"": ""2020""}"
+switch 2021,swap_year,swap_year_03,short,"{""year"": ""2021""}"
+switch 2020,swap_year,swap_year_03,short,"{""year"": ""2020""}"
+switch 2023,swap_year,swap_year_03,short,"{""year"": ""2023""}"
+switch 2019,swap_year,swap_year_03,short,"{""year"": ""2019""}"
+switch 2020,swap_year,swap_year_03,short,"{""year"": ""2020""}"
+try 2019,swap_year,swap_year_03,casual,"{""year"": ""2019""}"
+try 2021,swap_year,swap_year_03,casual,"{""year"": ""2021""}"
+try 2020,swap_year,swap_year_03,casual,"{""year"": ""2020""}"
+try 2025,swap_year,swap_year_03,casual,"{""year"": ""2025""}"
+try 2023,swap_year,swap_year_03,casual,"{""year"": ""2023""}"
+try 2022,swap_year,swap_year_03,casual,"{""year"": ""2022""}"
+try 2023,swap_year,swap_year_03,casual,"{""year"": ""2023""}"
+try 2019,swap_year,swap_year_03,casual,"{""year"": ""2019""}"
+try 2023,swap_year,swap_year_03,casual,"{""year"": ""2023""}"
+try 2024,swap_year,swap_year_03,casual,"{""year"": ""2024""}"
+try 2021,swap_year,swap_year_03,casual,"{""year"": ""2021""}"
+try 2025,swap_year,swap_year_03,casual,"{""year"": ""2025""}"
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+Show another set of options.,show_more,show_more_05,formal,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+another set,show_more,show_more_05,short,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+zingine,show_more,show_more_05,casual,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+I would like to see further options.,show_more,show_more_08,formal,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+further options,show_more,show_more_08,short,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+zaidi,show_more,show_more_08,casual,{}
+Show results from Carrefour Westlands only.,refine_store,refine_store_03,formal,"{""store"": ""Carrefour""}"
+Show results from quick mart only.,refine_store,refine_store_03,formal,"{""store"": ""Quickmart""}"
+Show results from quick mart only.,refine_store,refine_store_03,formal,"{""store"": ""Quickmart""}"
+Show results from Naivas only.,refine_store,refine_store_03,formal,"{""store"": ""Naivas""}"
+Show results from Naivas supermarket only.,refine_store,refine_store_03,formal,"{""store"": ""Naivas""}"
+Show results from Carrefour only.,refine_store,refine_store_03,formal,"{""store"": ""Carrefour""}"
+Show results from QuickMart only.,refine_store,refine_store_03,formal,"{""store"": ""Quickmart""}"
+Show results from Naivas supermarket only.,refine_store,refine_store_03,formal,"{""store"": ""Naivas""}"
+Show results from Carrefour only.,refine_store,refine_store_03,formal,"{""store"": ""Carrefour""}"
+Show results from Carrefour only.,refine_store,refine_store_03,formal,"{""store"": ""Carrefour""}"
+Show results from QuickMart only.,refine_store,refine_store_03,formal,"{""store"": ""Quickmart""}"
+Show results from quick mart only.,refine_store,refine_store_03,formal,"{""store"": ""Quickmart""}"
+Naivas only,refine_store,refine_store_03,short,"{""store"": ""Naivas""}"
+Naivas only,refine_store,refine_store_03,short,"{""store"": ""Naivas""}"
+Carrefour only,refine_store,refine_store_03,short,"{""store"": ""Carrefour""}"
+Naivas supermarket only,refine_store,refine_store_03,short,"{""store"": ""Naivas""}"
+Carrefour only,refine_store,refine_store_03,short,"{""store"": ""Carrefour""}"
+naivas only,refine_store,refine_store_03,short,"{""store"": ""Naivas""}"
+carefour only,refine_store,refine_store_03,short,"{""store"": ""Carrefour""}"
+Naivas supermarket only,refine_store,refine_store_03,short,"{""store"": ""Naivas""}"
+Naivas supermarket only,refine_store,refine_store_03,short,"{""store"": ""Naivas""}"
+QuickMart only,refine_store,refine_store_03,short,"{""store"": ""Quickmart""}"
+Quickmart only,refine_store,refine_store_03,short,"{""store"": ""Quickmart""}"
+quick mart only,refine_store,refine_store_03,short,"{""store"": ""Quickmart""}"
+Quickmart tu,refine_store,refine_store_03,casual,"{""store"": ""Quickmart""}"
+Naivas tu,refine_store,refine_store_03,casual,"{""store"": ""Naivas""}"
+naivas tu,refine_store,refine_store_03,casual,"{""store"": ""Naivas""}"
+Quickmart tu,refine_store,refine_store_03,casual,"{""store"": ""Quickmart""}"
+Naivas supermarket tu,refine_store,refine_store_03,casual,"{""store"": ""Naivas""}"
+naivas tu,refine_store,refine_store_03,casual,"{""store"": ""Naivas""}"
+Quickmart tu,refine_store,refine_store_03,casual,"{""store"": ""Quickmart""}"
+QuickMart tu,refine_store,refine_store_03,casual,"{""store"": ""Quickmart""}"
+QuickMart tu,refine_store,refine_store_03,casual,"{""store"": ""Quickmart""}"
+Carrefour Westlands tu,refine_store,refine_store_03,casual,"{""store"": ""Carrefour""}"
+QuickMart tu,refine_store,refine_store_03,casual,"{""store"": ""Quickmart""}"
+naivas tu,refine_store,refine_store_03,casual,"{""store"": ""Naivas""}"
+Can you narrow this to carefour?,refine_store,refine_store_07,formal,"{""store"": ""Carrefour""}"
+Can you narrow this to Naivas?,refine_store,refine_store_07,formal,"{""store"": ""Naivas""}"
+Can you narrow this to Carrefour?,refine_store,refine_store_07,formal,"{""store"": ""Carrefour""}"
+Can you narrow this to QuickMart?,refine_store,refine_store_07,formal,"{""store"": ""Quickmart""}"
+Can you narrow this to Carrefour Westlands?,refine_store,refine_store_07,formal,"{""store"": ""Carrefour""}"
+Can you narrow this to Quickmart?,refine_store,refine_store_07,formal,"{""store"": ""Quickmart""}"
+Can you narrow this to Naivas supermarket?,refine_store,refine_store_07,formal,"{""store"": ""Naivas""}"
+Can you narrow this to quick mart?,refine_store,refine_store_07,formal,"{""store"": ""Quickmart""}"
+Can you narrow this to naivas?,refine_store,refine_store_07,formal,"{""store"": ""Naivas""}"
+Can you narrow this to quick mart?,refine_store,refine_store_07,formal,"{""store"": ""Quickmart""}"
+Can you narrow this to Carrefour?,refine_store,refine_store_07,formal,"{""store"": ""Carrefour""}"
+Can you narrow this to naivas?,refine_store,refine_store_07,formal,"{""store"": ""Naivas""}"
+narrow Carrefour,refine_store,refine_store_07,short,"{""store"": ""Carrefour""}"
+narrow naivas,refine_store,refine_store_07,short,"{""store"": ""Naivas""}"
+narrow Carrefour Westlands,refine_store,refine_store_07,short,"{""store"": ""Carrefour""}"
+narrow quick mart,refine_store,refine_store_07,short,"{""store"": ""Quickmart""}"
+narrow QuickMart,refine_store,refine_store_07,short,"{""store"": ""Quickmart""}"
+narrow quick mart,refine_store,refine_store_07,short,"{""store"": ""Quickmart""}"
+narrow naivas,refine_store,refine_store_07,short,"{""store"": ""Naivas""}"
+narrow carefour,refine_store,refine_store_07,short,"{""store"": ""Carrefour""}"
+narrow Naivas supermarket,refine_store,refine_store_07,short,"{""store"": ""Naivas""}"
+narrow Naivas,refine_store,refine_store_07,short,"{""store"": ""Naivas""}"
+narrow Carrefour Westlands,refine_store,refine_store_07,short,"{""store"": ""Carrefour""}"
+narrow quick mart,refine_store,refine_store_07,short,"{""store"": ""Quickmart""}"
+weka QuickMart tu,refine_store,refine_store_07,casual,"{""store"": ""Quickmart""}"
+weka carefour tu,refine_store,refine_store_07,casual,"{""store"": ""Carrefour""}"
+weka naivas tu,refine_store,refine_store_07,casual,"{""store"": ""Naivas""}"
+weka Naivas supermarket tu,refine_store,refine_store_07,casual,"{""store"": ""Naivas""}"
+weka Naivas tu,refine_store,refine_store_07,casual,"{""store"": ""Naivas""}"
+weka Naivas supermarket tu,refine_store,refine_store_07,casual,"{""store"": ""Naivas""}"
+weka naivas tu,refine_store,refine_store_07,casual,"{""store"": ""Naivas""}"
+weka QuickMart tu,refine_store,refine_store_07,casual,"{""store"": ""Quickmart""}"
+weka quick mart tu,refine_store,refine_store_07,casual,"{""store"": ""Quickmart""}"
+weka Carrefour Westlands tu,refine_store,refine_store_07,casual,"{""store"": ""Carrefour""}"
+weka Quickmart tu,refine_store,refine_store_07,casual,"{""store"": ""Quickmart""}"
+weka carefour tu,refine_store,refine_store_07,casual,"{""store"": ""Carrefour""}"
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+Could you describe the comparison method?,explain,explain_03,formal,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+comparison method,explain,explain_03,short,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+how?,explain,explain_03,casual,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+Please explain the source used.,explain,explain_05,formal,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+explain source,explain,explain_05,short,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+source?,explain,explain_05,casual,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+"That answers my question, thank you.",acknowledge,acknowledge_02,formal,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+sawa,acknowledge,acknowledge_02,casual,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+"Good, thank you.",acknowledge,acknowledge_08,formal,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+good thanks,acknowledge,acknowledge_08,short,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
+sawa basi,acknowledge,acknowledge_08,casual,{}
