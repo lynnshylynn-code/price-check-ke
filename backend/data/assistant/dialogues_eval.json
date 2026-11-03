@@ -1718,6 +1718,14 @@
             {"type": "follow_up_type_is", "follow_up_type": "swap_store"},
             {"type": "no_matching_listing_at_store", "store": "Naivas", "name_tokens": ["isinya", "egg"]}
           ]
+        },
+        {
+          "user": "and at Quickmart?",
+          "CHECKS": [
+            {"type": "response_shape"},
+            {"type": "follow_up_type_is", "follow_up_type": "swap_store"},
+            {"type": "any_matching_listing_at_store", "store": "Quickmart", "name_tokens": ["egg"]}
+          ]
         }
       ]
     }

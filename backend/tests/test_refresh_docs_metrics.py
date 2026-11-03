@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from refresh_docs_metrics import render_followup_metrics, refresh, render_metrics  # noqa: E402
+from refresh_docs_metrics import refresh, render_followup_metrics, render_metrics  # noqa: E402
 
 
 def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) -> None:

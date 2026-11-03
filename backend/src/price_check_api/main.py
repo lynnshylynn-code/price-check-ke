@@ -10,10 +10,10 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import orders
-from .dialogue import answer_dialogue
 from .ai_rate_limit import enforce_ai_rate_limit
 from .assistant_model import load_assistant_model
 from .basket_search import a_star_search, breadth_first_search, uniform_cost_search
+from .dialogue import answer_dialogue
 from .fuzzy_listings import deal_position as listing_deal_position
 from .fuzzy_price import price_position
 from .listing_groups import get_comparable_group, get_comparable_groups

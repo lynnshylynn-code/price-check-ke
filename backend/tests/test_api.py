@@ -512,6 +512,10 @@ def test_market_question_endpoint_returns_answer_and_source(
         "intent_confidence": 0.0,
         "entities": {},
         "model_version": "unavailable",
+        "context": {},
+        "suggestions": [],
+        "needs_clarification": False,
+        "follow_up_type": None,
     }
 
 

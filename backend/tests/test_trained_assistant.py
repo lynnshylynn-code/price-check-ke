@@ -300,7 +300,7 @@ def test_compare_stores_without_names_lists_every_snapshot_supermarket(
     )
     monkeypatch.setattr(
         "price_check_api.trained_assistant._resolve_product",
-        lambda _text: ("fanta blackcurrant pet 2l", "Fanta Blackcurrant PET 2L", 1.0),
+        lambda _text, **_kwargs: ("fanta blackcurrant pet 2l", "Fanta Blackcurrant PET 2L", 1.0),
     )
     response = answer_trained_question("Price of Fanta Blackcurrant 2L across the stores")
     stores = {item.supermarket for item in get_listings()}
@@ -473,7 +473,7 @@ def test_unknown_cheapest_item_does_not_return_white_cap(
     )
     monkeypatch.setattr(
         "price_check_api.trained_assistant._resolve_product",
-        lambda _text: (None, "nyamabite", 0.0),
+        lambda _text, **_kwargs: (None, "nyamabite", 0.0),
     )
 
     response = answer_trained_question("where can i get the cheapest nyambite?")

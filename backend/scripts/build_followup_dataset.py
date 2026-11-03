@@ -9,8 +9,8 @@ import re
 import sys
 from collections import defaultdict
 from math import floor
-from statistics import median
 from pathlib import Path
+from statistics import median
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data/assistant"
@@ -65,7 +65,7 @@ def main() -> int:
     highest_similarity = 0.0
     for item in templates:
         names = sorted(set(re.findall(r"\{(\w+)\}", item["template"])))
-        for index in range(12):
+        for _ in range(12):
             answer = item["template"]
             entities = {}
             for name in names:
