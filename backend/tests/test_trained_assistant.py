@@ -568,7 +568,7 @@ def test_biggest_discount_refuses_unknown_store(monkeypatch: pytest.MonkeyPatch)
 
     response = answer_trained_question("Tuskys offers")
 
-    assert "store is not in the snapshot" in response.answer
+    assert "Tuskys is not in the snapshot" in response.answer
     assert not any(item.product_url in response.answer for item in _discounted_listings())
 
 

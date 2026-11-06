@@ -578,9 +578,10 @@ def answer_dialogue(
                     entities=context.get("entities", {}),
                 )
             else:
+                store_label = store.title() if store else "that store"
                 answer = MarketQuestionResponse(
-                    answer=(f"No previous result matched {store or 'that store'} in the current "
-                            f"snapshot. {DATA_LABEL}."),
+                    answer=(f"No previous result matched {store_label} "
+                            f"in the current snapshot. {DATA_LABEL}."),
                     source_name="Kenya supermarket listing snapshot", source_url=None,
                     coverage_start="20 Oct 2026", coverage_end="20 Oct 2026",
                     intent=str(context["last_intent"]), intent_confidence=1.0,
