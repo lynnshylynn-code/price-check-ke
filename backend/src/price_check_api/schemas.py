@@ -1,7 +1,15 @@
 from datetime import date
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    HttpUrl,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 
 class Observation(BaseModel):
@@ -73,6 +81,8 @@ class MarketQuestionRequest(BaseModel):
 class AssistantAskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=300)
     context: Any | None = None
+    follow_up_action: Literal["explain", "show_more", "refine_store"] | None = None
+    store: str | None = Field(default=None, max_length=40)
 
     @field_validator("question")
     @classmethod
@@ -91,6 +101,19 @@ class MarketAnswerSource(BaseModel):
     note: str
 
 
+class SuggestionAction(BaseModel):
+    label: str
+    action: Literal["explain", "show_more", "refine_store"] | None = None
+    store: str | None = None
+
+    @model_serializer(mode="wrap")
+    def omit_missing_store(self, handler: Any) -> Any:
+        result = handler(self)
+        if self.store is None:
+            result.pop("store", None)
+        return result
+
+
 class MarketQuestionResponse(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -106,6 +129,7 @@ class MarketQuestionResponse(BaseModel):
     model_version: str = "unavailable"
     context: dict[str, object] = Field(default_factory=dict)
     suggestions: list[str] = Field(default_factory=list)
+    suggestion_actions: list[SuggestionAction] = Field(default_factory=list)
     needs_clarification: bool = False
     follow_up_type: str | None = None
 

@@ -215,3 +215,27 @@ template_id,family_id,label,style,template,slots
 214,acknowledge_08,acknowledge,formal,"Good, thank you.",
 215,acknowledge_08,acknowledge,short,good thanks,
 216,acknowledge_08,acknowledge,casual,sawa basi,
+217,show_more_09,show_more,formal,Please give me the rest of the list.,
+218,show_more_09,show_more,short,rest of the list,
+219,show_more_09,show_more,casual,and the rest?,
+220,show_more_10,show_more,formal,What else matches that search?,
+221,show_more_10,show_more,short,what else?,
+222,show_more_10,show_more,swahili_mix,kuna nyingine?,
+223,show_more_11,show_more,formal,Can you display the following results?,
+224,show_more_11,show_more,short,following results,
+225,show_more_11,show_more,casual,keep going,
+226,show_more_12,show_more,formal,"I need to see more entries, please.",
+227,show_more_12,show_more,short,more entries,
+228,show_more_12,show_more,swahili_mix,nionyeshe zaidi,
+229,new_question_09,new_question,formal,How much does {product} cost at {store}?,product,store
+230,new_question_09,new_question,short,{store} {product} price,product,store
+231,new_question_09,new_question,casual,whats the price of {product} at {store},product,store
+232,new_question_10,new_question,formal,Which supermarket sells {group} for the least?,group
+233,new_question_10,new_question,short,cheapest {group} anywhere,group
+234,new_question_10,new_question,swahili_mix,bei ya {group} rahisi zaidi iko wapi?,group
+235,new_question_11,new_question,formal,What is the {commodity} price in {county}?,commodity,county
+236,new_question_11,new_question,short,{commodity} {county} price,commodity,county
+237,new_question_11,new_question,casual,how much is {commodity} in {county},commodity,county
+238,new_question_12,new_question,formal,Tell me the current food inflation rate.,
+239,new_question_12,new_question,short,food inflation today,
+240,new_question_12,new_question,casual,how is food inflation looking,

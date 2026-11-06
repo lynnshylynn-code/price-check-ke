@@ -20,15 +20,17 @@ from .market_data import (
     get_market_price_rows,
     get_market_prices,
 )
-from .schemas import MarketQuestionResponse
+from .schemas import MarketQuestionResponse, SuggestionAction
 from .trained_assistant import (
     ASSISTANT_DATA,
     MIN_PRODUCT_TOKEN_SIMILARITY,
     _classify,
     _generic_category,
     _normalize_terms,
+    _product_search_text,
     _resolve_county,
     _resolve_product,
+    _unknown_label,
     answer_trained_question,
     normalize_question_text,
 )
@@ -426,16 +428,42 @@ def _contextual_comparison(question: str, context: dict[str, Any]) -> str | None
     return f"compare {product} at {first_store} and {second_store}"
 
 
-def answer_dialogue(question: str, raw_context: Any = None) -> MarketQuestionResponse:
+def answer_dialogue(
+    question: str,
+    raw_context: Any = None,
+    follow_up_action: str | None = None,
+    store: str | None = None,
+) -> MarketQuestionResponse:
     question = normalize_question_text(question)
     context = validate_context(raw_context)
-    comparison_question = _contextual_comparison(question, context) if context else None
-    if comparison_question:
-        question = comparison_question
-        context = {}
-    elif context and _is_new_question(question, context):
-        context = {}
-    if context.get("pending_slot"):
+    if follow_up_action and not context.get("last_intent"):
+        return MarketQuestionResponse(
+            answer="Ask a question first, then I can explain it or show more.",
+            source_name="Price Check KE data snapshots", source_url=None,
+            coverage_start=None, coverage_end=None, intent="out_of_scope",
+            intent_confidence=1.0, needs_clarification=False, context={},
+        )
+    if follow_up_action == "refine_store":
+        stores = {item.supermarket.casefold(): item.supermarket for item in get_listings()}
+        resolved_store = stores.get((store or "").casefold())
+        if not resolved_store:
+            label = _unknown_label(f"at {store or ''}")
+            return MarketQuestionResponse(
+                answer=f"{label} is not in the snapshot. {DATA_LABEL}.",
+                source_name="Kenya supermarket listing snapshot", source_url=None,
+                coverage_start="20 Oct 2026", coverage_end="20 Oct 2026",
+                intent=str(context["last_intent"]), intent_confidence=1.0,
+                entities=context.get("entities", {}),
+            )
+        context.setdefault("entities", {})["store"] = resolved_store
+    if not follow_up_action:
+        comparison_question = _contextual_comparison(question, context) if context else None
+        if comparison_question:
+            question = comparison_question
+            context = {}
+        elif context and _is_new_question(question, context):
+            context = {}
+    if context.get("pending_slot") and not follow_up_action:
         pending = context["pending_slot"]
         if pending == "product":
             resolved = (
@@ -464,7 +492,7 @@ def answer_dialogue(question: str, raw_context: Any = None) -> MarketQuestionRes
         else:
             context = {}
 
-    follow_up = _follow_up_type(question, context)
+    follow_up = follow_up_action or _follow_up_type(question, context)
     if follow_up == "acknowledge":
         answer = MarketQuestionResponse(
             answer="You’re welcome. Ask me about prices, offers, or market data.",
@@ -477,11 +505,28 @@ def answer_dialogue(question: str, raw_context: Any = None) -> MarketQuestionRes
         prior = answer_trained_question(previous_question)
         source_names = ", ".join(dict.fromkeys(source.name for source in prior.sources))
         source_note = f" Sources: {source_names}." if source_names else ""
+        method_sentence = (
+            "I compared the available records using the dataset's listed price or unit-price "
+            f"method.{source_note} {DATA_LABEL}."
+        )
+        source_urls = {
+            str(source.url)
+            for source in prior.sources
+            if source.name == "Kenya supermarket listing snapshot"
+        }
+        cited_listings = [
+            listing for listing in get_listings()
+            if listing.product_url in source_urls
+        ][:5]
+        cited_prices = "\n".join(
+            f"{listing.item_name}: KES {listing.price_kes:g} at {listing.supermarket}"
+            for listing in cited_listings
+        )
+        explain_answer = (
+            f"{cited_prices}\n{method_sentence}" if cited_prices else method_sentence
+        )
         answer = MarketQuestionResponse(
-            answer=(
-                "I compared the available records using the dataset's listed price or unit-price "
-                f"method.{source_note} {DATA_LABEL}."
-            ),
+            answer=explain_answer,
             source_name=prior.source_name, source_url=prior.source_url,
             coverage_start=prior.coverage_start, coverage_end=prior.coverage_end,
             sources=prior.sources, intent=str(context["last_intent"]),
@@ -631,13 +676,29 @@ def answer_dialogue(question: str, raw_context: Any = None) -> MarketQuestionRes
         and not query_has_entity
         and not has_listing_candidates
     ):
-        missing = "product"
+        leftover = _product_search_text(question)
+        if leftover:
+            answer = answer.model_copy(update={
+                "answer": f"{leftover} is not in the snapshot. {DATA_LABEL}."
+            })
+        else:
+            missing = "product"
     elif intent == "market_price" and not entities.get("county"):
         missing = "county"
     needs_clarification = missing is not None
     if missing:
+        resolved_store = entities.get("store")
+        snapshot_stores = {item.supermarket.casefold(): item.supermarket for item in get_listings()}
+        display_store = (
+            snapshot_stores.get(str(resolved_store).casefold()) if resolved_store else None
+        )
         prompts = {
-            "product": "Which product or group? For example, maize flour, beans, or milk.",
+            "product": (
+                f"Which product or group at {display_store}? For example, maize flour, beans, "
+                "or milk."
+                if display_store
+                else "Which product or group? For example, maize flour, beans, or milk."
+            ),
             "county": "Which county? For example, Nairobi, Mombasa, or Kisumu.",
         }
         answer = answer.model_copy(update={"answer": prompts[missing]})
@@ -664,9 +725,20 @@ def answer_dialogue(question: str, raw_context: Any = None) -> MarketQuestionRes
         suggestions = ["What about 2023?", "Average reading?", "Why this result?"]
     else:
         suggestions = ["What is the cheapest milk?", "Show current offers", "New question"]
+    if intent in {"cheapest_item", "unit_price", "price_at_store", "biggest_discount"}:
+        suggestion_actions = [
+            SuggestionAction(label="Show more", action="show_more"),
+            SuggestionAction(label="Only at Naivas", action="refine_store", store="Naivas"),
+            SuggestionAction(label="Why this result?", action="explain"),
+        ]
+    else:
+        suggestion_actions = [
+            SuggestionAction(label=label, action=None) for label in suggestions
+        ]
     return answer.model_copy(update={
         "context": next_context,
         "suggestions": suggestions,
+        "suggestion_actions": suggestion_actions,
         "needs_clarification": needs_clarification,
         "follow_up_type": follow_up,
     })

@@ -149,6 +149,13 @@ def _product_search_text(question: str) -> str:
     return " ".join(PRODUCT_QUERY_CORRECTIONS.get(word, word) for word in words)
 
 
+def _unknown_label(question: str) -> str:
+    other_stores = _slot_mentions(question, ("other_store",))
+    if other_stores:
+        return other_stores[0]["surface_form"].title()
+    return _product_search_text(question) or "That item"
+
+
 def _product_token_similarity(query: str, candidate: str) -> float:
     query_words = re.findall(r"[a-z0-9]+", query.casefold())
     candidate_words = re.findall(r"[a-z0-9]+", candidate.casefold())
@@ -767,7 +774,7 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
                 entry["store"] is None for entry in store_mentions
             )
             if has_unknown_store:
-                answer = f"That store is not in the snapshot. {DATA_LABEL}."
+                answer = f"{_unknown_label(text)} is not in the snapshot. {DATA_LABEL}."
                 return _base_response(text, intent, confidence, entities, answer, [])
 
             discount_rows = [item for item in get_listings() if item.discount_pct is not None]
@@ -866,7 +873,7 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
                 intent,
                 confidence,
                 entities,
-                f"That product or store is not in the snapshot. {DATA_LABEL}.",
+                f"{_unknown_label(text)} is not in the snapshot. {DATA_LABEL}.",
                 [],
             )
         if intent == "compare_stores" and identified:
@@ -911,7 +918,7 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
             elif product_label and product is None and not unknown_store:
                 answer = f"No matching listing was found for {product_label!r}. {DATA_LABEL}."
             else:
-                answer = f"That product or store is not in the snapshot. {DATA_LABEL}."
+                answer = f"{_unknown_label(text)} is not in the snapshot. {DATA_LABEL}."
             return _base_response(
                 text,
                 intent,
@@ -944,7 +951,16 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
             rows = sorted(rows, key=lambda item: item.unit_price or float("inf"))
         source_rows = []
         if not rows:
-            answer = f"No matching advertised listing was found in this snapshot. {DATA_LABEL}."
+            if store:
+                answer = (
+                    f"No matching advertised listing was found at {store} in this snapshot. "
+                    f"{DATA_LABEL}."
+                )
+            else:
+                answer = (
+                    f"No matching advertised listing was found in this snapshot. "
+                    f"{DATA_LABEL}."
+                )
         else:
             selected = (
                 rows[offset : offset + 5]

@@ -514,6 +514,7 @@ def test_market_question_endpoint_returns_answer_and_source(
         "model_version": "unavailable",
         "context": {},
         "suggestions": [],
+        "suggestion_actions": [],
         "needs_clarification": False,
         "follow_up_type": None,
     }

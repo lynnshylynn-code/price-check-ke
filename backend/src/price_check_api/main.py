@@ -451,7 +451,12 @@ async def market_question(request: MarketQuestionRequest) -> MarketQuestionRespo
     dependencies=[Depends(enforce_ai_rate_limit)],
 )
 def assistant_ask(request: AssistantAskRequest) -> MarketQuestionResponse:
-    return answer_dialogue(request.question, request.context)
+    return answer_dialogue(
+        request.question,
+        request.context,
+        follow_up_action=request.follow_up_action,
+        store=request.store,
+    )
 
 
 @app.get("/api/v1/models/info", tags=["trained assistant"])
