@@ -50,7 +50,12 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
                 },
             },
             "heldout_by_source": {
-                "ai_written": {"rows": 3, "accuracy": 1.0, "macro_f1": 0.9}
+                "ai_written": {"rows": 3, "accuracy": 1.0, "macro_f1": 0.9},
+                "human_written": {
+                    "rows": 32,
+                    "accuracy": 0.8,
+                    "macro_f1": 0.75,
+                },
             },
         },
         "leakage": {
@@ -58,7 +63,10 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
             "highest_training_heldout_similarity": 0.84,
             "closest_heldout_source": "AI-written held-out",
         },
-        "heldout_rows_by_source": {"ai_written": 3},
+        "heldout_rows_by_source": {
+            "ai_written": 3,
+            "human_written": 32,
+        },
     }
     metadata_path = tmp_path / "metadata.json"
     metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
@@ -88,6 +96,7 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
     assert "| cheapest_item | 0.7500 | 0.5000 | 0.6000 | 2 |" in rendered_once
     assert "__abstain__" not in rendered_once
     assert "abstained 1" in rendered_once
+    assert "Human-written held-out: rows 32" in rendered_once
 
 
 def test_metrics_renderer_marks_missing_metadata_as_unavailable() -> None:

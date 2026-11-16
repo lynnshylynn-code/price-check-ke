@@ -49,6 +49,7 @@ METADATA_FILE = MODEL_DIR / "metadata.json"
 MIN_VALIDATION_COVERAGE = 0.85
 COMPARE_STORES_MIN_PRECISION = 0.75
 ABSTAIN = "__abstain__"
+HUMAN_HELDOUT_SOURCES = {"human_written", "human_reviewed_ai_draft"}
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -389,8 +390,16 @@ def read_optional_human_heldout() -> list[dict[str, str]]:
         expected_intent = row.get("expected_intent") or row.get("intent")
         if not expected_intent:
             raise ValueError("Human held-out questions require expected_intent or intent.")
+        source = row.get("source", "").strip()
+        if source not in HUMAN_HELDOUT_SOURCES:
+            raise ValueError(
+                "Human held-out questions require source to be human_written "
+                "or human_reviewed_ai_draft."
+            )
+        if not row.get("question", "").strip():
+            raise ValueError("Human held-out questions require a non-empty question.")
         normalized.append(
-            {**row, "expected_intent": expected_intent, "source": "human_written"}
+            {**row, "expected_intent": expected_intent, "source": source}
         )
     return normalized
 

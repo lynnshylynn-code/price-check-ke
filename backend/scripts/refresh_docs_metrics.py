@@ -81,9 +81,10 @@ def render_metrics(metadata: dict[str, Any]) -> str:
     heldout_titles = (
         ("ai_written", "AI-written held-out"),
         ("human_written", "Human-written held-out"),
+        ("human_reviewed_ai_draft", "Human-reviewed AI draft held-out"),
     )
     for source, title in heldout_titles:
-        if source == "human_written" and source not in heldout:
+        if source != "ai_written" and source not in heldout:
             continue
         result = heldout.get(source) or {}
         count = (metadata.get("heldout_rows_by_source") or {}).get(source)

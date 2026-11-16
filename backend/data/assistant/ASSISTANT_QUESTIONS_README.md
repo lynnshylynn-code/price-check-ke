@@ -4,8 +4,8 @@
 Every question generated from them is **synthetic training data**. Say so in the report.
 They must **never** be used as the test set. `heldout_test_questions.csv` is a separate
 AI-written held-out set (91 rows with `source=ai_written`); it is not human-authored test data.
-Do not train on it, tune on it, or copy its questions into templates. Any future rows marked
-`source=human` must be evaluated and reported separately.
+Do not train on it, tune on it, or copy its questions into templates. Human evaluation rows must
+be evaluated and reported separately with an explicit provenance value.
 
 ## Human evaluation draft
 
@@ -29,10 +29,11 @@ Kisumu has no price observations, Nairobi and Mombasa have no maize observations
 observations are old. Review expected answers against the current data rather than implying current
 prices where none are available.
 
-Only after human review, copy approved rows to `human_test_questions.csv` with `question` and
-`expected_intent` columns. The training script evaluates that file as a separate held-out source;
-it does not use it to train or tune the model. Do not report the draft's model score as human
-evaluation.
+After human review, copy approved rows to `human_test_questions.csv` with `question`,
+`expected_intent`, and `source` columns. Use `source=human_written` only for questions authored or
+substantially rewritten by people; use `source=human_reviewed_ai_draft` when people approve
+AI-generated wording. The training script evaluates each source separately and does not use either
+to train or tune the model. Do not report an AI-draft score as human-written evaluation.
 
 ## Files
 - `assistant_question_templates.csv` - 228 templates in 68 families.

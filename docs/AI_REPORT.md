@@ -39,7 +39,7 @@ Intent routing is a **model-based/goal-based agent**: it uses a trained model to
 
 ## Data provenance and splits
 
-The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The dataset builder generates family-grouped splits, applies an intent cap, and removes training questions whose normalized character-trigram Jaccard similarity to AI-written or human-written held-out questions is at least 0.85. Additional general-knowledge and future-price examples are explicitly train-only; their held-out counterparts remain separate template families. Current row counts and leakage results are populated from training metadata below. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. `human_test_questions_draft.csv` contains AI-generated candidates awaiting human and fluent-speaker review; it is not used for evaluation. Its four supermarket price-at-store candidates now reference observed listings from Naivas Nairobi delivery, Quickmart Westlands, Jaza Nairobi delivery, and the dated Carrefour Westlands snapshot; their review notes preserve price, source, date, and location caveats. They do not represent all Nairobi branches. No approved human-written held-out file is present.
+The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The dataset builder generates family-grouped splits, applies an intent cap, and removes training questions whose normalized character-trigram Jaccard similarity to AI-written or human-reviewed held-out questions is at least 0.85. Additional general-knowledge and future-price examples are explicitly train-only; their held-out counterparts remain separate template families. Current row counts and leakage results are populated from training metadata below. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. `human_test_questions_draft.csv` remains an AI-generated draft; the separate 32-question evaluation set was supplied in human-authored wording and is labeled `human_written`. It was developed after reviewing the draft, so treat its results as a pilot rather than a fully independent user study. The four supermarket price-at-store questions reference observed listings from Naivas Nairobi delivery, Quickmart Westlands, Jaza Nairobi delivery, and the dated Carrefour Westlands snapshot; they do not represent all Nairobi branches. No independent fluent-speaker review is recorded.
 
 ## Intent model results
 
@@ -77,6 +77,18 @@ Two supplemental out-of-scope families are training-only; the existing validatio
 | out_of_scope | 0.8947 | 0.8500 | 0.8718 | 20 |
 | price_at_store | 0.8000 | 0.7273 | 0.7619 | 11 |
 | unit_price | 1.0000 | 0.8000 | 0.8889 | 10 |
+- Human-written held-out: rows 32; accuracy 0.8438; macro-F1 0.8576; coverage 0.9375; abstained 2.
+- Human-written held-out per-intent precision/recall:
+| Intent | Precision | Recall | F1 | Support |
+|---|---:|---:|---:|---:|
+| biggest_discount | 0.8000 | 1.0000 | 0.8889 | 4 |
+| cheapest_item | 0.8000 | 1.0000 | 0.8889 | 4 |
+| compare_stores | 1.0000 | 1.0000 | 1.0000 | 4 |
+| food_inflation | 1.0000 | 1.0000 | 1.0000 | 4 |
+| market_price | 1.0000 | 1.0000 | 1.0000 | 4 |
+| out_of_scope | 1.0000 | 0.5000 | 0.6667 | 4 |
+| price_at_store | 1.0000 | 0.5000 | 0.6667 | 4 |
+| unit_price | 0.7500 | 0.7500 | 0.7500 | 4 |
 - Leakage check: training questions dropped at or above 0.85 similarity 0; highest retained similarity 0.7500 (AI-written held-out).
 - Training date: 2026-11-16.
 <!-- metrics:end -->
@@ -90,13 +102,13 @@ The listing matcher is `LogisticRegression` over token overlap, word/character c
 
 ## Bias and limitations
 
-Question generation comes from AI-written templates and does not represent real user language. Synthetic noise and the AI-written held-out questions are not independent human evaluation. Current synthetic results are uneven: `biggest_discount`, `cheapest_item`, and `market_price` remain weak on the synthetic test split, and `unit_price` recall is lower in the AI-written held-out set. Human-authored evaluation is needed before drawing conclusions about real user queries. Some product, store and county names are absent from the snapshot; fuzzy matches can still be wrong. Listing prices are a dated advertised snapshot, not checkout prices, stock, or price history. RTFP covers only recorded markets and periods; missing observations are not filled in. APHRC-derived categories are predictions and inherit the catalogue’s coverage and label limitations.
+Question generation comes from AI-written templates and does not represent real user language. Synthetic noise and the AI-written held-out questions are not independent human evaluation. Current synthetic results are uneven: `biggest_discount`, `cheapest_item`, and `market_price` remain weak on the synthetic test split, and `unit_price` recall is lower in the AI-written held-out set. The 32-question human-written intent set is an initial pilot; a larger independently authored sample and human dialogue evaluation are needed before drawing conclusions about real user queries. Some product, store and county names are absent from the snapshot; fuzzy matches can still be wrong. Listing prices are a dated advertised snapshot, not checkout prices, stock, or price history. RTFP covers only recorded markets and periods; missing observations are not filled in. APHRC-derived categories are predictions and inherit the catalogue’s coverage and label limitations.
 
 ## Not yet done / unverified
 
-- Human review of `human_test_questions_draft.csv`, then evaluation of approved questions; human review of the match-pair labels.
+- Independent fluent-speaker review of the approved Swahili/Sheng questions; human review of the match-pair labels.
+- Human-written dialogue evaluation set (`human_dialogues.json`, 10 conversations of 3–6 turns) and its separate evaluation run.
 - Device/emulator instrumentation tests (no `adb` executable/device was available); the Android unit tests and debug build did pass.
 - Daraja sandbox transaction and callback with merchant credentials and a reachable HTTPS callback.
 - Human spot-check of the predicted food-group/NOVA badges; the output is local and ignored by Git.
-- Swahili/sheng wording review by a fluent speaker.
 - Open Food Facts image candidate queries and human approval. The candidate script requires a maintainer contact email; the approved-image registry remains empty.

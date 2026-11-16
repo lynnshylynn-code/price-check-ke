@@ -199,7 +199,19 @@ def test_generated_questions_have_no_normalized_heldout_overlap():
     rows = expand_templates(Random(SEED))
     similarity, source = validate_heldout_separation(rows)
     assert 0 <= similarity <= 1
-    assert source in {"AI-written held-out", "human-written held-out", None}
+    assert source in {
+        "AI-written held-out",
+        "Human-written held-out",
+        "Human-reviewed AI draft held-out",
+        None,
+    }
+
+
+def test_human_question_set_keeps_its_human_written_provenance():
+    rows = read_rows(ASSISTANT_DATA / "human_test_questions.csv")
+    assert len(rows) == 32
+    assert {row["source"] for row in rows} == {"human_written"}
+    assert all(row["question"].strip() and row["expected_intent"].strip() for row in rows)
 
 
 def test_ai_written_heldout_set_remains_separate():

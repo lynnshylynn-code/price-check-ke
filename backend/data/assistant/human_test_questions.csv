@@ -1,0 +1,33 @@
+question,expected_intent,source
+Where can I get the cheapest maize flour?,cheapest_item,human_written
+Which shop sells cooking oil at the lowest price?,cheapest_item,human_written
+Ni wapi naweza kupata unga wa mahindi bei nafuu?,cheapest_item,human_written
+Ni shop gani iko na cooking oil ya bei poa?,cheapest_item,human_written
+How much was Omo Machine Wash Powder Extrafresh 2Kg going for at Quickmart Westlands?,price_at_store,human_written
+How much is the 2kg pack of Mumias Sugar on Naivas Nairobi delivery?,price_at_store,human_written
+Soko Maize Meal ya 2kg ni how much kwa Jaza Nairobi delivery?,price_at_store,human_written
+Carrefour Westlands ilikuwa inauza Soko Flour Maize Meal 2kg kwa bei gani tarehe 20 October 2026?,price_at_store,human_written
+Is rice cheaper at Carrefour or Naivas?,compare_stores,human_written
+"Where can I get cheaper eggs, Quickmart or Naivas?",compare_stores,human_written
+Sukari ni cheaper Carrefour ama Naivas?,compare_stores,human_written
+"Kati ya Quickmart na Carrefour, wapi mafuta ya kupikia ni bei poa?",compare_stores,human_written
+Which product has the biggest discount right now?,biggest_discount,human_written
+Which laundry detergent has the best discount?,biggest_discount,human_written
+Which product has the highest percentage discount?,biggest_discount,human_written
+Nionyeshe offers zenye discount kubwa leo.,biggest_discount,human_written
+Which cooking oil brand is cheapest per litre?,unit_price,human_written
+Which of these maize flours is cheaper per kilo?,unit_price,human_written
+Ni cooking oil gani iko na bei poa kwa litre?,unit_price,human_written
+"At Naivas, which cooking oil gives me the best value for every 100ml?",unit_price,human_written
+Do you have any recorded maize prices for Nairobi County?,market_price,human_written
+What's the most recent recorded price of beans in Mombasa County?,market_price,human_written
+Kuna rekodi za bei ya mahindi Kisumu County?,market_price,human_written
+Kuna bei za hivi karibuni za maharagwe zilizorekodiwa Nairobi County?,market_price,human_written
+How much is food inflation in Kenya right now?,food_inflation,human_written
+How have food prices been changing across Kenya recently?,food_inflation,human_written
+Bei ya chakula Kenya imepanda kwa kiasi gani?,food_inflation,human_written
+Bei za vyakula zimebadilikaje Kenya hivi karibuni?,food_inflation,human_written
+I've forgotten my email password. How do I reset it?,out_of_scope,human_written
+Do you think sugar prices will go up or down next month?,out_of_scope,human_written
+Unaweza kunisaidia kuandika application letter ya kazi?,out_of_scope,human_written
+Is cooking oil available in the shop at the moment?,out_of_scope,human_written

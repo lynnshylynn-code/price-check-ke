@@ -362,18 +362,28 @@ def _character_trigrams(question: str) -> set[str]:
 
 def heldout_questions() -> list[tuple[str, str]]:
     heldout: list[tuple[str, str]] = []
-    for filename, provenance in (
-        ("heldout_test_questions.csv", "AI-written held-out"),
-        ("human_test_questions.csv", "human-written held-out"),
+    source_titles = {
+        "ai_written": "AI-written held-out",
+        "human_written": "Human-written held-out",
+        "human_reviewed_ai_draft": "Human-reviewed AI draft held-out",
+    }
+    for filename, default_source in (
+        ("heldout_test_questions.csv", "ai_written"),
+        ("human_test_questions.csv", None),
     ):
         path = ASSISTANT_DIR / filename
         if path.is_file():
             with path.open(encoding="utf-8", newline="") as handle:
-                heldout.extend(
-                    (row.get("question", ""), provenance)
-                    for row in csv.DictReader(handle)
-                    if row.get("question", "").strip()
-                )
+                for row in csv.DictReader(handle):
+                    question = row.get("question", "").strip()
+                    if not question:
+                        continue
+                    source = (row.get("source") or default_source or "").strip()
+                    if source not in source_titles:
+                        raise ValueError(
+                            f"Unsupported held-out source {source!r} in {filename}."
+                        )
+                    heldout.append((question, source_titles[source]))
     return heldout
 
 

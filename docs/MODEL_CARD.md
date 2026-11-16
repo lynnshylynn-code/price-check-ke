@@ -34,6 +34,18 @@
 | out_of_scope | 0.8947 | 0.8500 | 0.8718 | 20 |
 | price_at_store | 0.8000 | 0.7273 | 0.7619 | 11 |
 | unit_price | 1.0000 | 0.8000 | 0.8889 | 10 |
+- Human-written held-out: rows 32; accuracy 0.8438; macro-F1 0.8576; coverage 0.9375; abstained 2.
+- Human-written held-out per-intent precision/recall:
+| Intent | Precision | Recall | F1 | Support |
+|---|---:|---:|---:|---:|
+| biggest_discount | 0.8000 | 1.0000 | 0.8889 | 4 |
+| cheapest_item | 0.8000 | 1.0000 | 0.8889 | 4 |
+| compare_stores | 1.0000 | 1.0000 | 1.0000 | 4 |
+| food_inflation | 1.0000 | 1.0000 | 1.0000 | 4 |
+| market_price | 1.0000 | 1.0000 | 1.0000 | 4 |
+| out_of_scope | 1.0000 | 0.5000 | 0.6667 | 4 |
+| price_at_store | 1.0000 | 0.5000 | 0.6667 | 4 |
+| unit_price | 0.7500 | 0.7500 | 0.7500 | 4 |
 - Leakage check: training questions dropped at or above 0.85 similarity 0; highest retained similarity 0.7500 (AI-written held-out).
 - Training date: 2026-11-16.
 <!-- metrics:end -->
