@@ -147,10 +147,16 @@ export async function fetchPriceSeries(
   return payload;
 }
 
-export async function fetchProductCatalog(signal?: AbortSignal): Promise<ProductCatalogResponse> {
+export async function fetchProductCatalog(
+  area: string,
+  signal?: AbortSignal,
+): Promise<ProductCatalogResponse> {
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}/api/v1/products`, { signal });
+    response = await fetch(
+      `${API_BASE_URL}/api/v1/products?area=${encodeURIComponent(area)}`,
+      { signal },
+    );
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') throw error;
     throw new Error(`Could not reach the product catalog API at ${API_BASE_URL}.`);
@@ -171,9 +177,12 @@ export async function fetchProductCatalog(signal?: AbortSignal): Promise<Product
 export function isProductCatalogResponse(value: unknown): value is ProductCatalogResponse {
   if (typeof value !== 'object' || value === null) return false;
   const payload = value as Partial<ProductCatalogResponse>;
+  const categories = ['Dairy', 'Bakery', 'Pantry', 'Produce', 'Household', 'Non-food'];
   return (
-    payload.is_demo_data === true &&
-    typeof payload.disclaimer === 'string' &&
+    payload.is_demo_data === false &&
+    typeof payload.area === 'string' &&
+    typeof payload.data_label === 'string' &&
+    typeof payload.caveats === 'string' &&
     Array.isArray(payload.products) &&
     payload.products.every(
       (product) =>
@@ -184,12 +193,24 @@ export function isProductCatalogResponse(value: unknown): value is ProductCatalo
         typeof product.size === 'string' &&
         typeof product.description === 'string' &&
         typeof product.category === 'string' &&
+        categories.includes(product.category) &&
+        (typeof product.comparison_note === 'string' || product.comparison_note === null) &&
+        Array.isArray(product.missing_at_stores) &&
+        product.missing_at_stores.every((store) => typeof store === 'string') &&
         Array.isArray(product.prices) &&
         product.prices.every(
           (price) =>
             typeof price.store === 'string' &&
+            typeof price.location_id === 'string' &&
+            typeof price.location_name === 'string' &&
+            typeof price.location_context === 'string' &&
+            typeof price.item_name === 'string' &&
             typeof price.price === 'number' &&
-            typeof price.stock === 'string',
+            (typeof price.regular_price === 'number' || price.regular_price === null) &&
+            typeof price.product_url === 'string' &&
+            price.product_url.startsWith('https://') &&
+            typeof price.observed_at === 'string' &&
+            Number.isFinite(Date.parse(price.observed_at)),
         ),
     )
   );
@@ -199,19 +220,40 @@ export function isBasketPricingResponse(value: unknown): value is BasketPricingR
   if (typeof value !== 'object' || value === null) return false;
   const payload = value as Partial<BasketPricingResponse>;
   return (
-    payload.is_demo_data === true &&
+    payload.is_demo_data === false &&
     typeof payload.disclaimer === 'string' &&
     (payload.strategy === 'lowest' || payload.strategy === 'single') &&
     (payload.best_single_store === null || typeof payload.best_single_store === 'string') &&
+    (payload.best_single_location_id === null ||
+      typeof payload.best_single_location_id === 'string') &&
     typeof payload.total === 'number' &&
     Array.isArray(payload.store_totals) &&
-    Array.isArray(payload.lines)
+    payload.store_totals.every(
+      (item) =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.store === 'string' &&
+        typeof item.location_id === 'string' &&
+        typeof item.total === 'number',
+    ) &&
+    Array.isArray(payload.lines) &&
+    payload.lines.every(
+      (item) =>
+        typeof item === 'object' &&
+        item !== null &&
+        typeof item.product_id === 'string' &&
+        typeof item.store === 'string' &&
+        typeof item.location_id === 'string' &&
+        typeof item.unit_price === 'number' &&
+        typeof item.total === 'number',
+    )
   );
 }
 
 export async function fetchBasketPricing(
   items: BasketLine[],
   strategy: 'lowest' | 'single',
+  area: string,
   signal?: AbortSignal,
 ): Promise<BasketPricingResponse> {
   let response: Response;
@@ -222,6 +264,7 @@ export async function fetchBasketPricing(
       body: JSON.stringify({
         items: items.map(({ productId, quantity }) => ({ product_id: productId, quantity })),
         strategy,
+        area,
       }),
       signal,
     });

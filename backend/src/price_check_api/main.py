@@ -28,7 +28,11 @@ from .market_data import (
     get_market_prices,
 )
 from .offline_answers import answer_question_offline
-from .product_catalog import PRODUCT_CATALOG, get_product_catalog, price_basket
+from .product_catalog import (
+    ProductCatalogDataError,
+    get_product_catalog,
+    price_basket,
+)
 from .schemas import (
     AssistantAskRequest,
     BasketOptimizedLine,
@@ -306,8 +310,15 @@ def market_price_position(
 
 
 @app.get("/api/v1/products", response_model=ProductCatalogResponse, tags=["products"])
-def products() -> ProductCatalogResponse:
-    return get_product_catalog()
+def products(
+    area: Annotated[str, Query(min_length=1, max_length=80)] = "Nairobi",
+) -> ProductCatalogResponse:
+    try:
+        return get_product_catalog(area)
+    except ProductCatalogDataError as error:
+        raise HTTPException(
+            status_code=503, detail="Nairobi price catalog is unavailable."
+        ) from error
 
 
 @app.post(
@@ -317,9 +328,13 @@ def products() -> ProductCatalogResponse:
 )
 def basket_pricing(request: BasketPricingRequest) -> BasketPricingResponse:
     try:
-        return price_basket(request.items, request.strategy)
+        return price_basket(request.items, request.strategy, request.area)
     except KeyError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+    except ProductCatalogDataError as error:
+        raise HTTPException(
+            status_code=503, detail="Nairobi price catalog is unavailable."
+        ) from error
     except ValueError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
 
@@ -409,13 +424,25 @@ def basket_optimize(request: BasketOptimizeRequest) -> BasketOptimizeResponse:
             single_store_options=single_store_options,
         )
 
-    products_by_id = {product.id: product for product in PRODUCT_CATALOG}
+    try:
+        catalog = get_product_catalog("Nairobi")
+    except ProductCatalogDataError as error:
+        raise HTTPException(
+            status_code=503, detail="Nairobi price catalog is unavailable."
+        ) from error
+    products_by_id = {product.id: product for product in catalog.products}
     product_ids = request.product_ids or []
     unknown = [product_id for product_id in product_ids if product_id not in products_by_id]
     if unknown:
         raise HTTPException(status_code=404, detail=f"Unknown product id: {unknown[0]}")
     selected = [products_by_id[product_id] for product_id in product_ids]
-    options = [{price.store: price.price for price in product.prices} for product in selected]
+    options = [
+        {
+            f"{price.store} - {price.location_name}": price.price
+            for price in product.prices
+        }
+        for product in selected
+    ]
     algorithm = {
         "bfs": breadth_first_search,
         "ucs": uniform_cost_search,
@@ -423,7 +450,12 @@ def basket_optimize(request: BasketOptimizeRequest) -> BasketOptimizeResponse:
     }[request.strategy]
     assignment, cost, nodes = algorithm(options, trip_cost=request.trip_cost)
     return BasketOptimizeResponse(
-        disclaimer="Demo supermarket prices only; not live retailer data.",
+        is_demo_data=False,
+        disclaimer=(
+            "Public listing prices observed in Nairobi; not checkout totals or availability "
+            "guarantees. Prices may change after observation."
+        ),
+        data_label=catalog.data_label,
         strategy=request.strategy,
         total_cost=cost,
         nodes_expanded=nodes,

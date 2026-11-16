@@ -19,7 +19,8 @@ from .market_data import (
     get_market_directory,
     get_market_prices,
 )
-from .schemas import MarketQuestionResponse
+from .product_catalog import get_product_catalog
+from .schemas import CatalogProduct, CatalogStorePrice, MarketQuestionResponse
 
 ASSISTANT_DATA = Path(__file__).resolve().parents[2] / "data/assistant"
 EXAMPLES = (
@@ -147,6 +148,53 @@ def _product_search_text(question: str) -> str:
     }
     words = [word for word in re.findall(r"[a-z0-9]+", query) if word not in ignored]
     return " ".join(PRODUCT_QUERY_CORRECTIONS.get(word, word) for word in words)
+
+
+def _current_non_food_matches(
+    query: str, store: str | None
+) -> list[tuple[CatalogProduct, CatalogStorePrice]]:
+    query_words = set(re.findall(r"[a-z0-9]+", query.casefold()))
+    if not query_words:
+        return []
+
+    bike_terms = {"bike", "bikes", "bicycle", "bicycles", "bmx", "mtb", "mountain"}
+    tricycle_terms = {"tricycle", "tricycles", "cycle", "cycles"}
+    pump_terms = {"pump", "pumps"}
+    is_tricycle_query = query_words.issubset(tricycle_terms)
+    is_pump_query = query_words.issubset(pump_terms)
+    is_bike_query = query_words.issubset(bike_terms)
+
+    matches: list[tuple[CatalogProduct, CatalogStorePrice]] = []
+    for product in get_product_catalog().products:
+        if product.category != "Non-food":
+            continue
+        product_text = f"{product.name} {product.description}".casefold()
+        if is_tricycle_query:
+            if not re.search(r"\btri[\s-]?cycle\b|\btricycle\b", product_text):
+                continue
+        elif is_pump_query:
+            if "pump" not in product_text:
+                continue
+        elif is_bike_query:
+            if not re.search(r"\b(?:bike|bicycle|bmx|mtb|mountain)\b", product_text):
+                continue
+            if re.search(r"\btri[\s-]?cycle\b|\btricycle\b|\bpump\b", product_text):
+                continue
+            if "bmx" in query_words and not re.search(r"\bbmx\b", product_text):
+                continue
+            if query_words & {"mtb", "mountain"} and not re.search(
+                r"\b(?:mtb|mountain)\b", product_text
+            ):
+                continue
+        else:
+            product_words = set(re.findall(r"[a-z0-9]+", product_text))
+            if not query_words.issubset(product_words):
+                continue
+
+        for price in product.prices:
+            if not store or price.store.casefold() == store.casefold():
+                matches.append((product, price))
+    return sorted(matches, key=lambda match: (match[1].price, match[0].name.casefold()))
 
 
 def _unknown_label(question: str) -> str:
@@ -941,6 +989,58 @@ def answer_trained_question(question: str, offset: int = 0) -> MarketQuestionRes
                 "20 Oct 2026",
                 "20 Oct 2026",
             )
+        if intent in {"cheapest_item", "price_at_store"} and not unknown_store:
+            catalog_query = product_label or _product_search_text(text)
+            current_matches = _current_non_food_matches(catalog_query, store)
+            if current_matches:
+                page_size = 5 if intent == "price_at_store" else 1
+                selected_matches = current_matches[offset : offset + page_size]
+                selected_prices = [price for _product, price in selected_matches]
+                entities["product"] = product or catalog_query
+                if not selected_matches:
+                    return _base_response(
+                        text,
+                        intent,
+                        confidence,
+                        entities,
+                        "There are no more matching Quickmart listings in this catalog result.",
+                        [],
+                        "Quickmart public online catalog",
+                    )
+                answer = " ".join(
+                    f"{price.item_name}: KES {price.price:g} at {price.store} - "
+                    f"{price.location_name} ({price.location_context}), observed "
+                    f"{price.observed_at:%d %b %Y}. {price.product_url}"
+                    for _product, price in selected_matches
+                )
+                answer += (
+                    " These are public advertised listings, not checkout totals or stock "
+                    "guarantees. Westlands delivery selection does not verify the seller for "
+                    "every result."
+                )
+                return _base_response(
+                    text,
+                    intent,
+                    confidence,
+                    entities,
+                    answer,
+                    [
+                        {
+                            "name": "Quickmart public online catalog",
+                            "url": str(price.product_url),
+                            "note": (
+                                f"Advertised listing observed {price.observed_at:%d %b %Y}; "
+                                f"{price.location_context}"
+                            ),
+                        }
+                        for price in selected_prices
+                    ],
+                    "Quickmart public online catalog",
+                    None,
+                    min(price.observed_at for price in selected_prices).strftime("%d %b %Y"),
+                    max(price.observed_at for price in selected_prices).strftime("%d %b %Y"),
+                )
+
         if unknown_store or not identified:
             if unavailable_confectionery:
                 answer = (

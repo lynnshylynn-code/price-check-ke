@@ -10,8 +10,8 @@ type PricingState = {
   loading: boolean;
 };
 
-export function useBasketPricing(items: BasketLine[]) {
-  const key = JSON.stringify(items);
+export function useBasketPricing(items: BasketLine[], area: string) {
+  const key = JSON.stringify({ items, area });
   const [state, setState] = useState<PricingState>({
     key: '',
     pricing: null,
@@ -26,7 +26,7 @@ export function useBasketPricing(items: BasketLine[]) {
     let active = true;
     const strategy = items[0]?.strategy ?? 'lowest';
 
-    fetchBasketPricing(items, strategy, controller.signal)
+    fetchBasketPricing(items, strategy, area, controller.signal)
       .then((result) => {
         if (active) setState({ key, pricing: result, error: null, loading: false });
       })
@@ -48,7 +48,7 @@ export function useBasketPricing(items: BasketLine[]) {
       active = false;
       controller.abort();
     };
-  }, [items, key]);
+  }, [area, items, key]);
 
   const stateMatchesBasket = state.key === key;
   return {

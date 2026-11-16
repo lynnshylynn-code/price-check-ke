@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Literal
 
 from pydantic import (
@@ -199,25 +199,35 @@ class PricePositionResponse(BaseModel):
     memberships: dict[str, float] | None
 
 
-class DemoStorePrice(BaseModel):
+class CatalogStorePrice(BaseModel):
     store: str
+    location_id: str
+    location_name: str
+    location_context: str
+    item_name: str
     price: float
-    stock: str
+    regular_price: float | None
+    product_url: HttpUrl
+    observed_at: datetime
 
 
-class DemoProduct(BaseModel):
+class CatalogProduct(BaseModel):
     id: str
     name: str
     size: str
     description: str
-    category: str
-    prices: list[DemoStorePrice]
+    category: Literal["Dairy", "Bakery", "Pantry", "Produce", "Household", "Non-food"]
+    comparison_note: str | None
+    missing_at_stores: list[str]
+    prices: list[CatalogStorePrice]
 
 
 class ProductCatalogResponse(BaseModel):
-    is_demo_data: Literal[True] = True
-    disclaimer: str
-    products: list[DemoProduct]
+    is_demo_data: Literal[False] = False
+    area: str
+    data_label: str
+    caveats: str
+    products: list[CatalogProduct]
 
 
 class BasketLineRequest(BaseModel):
@@ -228,6 +238,7 @@ class BasketLineRequest(BaseModel):
 class BasketPricingRequest(BaseModel):
     items: list[BasketLineRequest] = Field(min_length=1, max_length=100)
     strategy: Literal["lowest", "single"] = "lowest"
+    area: str = Field(default="Nairobi", min_length=1, max_length=80)
 
 
 class BasketPricedLine(BaseModel):
@@ -235,20 +246,23 @@ class BasketPricedLine(BaseModel):
     product_name: str
     quantity: int
     store: str
+    location_id: str
     unit_price: float
     total: float
 
 
 class BasketStoreTotal(BaseModel):
     store: str
+    location_id: str
     total: float
 
 
 class BasketPricingResponse(BaseModel):
-    is_demo_data: Literal[True] = True
+    is_demo_data: Literal[False] = False
     disclaimer: str
     strategy: Literal["lowest", "single"]
     best_single_store: str | None
+    best_single_location_id: str | None
     store_totals: list[BasketStoreTotal]
     total: float
     lines: list[BasketPricedLine]
@@ -301,7 +315,7 @@ class BasketSingleStoreOption(BaseModel):
 
 
 class BasketOptimizeResponse(BaseModel):
-    is_demo_data: bool = True
+    is_demo_data: Literal[False] = False
     disclaimer: str | None = None
     data_label: str | None = None
     strategy: Literal["bfs", "ucs", "astar"]

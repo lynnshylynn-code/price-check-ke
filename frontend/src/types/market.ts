@@ -65,23 +65,27 @@ export type PriceSeriesResponse = {
 };
 
 export type ProductCatalogResponse = {
-  is_demo_data: true;
-  disclaimer: string;
+  is_demo_data: false;
+  area: string;
+  data_label: string;
+  caveats: string;
   products: import('./index').Product[];
 };
 
 export type BasketPricingResponse = {
-  is_demo_data: true;
+  is_demo_data: false;
   disclaimer: string;
   strategy: 'lowest' | 'single';
   best_single_store: string | null;
-  store_totals: { store: string; total: number }[];
+  best_single_location_id: string | null;
+  store_totals: { store: string; location_id: string; total: number }[];
   total: number;
   lines: {
     product_id: string;
     product_name: string;
     quantity: number;
     store: string;
+    location_id: string;
     unit_price: number;
     total: number;
   }[];

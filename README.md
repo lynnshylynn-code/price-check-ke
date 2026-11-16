@@ -111,8 +111,14 @@ python -m pytest
 
 ## Data and insight boundaries
 
-- Supermarket products and prices are illustrative UI demo data. They are not
-  live store listings, verified prices, or stock availability.
+- The Nairobi catalog contains source-linked public listing observations checked
+  on 16 Nov 2026. It includes Naivas Nairobi delivery listings (serving branch
+  unknown), Quickmart Kilimani listings, and 18 distinct bicycle-related
+  Quickmart search results with Westlands selected (one seller was verified as
+  Quickmart Westlands; the other 17 were not checked individually). No current
+  Nairobi prices were verified for Carrefour or Jaza;
+  the catalog is not a complete retailer catalog or branch inventory. Listing
+  prices are not checkout totals or stock guarantees.
 - The backend uses the supplied 55,224-row World Bank Kenya RTFP market CSV.
   Its national Market Average row has 236 months; the first 12 inflation
   values are blank, leaving 224 reported values from Jan 2008–Aug 2026.
@@ -126,8 +132,11 @@ python -m pytest
 - If trained artifacts are missing, the assistant returns an unavailable
   message and example questions. Train the artifacts before serving answers.
 - RTFP's national food-price index cannot substantiate product-specific
-  supermarket comparisons. Real price comparisons need an approved retailer or
-  user-verified feed with source, location, package size, and observation time.
+  supermarket comparisons. The retail catalog is separate and records product
+  source, location context, package size, and observation time; broader branch
+  coverage still requires additional verified retailer data. The assistant
+  looks up current non-food observations separately from the older dated
+  supermarket snapshot and includes their retailer links and observation dates.
 - Basket, budget, shopping area, and watchlist are persisted locally on this
   device. There is no account sync. The alert preference is saved, but live
   retailer feeds and push notifications are not connected.

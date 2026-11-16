@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { DemoLabel, ProductCard, ScreenHeader, SearchBar } from '../components/Common';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import { ListingLabel, ProductCard, ScreenHeader, SearchBar } from '../components/Common';
 import { COLORS } from '../constants/theme';
 import { styles } from '../constants/styles';
-import { CATEGORIES } from '../data/products';
 import { Category, Product } from '../types';
 import { bestPrice } from '../utils/pricing';
 
@@ -14,6 +13,12 @@ export function SearchScreen({
   search,
   category,
   products,
+  availableCategories,
+  catalogHasProducts,
+  dataLabel,
+  caveats,
+  catalogLoading,
+  catalogError,
   onChangeSearch,
   onChangeCategory,
   onOpenProduct,
@@ -24,6 +29,12 @@ export function SearchScreen({
   search: string;
   category: Category;
   products: Product[];
+  availableCategories: Category[];
+  catalogHasProducts: boolean;
+  dataLabel: string;
+  caveats: string;
+  catalogLoading: boolean;
+  catalogError: string | null;
   onChangeSearch: (value: string) => void;
   onChangeCategory: (category: Category) => void;
   onOpenProduct: (product: Product) => void;
@@ -51,11 +62,11 @@ export function SearchScreen({
       />
       <SearchBar
         value={search}
-        placeholder="Search milk, bread, cooking oil..."
+        placeholder="Search bread, cooking oil, rice, sugar..."
         onChangeText={onChangeSearch}
       />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-        {CATEGORIES.map((item) => (
+        {availableCategories.map((item) => (
           <Pressable
             key={item}
             style={[styles.filterChip, category === item && styles.filterChipActive]}
@@ -88,7 +99,12 @@ export function SearchScreen({
           <Text style={styles.sortText}>{sortLabel}</Text>
         </Pressable>
       </View>
-      <DemoLabel />
+      <ListingLabel dataLabel={dataLabel} />
+      {catalogError && (
+        <Text style={styles.marketStatusText}>
+          Could not refresh the retailer catalog: {catalogError}
+        </Text>
+      )}
       {products.length > 0 ? (
         <View style={styles.productList}>
           {sortedProducts.map((product) => (
@@ -100,17 +116,34 @@ export function SearchScreen({
             />
           ))}
         </View>
+      ) : catalogLoading ? (
+        <View style={styles.emptyState}>
+          <ActivityIndicator color={COLORS.green} />
+          <Text style={styles.emptyBody}>Loading verified retailer listings…</Text>
+        </View>
       ) : (
         <View style={styles.emptyState}>
           <Ionicons name="search-outline" size={28} color={COLORS.green} />
-          <Text style={styles.emptyTitle}>No matching products</Text>
-          <Text style={styles.emptyBody}>Try another search or browse a different category.</Text>
+          <Text style={styles.emptyTitle}>
+            {catalogError
+              ? 'Retailer catalog unavailable'
+              : !catalogHasProducts
+                ? 'No verified prices for this area'
+                : 'No matching products'}
+          </Text>
+          <Text style={styles.emptyBody}>
+            {catalogError
+              ? catalogError
+              : !catalogHasProducts
+                ? caveats
+                : 'Try another search or browse a different category.'}
+          </Text>
         </View>
       )}
       <View style={styles.infoNote}>
         <Ionicons name="information-circle-outline" size={18} color={COLORS.green} />
         <Text style={styles.infoNoteText}>
-          These sample supermarket prices are illustrative, not a live retailer feed.
+          {caveats || 'Observed listing prices; availability and checkout prices are not verified.'}
         </Text>
       </View>
     </ScrollView>

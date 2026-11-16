@@ -6,13 +6,15 @@ import { COLORS } from '../constants/theme';
 import { styles } from '../constants/styles';
 import { categoryCode } from '../data/products';
 import type { BasketLine, BasketStoreTotal, Product } from '../types';
-import { basketPrice, money } from '../utils/pricing';
+import { basketPrice, money, storeLocationLabel } from '../utils/pricing';
 import { BasketPricingResponse } from '../types/market';
 
 export function BasketScreen({
   basket,
   total,
   products,
+  catalogLoading,
+  catalogError,
   pricing,
   pricingError,
   pricingLoading,
@@ -21,6 +23,7 @@ export function BasketScreen({
   shoppingArea,
   onChangeArea,
   singleStore,
+  singleStoreLabel,
   onChangeQuantity,
   onSetStrategy,
   onSearch,
@@ -28,6 +31,8 @@ export function BasketScreen({
   basket: BasketLine[];
   total: number;
   products: Product[];
+  catalogLoading: boolean;
+  catalogError: string | null;
   pricing: BasketPricingResponse | null;
   pricingError: string | null;
   pricingLoading: boolean;
@@ -36,6 +41,7 @@ export function BasketScreen({
   shoppingArea: string;
   onChangeArea: () => void;
   singleStore: string | null;
+  singleStoreLabel: string | null;
   onChangeQuantity: (productId: string, change: number) => void;
   onSetStrategy: (strategy: 'lowest' | 'single') => void;
   onSearch: () => void;
@@ -51,7 +57,7 @@ export function BasketScreen({
             .map((line) => {
               const product = products.find((item) => item.id === line.productId);
               if (!product) return null;
-              return basketPrice(product, line.strategy, singleStore).store;
+              return storeLocationLabel(basketPrice(product, line.strategy, singleStore));
             })
             .filter(Boolean),
         ).size;
@@ -74,8 +80,8 @@ export function BasketScreen({
           />
           <StrategyButton
             active={selectedStrategy === 'single'}
-            title="One supermarket"
-            subtitle={singleStore ? `${singleStore} is cheapest` : 'No complete price coverage'}
+            title="One retailer location"
+            subtitle={singleStoreLabel ? `${singleStoreLabel} is cheapest` : 'No complete location coverage'}
             icon="storefront-outline"
             disabled={!singleStore}
             onPress={() => onSetStrategy('single')}
@@ -86,7 +92,7 @@ export function BasketScreen({
         <View style={styles.basketComparisonHeading}>
           <View>
             <Text style={styles.basketComparisonEyebrow}>WHOLE BASKET COMPARISON</Text>
-            <Text style={styles.sectionTitle}>Cheapest supermarket</Text>
+            <Text style={styles.sectionTitle}>Lowest complete location</Text>
           </View>
           <Text style={styles.basketComparisonCount}>
             All {basket.length} {basket.length === 1 ? 'item' : 'items'}
@@ -138,12 +144,18 @@ export function BasketScreen({
           </Text>
         )}
         <Text style={styles.basketComparisonFootnote}>
-          Prices include the quantity of every product in your basket.
+          Prices include each item quantity and use observed listings, not checkout totals.
         </Text>
-        {pricingLoading && <Text style={styles.marketMuted}>Refreshing demo pricing…</Text>}
+        {pricingLoading && <Text style={styles.marketMuted}>Refreshing observed listing prices…</Text>}
         {pricingError && (
           <Text style={styles.marketStatusText}>
-            Using the saved demo catalog because basket pricing could not be refreshed: {pricingError}
+            Could not refresh basket pricing: {pricingError}
+          </Text>
+        )}
+        {catalogLoading && <Text style={styles.marketMuted}>Loading verified prices…</Text>}
+        {catalogError && (
+          <Text style={styles.marketStatusText}>
+            Could not refresh the retailer catalog: {catalogError}
           </Text>
         )}
       </View>
@@ -157,17 +169,43 @@ export function BasketScreen({
         </View>
         <View style={styles.basketHint}>
           <Ionicons name="checkmark-circle" size={16} color={COLORS.green} />
-          <Text style={styles.basketHintText}>Demo prices</Text>
+          <Text style={styles.basketHintText}>Observed prices</Text>
         </View>
       </View>
+      {basket.some((line) => !products.some((product) => product.id === line.productId)) && (
+        <Text style={styles.marketStatusText}>
+          Some saved items do not have a verified listing in {shoppingArea}. They are excluded from totals.
+        </Text>
+      )}
       {basket.length > 0 ? (
         basket.map((line) => {
           const product = products.find((item) => item.id === line.productId);
-          if (!product) return null;
+          if (!product) {
+            return (
+              <View style={styles.basketProduct} key={line.productId}>
+                <View style={styles.productBadge}>
+                  <Text style={styles.productBadgeText}>?</Text>
+                </View>
+                <View style={styles.basketProductDetails}>
+                  <Text style={styles.productName}>Saved item without a verified listing</Text>
+                  <Text style={styles.productDescription}>
+                    {line.productId} · excluded from price totals
+                  </Text>
+                  <Pressable
+                    onPress={() => onChangeQuantity(line.productId, -line.quantity)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remove unverified ${line.productId} from basket`}
+                  >
+                    <Text style={styles.linkText}>Remove</Text>
+                  </Pressable>
+                </View>
+              </View>
+            );
+          }
           const fallbackPrice = basketPrice(product, line.strategy, singleStore);
           const pricedLine = pricing?.lines.find((item) => item.product_id === line.productId);
           const price = pricedLine?.unit_price ?? fallbackPrice.price;
-          const selectedStore = pricedLine?.store ?? fallbackPrice.store;
+          const selectedStore = pricedLine?.store ?? storeLocationLabel(fallbackPrice);
           return (
             <View style={styles.basketProduct} key={line.productId}>
               <View style={styles.productBadge}>
@@ -223,7 +261,9 @@ export function BasketScreen({
           <Text style={styles.primaryButtonText}>Continue shopping</Text>
           <Ionicons name="arrow-forward" size={17} color="#FFFFFF" />
         </Pressable>
-        <Text style={styles.modalDisclaimer}>Demo estimates only · retailer prices may vary</Text>
+        <Text style={styles.modalDisclaimer}>
+          Estimates use observed retailer listings; prices may change.
+        </Text>
       </View>
     </ScrollView>
   );

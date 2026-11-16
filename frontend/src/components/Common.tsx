@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Modal, Pressable, Text, TextInput, View } from 'react-native';
+import { Linking, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { COLORS } from '../constants/theme';
 import { styles } from '../constants/styles';
 import { categoryCode } from '../data/products';
@@ -93,23 +93,6 @@ export function ShoppingAreaModal({
   );
 }
 
-export function SavingsCard() {
-  return (
-    <View style={styles.savingsCard}>
-      <View style={styles.savingsIcon}>
-        <Ionicons name="sparkles" size={19} color={COLORS.deepGreen} />
-      </View>
-      <Text style={styles.savingsLabel}>This week’s savings</Text>
-      <Text style={styles.savingsAmount}>KSh 486</Text>
-      <Text style={styles.savingsDetail}>Across 7 compared items</Text>
-      <View style={styles.progressTrack}>
-        <View style={styles.progressFill} />
-      </View>
-      <Text style={styles.savingsGoal}>KSh 14 away from your weekly goal</Text>
-    </View>
-  );
-}
-
 export function SearchBar({
   value,
   placeholder,
@@ -164,6 +147,8 @@ export function CategoryTile({ category, onPress }: { category: Exclude<Category
     Bakery: 'cafe-outline',
     Pantry: 'basket-outline',
     Produce: 'leaf-outline',
+    Household: 'home-outline',
+    'Non-food': 'cube-outline',
   };
   return (
     <Pressable style={styles.categoryTile} onPress={onPress} accessibilityRole="button">
@@ -176,13 +161,19 @@ export function CategoryTile({ category, onPress }: { category: Exclude<Category
   );
 }
 
-export function DemoLabel() {
+export function ListingLabel({ dataLabel }: { dataLabel: string }) {
   return (
     <View style={styles.demoLabel}>
       <Ionicons name="information-circle-outline" size={14} color={COLORS.muted} />
-      <Text style={styles.demoLabelText}>Illustrative supermarket prices</Text>
+      <Text style={styles.demoLabelText}>{dataLabel}</Text>
     </View>
   );
+}
+
+function openListing(url: string) {
+  void Linking.openURL(url).catch((error: unknown) => {
+    console.error('Could not open retailer product listing.', error);
+  });
 }
 
 export function ProductCard({
@@ -210,12 +201,14 @@ export function ProductCard({
           <Text style={styles.productDescription}>{product.description}</Text>
           <View style={styles.storeLine}>
             <Ionicons name="storefront-outline" size={14} color={COLORS.muted} />
-            <Text style={styles.storeName}>{best.store}</Text>
+            <Text style={styles.storeName}>
+              {best.store} · {best.location_name}
+            </Text>
           </View>
         </View>
       </Pressable>
       <View style={styles.productPriceBlock}>
-        <Text style={styles.bestPriceCaption}>Best price</Text>
+        <Text style={styles.bestPriceCaption}>Lowest observed</Text>
         <Text style={styles.productPrice}>{money(best.price)}</Text>
         <Pressable style={styles.addButton} onPress={onAdd} accessibilityRole="button">
           <Ionicons name="add" size={17} color="#FFFFFF" />
@@ -245,7 +238,11 @@ export function ProductModal({
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalBackdrop}>
         <Pressable style={styles.modalDismissArea} onPress={onClose} accessibilityLabel="Close product details" />
-        <View style={styles.modalSheet}>
+        <ScrollView
+          style={styles.modalSheet}
+          contentContainerStyle={styles.modalSheetContent}
+          showsVerticalScrollIndicator={false}
+        >
           <View style={styles.modalHandle} />
           <View style={styles.modalTopRow}>
             <View style={styles.productBadge}>
@@ -262,25 +259,56 @@ export function ProductModal({
             {product.description} · {product.size}
           </Text>
           <View style={styles.currentPriceCard}>
-            <Text style={styles.bestPriceCaption}>Current lowest demo price</Text>
+            <Text style={styles.bestPriceCaption}>Lowest observed price</Text>
             <Text style={styles.modalLowestPrice}>{money(lowest.price)}</Text>
-            <Text style={styles.productDescription}>at {lowest.store}</Text>
+            <Text style={styles.productDescription}>
+              at {lowest.store} · {lowest.location_name}
+            </Text>
+            <Text style={styles.compareStock}>
+              Observed {new Date(lowest.observed_at).toLocaleString('en-KE')}
+            </Text>
           </View>
-          <Text style={styles.compareTitle}>Compare supermarkets</Text>
+          {product.comparison_note && (
+            <Text style={styles.productDescription}>{product.comparison_note}</Text>
+          )}
+          <Text style={styles.compareTitle}>Observed retailer listings</Text>
           {product.prices.map((item) => (
-            <View style={styles.compareRow} key={item.store}>
+            <View style={styles.compareRow} key={`${item.location_id}-${item.item_name}`}>
               <View style={styles.storeAvatar}>
                 <Text style={styles.storeInitial}>{item.store.charAt(0)}</Text>
               </View>
               <View style={styles.compareStore}>
-                <Text style={styles.compareStoreName}>{item.store}</Text>
-                <Text style={styles.compareStock}>{item.stock}</Text>
+                <Text style={styles.compareStoreName}>
+                  {item.store} · {item.location_name}
+                </Text>
+                <Text style={styles.compareStock}>{item.item_name}</Text>
+                <Text style={styles.compareStock}>{item.location_context}</Text>
+                <Text style={styles.compareStock}>
+                  Observed {new Date(item.observed_at).toLocaleString('en-KE')}
+                </Text>
+                <Pressable
+                  onPress={() => openListing(item.product_url)}
+                  accessibilityRole="link"
+                  accessibilityLabel={`View ${item.store} product listing`}
+                >
+                  <Text style={styles.linkText}>View retailer listing</Text>
+                </Pressable>
+                {item.regular_price !== null && item.regular_price > item.price && (
+                  <Text style={styles.compareStock}>Regular price {money(item.regular_price)}</Text>
+                )}
               </View>
-              {item.store === lowest.store && <Text style={styles.lowestTag}>Lowest</Text>}
+              {item.location_id === lowest.location_id && <Text style={styles.lowestTag}>Lowest</Text>}
               <Text style={styles.comparePrice}>{money(item.price)}</Text>
             </View>
           ))}
-          <Text style={styles.modalDisclaimer}>Illustrative prices · availability not verified</Text>
+          {product.missing_at_stores.length > 0 && (
+            <Text style={styles.modalDisclaimer}>
+              No verified listing in this snapshot: {product.missing_at_stores.join(', ')}.
+            </Text>
+          )}
+          <Text style={styles.modalDisclaimer}>
+            Observed listing prices; stock and checkout prices are not verified.
+          </Text>
           <View style={styles.modalActions}>
             <Pressable style={styles.watchButton} onPress={onToggleWatch} accessibilityRole="button">
               <Ionicons name={watched ? 'notifications' : 'notifications-outline'} size={18} color={COLORS.green} />
@@ -291,7 +319,7 @@ export function ProductModal({
               <Text style={styles.primaryButtonText}>Add to basket</Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       </View>
     </Modal>
   );

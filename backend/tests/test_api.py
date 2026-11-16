@@ -133,21 +133,21 @@ def test_fuzzy_price_position_keeps_empty_coverage_unscored() -> None:
     assert "No observed" in payload["reason"]
 
 
-def test_basket_optimize_endpoint_returns_labeled_demo_search_result() -> None:
+def test_basket_optimize_endpoint_uses_verified_location_prices() -> None:
     response = client.post(
         "/api/v1/basket/optimize",
         json={
-            "product_ids": ["bread", "sugar"],
+            "product_ids": ["supa-loaf-white-bread-400g", "sugar-2kg"],
             "strategy": "astar",
             "trip_cost": 0,
         },
     )
     assert response.status_code == 200
     payload = response.json()
-    assert payload["is_demo_data"] is True
-    assert "Demo" in payload["disclaimer"]
+    assert payload["is_demo_data"] is False
+    assert "Public listing prices" in payload["disclaimer"]
     assert payload["strategy"] == "astar"
-    assert payload["total_cost"] > 0
+    assert payload["total_cost"] == 354
     assert len(payload["assignments"]) == 2
     assert payload["nodes_expanded"] > 0
 
@@ -201,10 +201,10 @@ def test_basket_optimize_rejects_unavailable_group_and_unknown_group() -> None:
     "body",
     [
         {"product_ids": []},
-        {"product_ids": ["bread", "bread"]},
+        {"product_ids": ["supa-loaf-white-bread-400g", "supa-loaf-white-bread-400g"]},
         {"product_ids": ["unknown-product"]},
-        {"product_ids": ["bread"], "trip_cost": -1},
-        {"product_ids": ["bread"], "strategy": "greedy"},
+        {"product_ids": ["supa-loaf-white-bread-400g"], "trip_cost": -1},
+        {"product_ids": ["supa-loaf-white-bread-400g"], "strategy": "greedy"},
     ],
 )
 def test_basket_optimize_validates_input(body: dict) -> None:
@@ -260,23 +260,41 @@ def test_prices_endpoint_rejects_unknown_markets_and_reversed_ranges() -> None:
     )
 
 
-def test_product_catalog_marks_all_supermarket_prices_as_demo() -> None:
+def test_product_catalog_returns_source_attributed_nairobi_observations() -> None:
     response = client.get("/api/v1/products")
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["is_demo_data"] is True
-    assert "not verified or live" in payload["disclaimer"]
-    assert len(payload["products"]) == 10
+    assert payload["is_demo_data"] is False
+    assert payload["area"] == "Nairobi"
+    assert "16 Nov 2026" in payload["data_label"]
+    assert "Carrefour" in payload["caveats"]
+    assert "Jaza" in payload["caveats"]
+    bread = next(item for item in payload["products"] if item["id"] == "supa-loaf-white-bread-400g")
+    assert {price["store"] for price in bread["prices"]} == {"Naivas", "Quickmart"}
+    assert {price["location_name"] for price in bread["prices"]} == {
+        "Nairobi delivery (branch not identified)",
+        "Kilimani",
+    }
+    assert bread["prices"][0]["product_url"].startswith("https://")
+    assert "Carrefour" in bread["missing_at_stores"]
+    bicycle = next(
+        item for item in payload["products"] if item["id"] == "bel-royal-swing-bmx-bike-2128-size20"
+    )
+    assert bicycle["category"] == "Non-food"
+    assert bicycle["prices"][0]["price"] == 12999
+    assert bicycle["prices"][0]["location_name"] == "Quickmart Westlands 24 HRS"
+    assert bicycle["prices"][0]["location_context"] == "Westlands, Nairobi"
+    assert set(bicycle["missing_at_stores"]) == {"Naivas", "Carrefour", "Jaza"}
 
 
-def test_basket_pricing_endpoint_uses_shared_demo_pricing_rules() -> None:
+def test_basket_pricing_endpoint_uses_verified_location_prices() -> None:
     response = client.post(
         "/api/v1/basket/pricing",
         json={
             "items": [
-                {"product_id": "bread", "quantity": 1},
-                {"product_id": "brookside-milk", "quantity": 1},
+                {"product_id": "supa-loaf-white-bread-400g", "quantity": 1},
+                {"product_id": "sugar-2kg", "quantity": 1},
             ],
             "strategy": "lowest",
         },
@@ -284,19 +302,22 @@ def test_basket_pricing_endpoint_uses_shared_demo_pricing_rules() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["is_demo_data"] is True
-    assert payload["total"] == 204.0
-    assert [line["store"] for line in payload["lines"]] == ["Naivas", "Carrefour"]
-    assert payload["best_single_store"] == "Carrefour"
+    assert payload["is_demo_data"] is False
+    assert payload["total"] == 354.0
+    assert [line["store"] for line in payload["lines"]] == [
+        "Naivas - Nairobi delivery (branch not identified)",
+        "Naivas - Nairobi delivery (branch not identified)",
+    ]
+    assert payload["best_single_store"] == "Naivas - Nairobi delivery (branch not identified)"
 
 
-def test_single_store_basket_uses_best_shared_store() -> None:
+def test_single_location_basket_uses_best_shared_location() -> None:
     response = client.post(
         "/api/v1/basket/pricing",
         json={
             "items": [
-                {"product_id": "bread", "quantity": 1},
-                {"product_id": "brookside-milk", "quantity": 1},
+                {"product_id": "supa-loaf-white-bread-400g", "quantity": 1},
+                {"product_id": "sugar-2kg", "quantity": 1},
             ],
             "strategy": "single",
         },
@@ -304,8 +325,29 @@ def test_single_store_basket_uses_best_shared_store() -> None:
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["total"] == 208.0
-    assert {line["store"] for line in payload["lines"]} == {"Carrefour"}
+    assert payload["total"] == 354.0
+    assert {line["store"] for line in payload["lines"]} == {
+        "Naivas - Nairobi delivery (branch not identified)"
+    }
+
+
+def test_product_catalog_marks_unverified_cities_without_fabricating_prices() -> None:
+    response = client.get("/api/v1/products", params={"area": "Mombasa"})
+
+    assert response.status_code == 200
+    assert response.json()["products"] == []
+
+
+def test_basket_pricing_rejects_areas_without_verified_observations() -> None:
+    response = client.post(
+        "/api/v1/basket/pricing",
+        json={
+            "items": [{"product_id": "sugar-2kg", "quantity": 1}],
+            "area": "Mombasa",
+        },
+    )
+
+    assert response.status_code == 422
 
 
 def test_model_info_exposes_training_metadata() -> None:

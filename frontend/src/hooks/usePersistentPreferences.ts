@@ -15,8 +15,8 @@ export type AppPreferences = {
 
 const DEFAULT_PREFERENCES: AppPreferences = {
   displayName: '',
-  basket: [{ productId: 'bread', quantity: 1, strategy: 'lowest' }],
-  watchedIds: ['brookside-milk'],
+  basket: [],
+  watchedIds: [],
   weeklyBudget: '700',
   savedBudget: 700,
   shoppingArea: 'Nairobi',

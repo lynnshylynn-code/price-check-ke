@@ -344,9 +344,12 @@ export const styles = StyleSheet.create({
   modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(11, 30, 20, 0.45)' },
   modalDismissArea: { flex: 1 },
   modalSheet: {
+    maxHeight: '90%',
     backgroundColor: COLORS.background,
     borderTopLeftRadius: 27,
     borderTopRightRadius: 27,
+  },
+  modalSheetContent: {
     paddingHorizontal: 22,
     paddingTop: 11,
     paddingBottom: 30,

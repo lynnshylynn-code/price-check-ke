@@ -1,7 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { CategoryTile, DemoLabel, ProductCard, SavingsCard, ScreenHeader, SearchBar, SectionHeading } from '../components/Common';
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native';
+import {
+  CategoryTile,
+  ListingLabel,
+  ProductCard,
+  ScreenHeader,
+  SearchBar,
+  SectionHeading,
+} from '../components/Common';
 import { MarketPricesCard } from '../components/MarketPricesCard';
 import { COLORS } from '../constants/theme';
 import { styles } from '../constants/styles';
@@ -15,6 +22,10 @@ export function HomeScreen({
   onChangeArea,
   basketCount,
   products,
+  dataLabel,
+  caveats,
+  catalogLoading,
+  catalogError,
   onSearch,
   onCategory,
   onOpenProduct,
@@ -26,6 +37,10 @@ export function HomeScreen({
   onChangeArea: () => void;
   basketCount: number;
   products: Product[];
+  dataLabel: string;
+  caveats: string;
+  catalogLoading: boolean;
+  catalogError: string | null;
   onSearch: () => void;
   onCategory: (category: Category) => void;
   onOpenProduct: (product: Product) => void;
@@ -62,27 +77,40 @@ export function HomeScreen({
         shoppingArea={shoppingArea}
         onChangeArea={onChangeArea}
       />
-      <SavingsCard />
       <SearchBar
         value=""
-        placeholder="Search milk, bread, cooking oil..."
+        placeholder="Search bread, cooking oil, rice, sugar..."
         onChangeText={() => undefined}
         onPress={onSearch}
         editable={false}
       />
       <SectionHeading eyebrow="Browse the aisles" title="Popular categories" />
       <View style={styles.categoryGrid}>
-        {CATEGORIES.filter((item) => item !== 'All').map((item) => (
+        {CATEGORIES.filter(
+          (item): item is Exclude<Category, 'All'> =>
+            item !== 'All' && products.some((product) => product.category === item),
+        ).map((item) => (
           <CategoryTile key={item} category={item} onPress={() => onCategory(item)} />
         ))}
       </View>
       <View style={styles.sectionHeadingRow}>
-        <SectionHeading eyebrow="Updated this morning" title="Today’s price drops" />
+        <SectionHeading eyebrow="Observed data" title="Retailer price observations" />
         <Pressable onPress={() => onCategory('All')} accessibilityRole="button">
           <Text style={styles.linkText}>See all</Text>
         </Pressable>
       </View>
-      <DemoLabel />
+      <ListingLabel dataLabel={dataLabel} />
+      {catalogLoading && (
+        <View style={styles.infoNote}>
+          <ActivityIndicator color={COLORS.green} />
+          <Text style={styles.infoNoteText}>Loading verified retailer listings…</Text>
+        </View>
+      )}
+      {catalogError && (
+        <Text style={styles.marketStatusText}>
+          Could not refresh the retailer catalog: {catalogError}
+        </Text>
+      )}
       <View style={styles.productList}>
         {featured.map((product) => (
           <ProductCard
@@ -93,7 +121,20 @@ export function HomeScreen({
             compact
           />
         ))}
+        {!catalogLoading && featured.length === 0 && (
+          <Text style={styles.emptyBody}>
+            {catalogError
+              ? 'The verified retailer catalog could not be loaded.'
+              : `No verified retailer listings are available for ${shoppingArea}.`}
+          </Text>
+        )}
       </View>
+      {caveats !== '' && (
+        <View style={styles.infoNote}>
+          <Ionicons name="information-circle-outline" size={18} color={COLORS.green} />
+          <Text style={styles.infoNoteText}>{caveats}</Text>
+        </View>
+      )}
       <MarketPricesCard {...marketPrices} />
       <Pressable style={styles.insightCard} onPress={onTrends} accessibilityRole="button">
         <View style={styles.insightIcon}>
@@ -107,7 +148,7 @@ export function HomeScreen({
         <Ionicons name="chevron-forward" size={18} color={COLORS.green} />
       </Pressable>
       <Text style={styles.demoFootnote}>
-        {basketCount} {basketCount === 1 ? 'item' : 'items'} in your basket · Store prices are illustrative demo data.
+        {basketCount} {basketCount === 1 ? 'item' : 'items'} in your basket · Prices are observed listings, not checkout prices.
       </Text>
     </ScrollView>
   );

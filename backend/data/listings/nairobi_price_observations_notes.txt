@@ -1,0 +1,31 @@
+Nairobi public-listing snapshot
+Checked 16 November 2026, approximately 21:33–22:26 EAT.
+
+The CSV stores the product-page listing price, retailer product URL, visible
+location context, and collection time. The retailers do not expose a reliable
+price-observation timestamp, so observed_at records when the public page was
+checked. Stock and checkout totals were not verified.
+
+Naivas pages displayed “Deliver to Nairobi, Kenya”. This verifies a Nairobi
+delivery destination only; it does not identify a serving branch or prove
+coverage of Nairobi neighbourhoods.
+
+Quickmart product pages used for groceries explicitly identified Quickmart
+Kilimani, Kilimani, Nairobi. A separate public search for “bicycle” was checked
+with Westlands, Nairobi selected on the storefront. Eighteen distinct
+bicycle-related product pages were visible, although the page heading reported
+19 results. The seller was independently checked for one BMX listing and
+identified as Quickmart Westlands 24 HRS; the other 17 product pages were not
+checked individually and remain labeled as a Westlands delivery-area context.
+Items resolving to Ruaka, Kiambu were excluded rather than attributed to Nairobi.
+
+No current, location-specific Nairobi prices were verified for Carrefour or
+Jaza. At the time of this check, Naivas Online displayed a maintenance notice,
+Carrefour pages timed out, and Jaza could not be reached. This snapshot is not
+a complete list of retailers, product listings, or Nairobi branches.
+
+The 2 kg sugar comparison is category-level only: Mumias and Kabras are
+different brands. Missing retailers mean “no verified observation”, not
+“unavailable”. The bicycle prices are public advertised listing prices, not
+checkout totals or stock guarantees; Quickmart's terms say availability and
+final price are confirmed at checkout.

@@ -10,6 +10,7 @@ import { ShoppingArea } from './constants/shoppingAreas';
 import { useBasketPricing } from './hooks/useBasketPricing';
 import { useProductCatalog } from './hooks/useProductCatalog';
 import { usePersistentPreferences } from './hooks/usePersistentPreferences';
+import { CATEGORIES } from './data/products';
 import { basketPrice, bestPrice, compareBasketStores } from './utils/pricing';
 import { Category, Product, Tab } from './types';
 import { BasketScreen } from './screens/BasketScreen';
@@ -31,8 +32,8 @@ function PriceCheckApp() {
   const insets = useSafeAreaInsets();
   const { preferences, setPreferences, isReady: preferencesReady, storageError } =
     usePersistentPreferences();
-  const productCatalog = useProductCatalog();
-  const basketPricingState = useBasketPricing(preferences.basket);
+  const productCatalog = useProductCatalog(preferences.shoppingArea);
+  const basketPricingState = useBasketPricing(preferences.basket, preferences.shoppingArea);
   const [tab, setTab] = useState<Tab>('Home');
   const [category, setCategory] = useState<Category>('All');
   const [search, setSearch] = useState('');
@@ -44,6 +45,9 @@ function PriceCheckApp() {
   const { displayName, basket, watchedIds, weeklyBudget, savedBudget, shoppingArea } =
     preferences;
   const products = productCatalog.products;
+  const availableCategories = CATEGORIES.filter(
+    (item) => item === 'All' || products.some((product) => product.category === item),
+  );
 
   const filteredProducts = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -51,7 +55,11 @@ function PriceCheckApp() {
       const matchesCategory = category === 'All' || product.category === category;
       const matchesSearch =
         normalizedSearch.length === 0 ||
-        `${product.name} ${product.description} ${product.category}`.toLowerCase().includes(normalizedSearch);
+        `${product.name} ${product.description} ${product.category} ${product.prices
+          .map((price) => `${price.item_name} ${price.store} ${price.location_name}`)
+          .join(' ')}`
+          .toLowerCase()
+          .includes(normalizedSearch);
       return matchesCategory && matchesSearch;
     }).sort((a, b) => bestPrice(a).price - bestPrice(b).price);
   }, [category, products, search]);
@@ -60,6 +68,9 @@ function PriceCheckApp() {
   const basketStoreComparison =
     basketPricingState.pricing?.store_totals ?? localBasketStoreComparison;
   const cheapestBasketStore = basketPricingState.pricing
+    ? basketPricingState.pricing.best_single_location_id
+    : localBasketStoreComparison[0]?.location_id ?? null;
+  const cheapestBasketStoreLabel = basketPricingState.pricing
     ? basketPricingState.pricing.best_single_store
     : localBasketStoreComparison[0]?.store ?? null;
   const localBasketTotal = basket.reduce((total, line) => {
@@ -187,6 +198,10 @@ function PriceCheckApp() {
             onChangeArea={changeShoppingArea}
             basketCount={basketCount}
             products={products}
+            dataLabel={productCatalog.dataLabel}
+            caveats={productCatalog.caveats}
+            catalogLoading={productCatalog.loading}
+            catalogError={productCatalog.error}
             onSearch={() => navigateToSearch()}
             onCategory={(nextCategory) => {
               setCategory(nextCategory);
@@ -205,6 +220,12 @@ function PriceCheckApp() {
             search={search}
             category={category}
             products={filteredProducts}
+            availableCategories={availableCategories}
+            catalogHasProducts={products.length > 0}
+            dataLabel={productCatalog.dataLabel}
+            caveats={productCatalog.caveats}
+            catalogLoading={productCatalog.loading}
+            catalogError={productCatalog.error}
             onChangeSearch={setSearch}
             onChangeCategory={setCategory}
             onOpenProduct={setSelectedProduct}
@@ -216,6 +237,8 @@ function PriceCheckApp() {
             basket={basket}
             total={basketTotal}
             products={products}
+            catalogLoading={productCatalog.loading}
+            catalogError={productCatalog.error}
             pricing={basketPricingState.pricing}
             pricingError={basketPricingState.error}
             pricingLoading={basketPricingState.loading}
@@ -224,6 +247,7 @@ function PriceCheckApp() {
             shoppingArea={shoppingArea}
             onChangeArea={changeShoppingArea}
             singleStore={cheapestBasketStore}
+            singleStoreLabel={cheapestBasketStoreLabel}
             onChangeQuantity={updateQuantity}
             onSetStrategy={setBasketStrategy}
             onSearch={() => navigateToSearch()}

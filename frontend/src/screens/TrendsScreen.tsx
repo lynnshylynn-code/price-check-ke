@@ -77,8 +77,8 @@ export function TrendsScreen({
             <MetricCard
               icon="eye-outline"
               label="Prices watched"
-              value={String(watchedIds.length)}
-              hint="Retail alerts are demo-only"
+              value={String(watchedProducts.length)}
+              hint="Saved listing snapshots"
             />
             <MetricCard
               icon="calendar-outline"
@@ -164,7 +164,7 @@ export function TrendsScreen({
       )}
       <View style={styles.watchedSection}>
         <View style={styles.sectionHeadingRow}>
-          <SectionHeading eyebrow="Price alerts" title="Watched products" />
+          <SectionHeading eyebrow="Observed prices" title="Watched products" />
           <Pressable onPress={onBrowse} accessibilityRole="button">
             <Text style={styles.linkText}>Browse</Text>
           </Pressable>
@@ -182,7 +182,9 @@ export function TrendsScreen({
               </View>
               <View style={styles.watchedDetails}>
                 <Text style={styles.productName}>{product.name}</Text>
-                <Text style={styles.productDescription}>Illustrative price · not a live alert</Text>
+                <Text style={styles.productDescription}>
+                  {bestPrice(product).store} · {bestPrice(product).location_name} · saved listing
+                </Text>
               </View>
               <Text style={styles.watchedPrice}>{money(bestPrice(product).price)}</Text>
             </Pressable>

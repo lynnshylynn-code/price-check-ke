@@ -40,7 +40,8 @@ def answer_question_offline(question: str) -> MarketQuestionResponse:
     if any(term in normalized for term in ("supermarket", "retailer", "brand")):
         return _response(
             "The RTFP dataset contains market-level observations, not verified supermarket "
-            "or brand prices. The supermarket examples in the app are demo data.",
+            "or brand prices. The app's separate Nairobi supermarket catalog contains dated "
+            "public listing observations, not checkout prices or full branch coverage.",
             "Jan 2007",
             "Aug 2026",
         )

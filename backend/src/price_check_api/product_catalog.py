@@ -1,132 +1,277 @@
+import csv
+from datetime import datetime
+from functools import lru_cache
+from pathlib import Path
 from typing import Literal
+
+from pydantic import ValidationError
 
 from .schemas import (
     BasketLineRequest,
     BasketPricedLine,
     BasketPricingResponse,
     BasketStoreTotal,
-    DemoProduct,
-    DemoStorePrice,
+    CatalogProduct,
+    CatalogStorePrice,
     ProductCatalogResponse,
 )
 
-DISCLAIMER = "Illustrative supermarket demo only; these are not verified or live retailer prices."
-SOURCE_NOTE = "Catalog prices are synthetic examples and must never be represented as market data."
-
-_PRODUCTS = (
-    ("bread", "Supa Loaf Bread", "400g", "White sandwich loaf", "Bakery",
-     (("Naivas", 65, "In stock"), ("Carrefour", 69, "In stock"),
-      ("Jaza", 70, "In stock"), ("Quickmart", 72, "In stock"))),
-    ("yoghurt", "KCC Yoghurt", "500ml", "Natural probiotic yoghurt", "Dairy",
-     (("Jaza", 110, "In stock"), ("Naivas", 115, "In stock"),
-      ("Carrefour", 119, "In stock"))),
-    ("brookside-milk", "Brookside Milk", "1L", "Long life full cream", "Dairy",
-     (("Carrefour", 139, "In stock"), ("Naivas", 145, "Low stock"),
-      ("Jaza", 147, "In stock"), ("Quickmart", 150, "In stock"))),
-    ("fresha-milk", "Fresha Milk", "1L", "Fresh whole milk", "Dairy",
-     (("Naivas", 145, "In stock"), ("Jaza", 149, "In stock"),
-      ("Quickmart", 152, "In stock"))),
-    ("cooking-oil", "Fresh Fri Cooking Oil", "1L", "Pure vegetable oil", "Pantry",
-     (("Carrefour", 245, "In stock"), ("Naivas", 252, "In stock"),
-      ("Jaza", 256, "In stock"), ("Quickmart", 259, "In stock"))),
-    ("sugar", "Kabras Sugar", "2kg", "Fine white sugar", "Pantry",
-     (("Quickmart", 280, "In stock"), ("Naivas", 289, "In stock"),
-      ("Jaza", 292, "In stock"), ("Carrefour", 295, "In stock"))),
-    ("tomatoes", "Fresh Tomatoes", "1kg", "Fresh market tomatoes", "Produce",
-     (("Naivas", 120, "In stock"), ("Carrefour", 135, "In stock"),
-      ("Jaza", 125, "In stock"), ("Quickmart", 130, "In stock"))),
-    ("onions", "Red Onions", "1kg", "Fresh red onions", "Produce",
-     (("Naivas", 150, "In stock"), ("Carrefour", 160, "In stock"),
-      ("Jaza", 145, "In stock"), ("Quickmart", 155, "In stock"))),
-    ("maize-flour", "Soko Maize Flour", "2kg", "Fortified sifted maize flour", "Pantry",
-     (("Naivas", 165, "In stock"), ("Carrefour", 172, "In stock"),
-      ("Jaza", 168, "In stock"), ("Quickmart", 170, "In stock"))),
-    ("eggs", "Farm Fresh Eggs", "Tray of 15", "Medium-size eggs", "Dairy",
-     (("Naivas", 330, "In stock"), ("Carrefour", 345, "In stock"),
-      ("Jaza", 325, "In stock"), ("Quickmart", 335, "In stock"))),
+STORE_NAMES = ("Naivas", "Carrefour", "Jaza", "Quickmart")
+DATA_FILE = (
+    Path(__file__).resolve().parents[2]
+    / "data"
+    / "listings"
+    / "nairobi_price_observations.csv"
+)
+DISCLAIMER = (
+    "Public listing prices observed in Nairobi; not checkout totals or availability guarantees. "
+    "Prices may change after observation."
+)
+UNVERIFIED_AREA_CAVEAT = (
+    "No verified supermarket price observations are currently available for this area."
 )
 
-PRODUCT_CATALOG = tuple(
-    DemoProduct(
-        id=product_id,
-        name=name,
-        size=size,
-        description=description,
-        category=category,
-        prices=[
-            DemoStorePrice(store=store, price=price, stock=stock)
-            for store, price, stock in prices
-        ],
+
+class ProductCatalogDataError(ValueError):
+    pass
+
+
+@lru_cache(maxsize=1)
+def _load_products() -> tuple[CatalogProduct, ...]:
+    try:
+        with DATA_FILE.open(encoding="utf-8-sig", newline="") as source:
+            reader = csv.DictReader(source)
+            required_columns = {
+                "product_id",
+                "product_name",
+                "size",
+                "description",
+                "category",
+                "supermarket",
+                "item_name",
+                "price_kes",
+                "regular_price_kes",
+                "location_id",
+                "location_name",
+                "location_context",
+                "product_url",
+                "observed_at",
+                "comparison_note",
+            }
+            required_values = required_columns - {"regular_price_kes", "comparison_note"}
+            if not reader.fieldnames or not required_columns.issubset(reader.fieldnames):
+                raise ProductCatalogDataError("Nairobi price data has an invalid header.")
+
+            grouped: dict[str, dict[str, object]] = {}
+            for row in reader:
+                if None in row.values() or any(
+                    not row.get(column, "").strip() for column in required_values
+                ):
+                    raise ProductCatalogDataError("Nairobi price data contains an incomplete row.")
+                supermarket = row["supermarket"]
+                if supermarket not in STORE_NAMES:
+                    raise ProductCatalogDataError(
+                        f"Unknown supermarket '{supermarket}' in Nairobi price data."
+                    )
+
+                try:
+                    price = float(row["price_kes"])
+                    regular_price = (
+                        float(row["regular_price_kes"])
+                        if row["regular_price_kes"].strip()
+                        else None
+                    )
+                    observed_at = datetime.fromisoformat(row["observed_at"])
+                    store_price = CatalogStorePrice(
+                        store=supermarket,
+                        location_id=row["location_id"],
+                        location_name=row["location_name"],
+                        location_context=row["location_context"],
+                        item_name=row["item_name"],
+                        price=price,
+                        regular_price=regular_price,
+                        product_url=row["product_url"],
+                        observed_at=observed_at,
+                    )
+                except (TypeError, ValueError, ValidationError) as error:
+                    raise ProductCatalogDataError(
+                        "Nairobi price data contains an invalid price, timestamp, or URL."
+                    ) from error
+                if price <= 0 or (regular_price is not None and regular_price <= 0):
+                    raise ProductCatalogDataError(
+                        "Nairobi price data contains a non-positive price."
+                    )
+
+                product_id = row["product_id"]
+                if product_id not in grouped:
+                    grouped[product_id] = {
+                        "name": row["product_name"],
+                        "size": row["size"],
+                        "description": row["description"],
+                        "category": row["category"],
+                        "comparison_note": row["comparison_note"] or None,
+                        "prices": [],
+                    }
+                group = grouped[product_id]
+                group["prices"].append(store_price)
+
+            if not grouped:
+                raise ProductCatalogDataError("Nairobi price data contains no observations.")
+
+            products: list[CatalogProduct] = []
+            for product_id, group in grouped.items():
+                prices = group["prices"]
+                if not isinstance(prices, list):
+                    raise ProductCatalogDataError(
+                        "Nairobi price data has invalid product grouping."
+                    )
+                available_stores = {price.store for price in prices}
+                products.append(
+                    CatalogProduct(
+                        id=product_id,
+                        name=group["name"],
+                        size=group["size"],
+                        description=group["description"],
+                        category=group["category"],
+                        comparison_note=group["comparison_note"],
+                        missing_at_stores=sorted(set(STORE_NAMES) - available_stores),
+                        prices=sorted(prices, key=lambda price: (price.store, price.location_name)),
+                    )
+                )
+    except ProductCatalogDataError:
+        raise
+    except (OSError, csv.Error, UnicodeDecodeError) as error:
+        raise ProductCatalogDataError("Nairobi price data could not be read.") from error
+
+    return tuple(sorted(products, key=lambda product: (product.category, product.name)))
+
+
+def get_product_catalog(area: str = "Nairobi") -> ProductCatalogResponse:
+    if area.strip().casefold() != "nairobi":
+        return ProductCatalogResponse(
+            area=area.strip(),
+            data_label=f"No verified retailer listings for {area.strip()}",
+            caveats=UNVERIFIED_AREA_CAVEAT,
+            products=[],
+        )
+
+    products = _load_products()
+    latest_observation = max(
+        price.observed_at for product in products for price in product.prices
     )
-    for product_id, name, size, description, category, prices in _PRODUCTS
-)
-_PRODUCT_BY_ID = {product.id: product for product in PRODUCT_CATALOG}
+    return ProductCatalogResponse(
+        area="Nairobi",
+        data_label=f"Public retailer listings observed through {latest_observation:%d %b %Y}",
+        caveats=(
+            "Coverage is limited to the exact location contexts shown on each listing: "
+            "Naivas Nairobi delivery (serving branch not identified), Quickmart Kilimani, "
+            "and Quickmart bicycle search results with Westlands selected (only one seller was "
+            "independently confirmed as Quickmart Westlands). No current Nairobi prices were "
+            "verified for Carrefour or Jaza, and this is not a complete retailer catalog. "
+            "The sugar comparison is between different brands in the same pack size. "
+            "An absent retailer is unknown, not evidence that the item is unavailable."
+        ),
+        products=list(products),
+    )
 
 
-def get_product_catalog() -> ProductCatalogResponse:
-    return ProductCatalogResponse(disclaimer=DISCLAIMER, products=list(PRODUCT_CATALOG))
+def _location_prices(product: CatalogProduct) -> dict[str, CatalogStorePrice]:
+    locations: dict[str, CatalogStorePrice] = {}
+    for price in product.prices:
+        current = locations.get(price.location_id)
+        if current is None or price.price < current.price:
+            locations[price.location_id] = price
+    return locations
+
+
+def _location_label(price: CatalogStorePrice) -> str:
+    return f"{price.store} - {price.location_name}"
 
 
 def price_basket(
     items: list[BasketLineRequest],
     strategy: Literal["lowest", "single"],
+    area: str = "Nairobi",
 ) -> BasketPricingResponse:
+    if area.strip().casefold() != "nairobi":
+        raise ValueError(f"No verified supermarket price observations are available for {area}.")
+
+    products_by_id = {product.id: product for product in _load_products()}
     products = []
     seen_ids: set[str] = set()
     for item in items:
         if item.product_id in seen_ids:
             raise ValueError(f"Duplicate product id '{item.product_id}'.")
-        product = _PRODUCT_BY_ID.get(item.product_id)
+        product = products_by_id.get(item.product_id)
         if product is None:
             raise KeyError(f"Unknown product id '{item.product_id}'.")
         seen_ids.add(item.product_id)
-        products.append((item, product))
+        products.append((item, product, _location_prices(product)))
 
-    store_totals: dict[str, float] = {}
-    available_stores: set[str] | None = None
-    for item, product in products:
-        prices = {price.store: price.price for price in product.prices}
-        available_stores = (
-            set(prices) if available_stores is None else available_stores & prices.keys()
+    available_locations: set[str] | None = None
+    for _item, _product, prices_by_location in products:
+        locations = set(prices_by_location)
+        available_locations = (
+            locations
+            if available_locations is None
+            else available_locations & locations
         )
-        for store in prices:
-            store_totals[store] = store_totals.get(store, 0.0) + prices[store] * item.quantity
+    eligible_locations = available_locations or set()
 
-    eligible_stores = available_stores or set()
+    location_metadata = {
+        price.location_id: price
+        for _item, _product, prices_by_location in products
+        for price in prices_by_location.values()
+    }
     comparison = sorted(
         (
-            BasketStoreTotal(store=store, total=round(store_totals[store], 2))
-            for store in eligible_stores
+            BasketStoreTotal(
+                store=_location_label(location_metadata[location_id]),
+                location_id=location_id,
+                total=round(
+                    sum(
+                        prices_by_location[location_id].price * item.quantity
+                        for item, _product, prices_by_location in products
+                    ),
+                    2,
+                ),
+            )
+            for location_id in eligible_locations
         ),
         key=lambda item: (item.total, item.store),
     )
     best_single_store = comparison[0].store if comparison else None
-    if strategy == "single" and best_single_store is None:
-        raise ValueError("No single store has demo prices for every basket item.")
+    best_single_location_id = comparison[0].location_id if comparison else None
 
     lines: list[BasketPricedLine] = []
-    for item, product in products:
+    for item, product, prices_by_location in products:
         if strategy == "single":
-            selected = next(price for price in product.prices if price.store == best_single_store)
+            if best_single_location_id is None:
+                raise ValueError("No single verified location has prices for every basket item.")
+            selected = prices_by_location[best_single_location_id]
         else:
-            selected = min(product.prices, key=lambda price: (price.price, price.store))
+            selected = min(
+                prices_by_location.values(),
+                key=lambda price: (price.price, price.store),
+            )
         lines.append(
             BasketPricedLine(
                 product_id=product.id,
                 product_name=product.name,
                 quantity=item.quantity,
-                store=selected.store,
+                store=_location_label(selected),
+                location_id=selected.location_id,
                 unit_price=selected.price,
                 total=round(selected.price * item.quantity, 2),
             )
         )
 
-    total = round(sum(line.total for line in lines), 2)
     return BasketPricingResponse(
         disclaimer=DISCLAIMER,
         strategy=strategy,
         best_single_store=best_single_store,
+        best_single_location_id=best_single_location_id,
         store_totals=comparison,
-        total=total,
+        total=round(sum(line.total for line in lines), 2),
         lines=lines,
     )

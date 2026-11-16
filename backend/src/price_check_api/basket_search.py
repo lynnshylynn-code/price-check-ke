@@ -1,9 +1,9 @@
-"""Search algorithms for the illustrative supermarket demo basket.
+"""Search algorithms for comparing basket prices across available locations.
 
 State: (index of the next item, store choices made so far). Actions choose an
 available store for the next item; the goal is to assign every item. The initial
 state is (0, ()). The finite state space is the product of each item's store set.
-Prices and optional fixed visit costs are demo inputs, not live prices.
+Prices and optional fixed visit costs are supplied by the calling catalog.
 """
 
 from __future__ import annotations

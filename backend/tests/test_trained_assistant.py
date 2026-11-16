@@ -116,6 +116,28 @@ def test_unknown_store_and_product_are_not_in_snapshot(monkeypatch: pytest.Monke
     assert "not in the snapshot" in answer.answer
 
 
+def test_price_question_uses_current_quickmart_non_food_listings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant._classify",
+        lambda _question: ("price_at_store", 0.9, None),
+    )
+    answer = answer_trained_question("What is the price of a bicycle?")
+
+    assert answer.source_name == "Quickmart public online catalog"
+    assert answer.coverage_start == "16 Nov 2026"
+    assert "KES 8499" in answer.answer
+    assert "bmx bicycle (assorted colour) art12" in answer.answer.casefold()
+    assert "Westlands" in answer.answer
+    assert all(source.name == "Quickmart public online catalog" for source in answer.sources)
+
+    specific = answer_trained_question("How much is Bel Royal Swing BMX Bike 2128 Size 20?")
+    assert "KES 12999" in specific.answer
+    assert "Quickmart Westlands 24 HRS" in specific.answer
+    assert len(specific.sources) == 1
+
+
 def test_injection_like_question_cannot_bypass_snapshot_lookup(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

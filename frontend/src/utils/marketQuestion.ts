@@ -54,7 +54,8 @@ export function answerMarketQuestionFromData(
   if (/\b(supermarket|store|shop|brand|product|retailer)\b/.test(normalized)) {
     return (
       'This national index does not contain verified product or supermarket prices. ' +
-      'The app’s store-price examples are illustrative demo data.'
+      'The separate Nairobi catalog contains dated public listing observations, not live ' +
+      'checkout prices or complete branch coverage.'
     );
   }
 
