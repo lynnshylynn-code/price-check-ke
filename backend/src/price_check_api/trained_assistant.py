@@ -346,6 +346,31 @@ def _classify(question: str) -> tuple[str, float, str | None]:
     index = int(probabilities.argmax())
     confidence = float(probabilities[index])
     intent = str(state.pipeline.classes_[index])
+    store_price_cue = re.search(r"\b(price|how much|cost|charge)\b", question)
+    unit_price_cue = re.search(
+        r"\b(?:unit\s+(?:price|cost)|by\s+unit|per[- ]unit|per\s+(?:kg|kilos?|kilograms?|g|"
+        r"grams?|l|litres?|liters?|ml|100\s*(?:g|ml)|egg)|kwa\s+(?:kipimo|kilo|"
+        r"kilogramu|lita|gramu))\b",
+        question,
+    )
+    discount_cue = re.search(
+        r"\b(?:discount|offer|promo|promotion|markdown|sale|on special|reduced|"
+        r"marked down|cheaper than usual|less than normal|regular price|"
+        r"below (?:the|their) regular price)\b",
+        question,
+    )
+    if unit_price_cue and "unit_price" in state.pipeline.classes_:
+        intent_index = list(state.pipeline.classes_).index("unit_price")
+        return "unit_price", float(probabilities[intent_index]), None
+    if (
+        store_price_cue
+        and not unit_price_cue
+        and not discount_cue
+        and len(_resolve_all_stores(question)) == 1
+        and "price_at_store" in state.pipeline.classes_
+    ):
+        intent_index = list(state.pipeline.classes_).index("price_at_store")
+        return "price_at_store", float(probabilities[intent_index]), None
     if confidence < float(state.metadata.get("confidence_threshold", 1.0)):
         return "out_of_scope", confidence, None
     return intent, confidence, None

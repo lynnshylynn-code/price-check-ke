@@ -156,3 +156,7 @@ Task W — Add dialogue regression replay.
 Changed: Added four scripted conversations and data-derived listing checks; evaluator can select dialogue IDs and caches model loads.
 Verification: Focused regressions passed; full replay and docs refresh recorded 21/30 successful AI-written dialogues.
 
+Task X — Improve overlapping intent routing.
+Changed: Added training examples for cheapest-item, unit-price, discount, and single-store price questions; explicit unit-price and store-price cues now protect these intents from common classifier confusions. Unknown-store follow-ups now distinguish slot aliases from stores present in the listing snapshot.
+Verification: Regenerated the stable family splits, trained the local model (`CalibratedLinearSVC`), and ran the CRISP-DM notebook/CLI consistency check. Synthetic-test macro-F1 was 0.8330 and AI-written held-out macro-F1 was 0.8586; these sets are not human evaluation. Backend tests: 233 passed; Ruff passed on changed Python files.
+

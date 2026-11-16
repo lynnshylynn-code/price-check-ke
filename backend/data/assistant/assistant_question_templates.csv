@@ -299,3 +299,34 @@ T273,biggest_discount_15,biggest_discount,swahili_mix,Nionyeshe bidhaa zenye ofa
 T274,biggest_discount_16,biggest_discount,formal,Which {category} items are on offer?,category
 T275,biggest_discount_16,biggest_discount,short,{category} offers,category
 T276,biggest_discount_16,biggest_discount,casual,{category} deals?,category
+T277,cheapest_item_09,cheapest_item,formal,Which retailer has the lowest shelf price for {product}?,product
+T278,cheapest_item_09,cheapest_item,short,lowest shelf price for {group},group
+T279,cheapest_item_09,cheapest_item,casual,where can I buy {product} for the least?,product
+T280,cheapest_item_10,cheapest_item,formal,Find the least expensive option in {category}.,category
+T281,cheapest_item_10,cheapest_item,short,lowest-cost {category} products,category
+T282,cheapest_item_10,cheapest_item,casual,I need an affordable {group}.,group
+T283,cheapest_item_12,cheapest_item,formal,Where is {product} cheapest to buy?,product
+T284,cheapest_item_12,cheapest_item,short,which shop lists {product} for the least,product
+T285,cheapest_item_12,cheapest_item,casual,show the cheapest available {group},group
+T286,unit_price_09,unit_price,formal,What does {product} cost per kilogram or litre?,product
+T287,unit_price_09,unit_price,short,per-unit cost of {product},product
+T288,unit_price_09,unit_price,casual,price for one kilo or litre of {group},group
+T289,unit_price_10,unit_price,formal,Compare {group} by price per kilogram rather than pack price.,group
+T290,unit_price_10,unit_price,short,lowest cost per litre for {group},group
+T291,unit_price_10,unit_price,casual,which {product} gives more for each shilling per unit,product
+T292,unit_price_11,unit_price,formal,Show the unit cost of {group} at each supermarket.,group
+T293,unit_price_11,unit_price,short,{product} unit price across stores,product
+T294,unit_price_11,unit_price,casual,rank {group} by cost per kilo in each store,group
+T295,biggest_discount_13,biggest_discount,formal,Which {category} has the largest price reduction?,category
+T296,biggest_discount_13,biggest_discount,short,largest markdown on {category},category
+T297,biggest_discount_13,biggest_discount,casual,what {category} is marked down the most,category
+T298,biggest_discount_15,biggest_discount,formal,Which items at {store} are below their regular price?,store
+T299,biggest_discount_15,biggest_discount,short,marked-down items at {store},store
+T300,biggest_discount_15,biggest_discount,casual,what is discounted at {store} today,store
+T301,biggest_discount_16,biggest_discount,formal,Show current promotions for {group}.,group
+T302,biggest_discount_16,biggest_discount,short,current offers {group},group
+T303,biggest_discount_16,biggest_discount,casual,which {group} products have a reduced price,group
+T304,price_at_store_10,price_at_store,formal,How much does {store} charge for {unknown_product}?,"store,unknown_product"
+T305,price_at_store_10,price_at_store,short,price quotation for {unknown_product} from {store},"store,unknown_product"
+T306,price_at_store_10,price_at_store,formal,What is the price at {store}?,store
+T307,price_at_store_10,price_at_store,casual,How much is it at {store}?,store

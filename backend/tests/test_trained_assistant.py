@@ -608,6 +608,38 @@ def test_real_trained_model_classifies_quickmart_offers_as_biggest_discount() ->
     assert intent == "biggest_discount"
 
 
+@pytest.mark.skipif(
+    not (MODEL_DIR / "intent_pipeline.joblib").is_file()
+    or not (MODEL_DIR / "metadata.json").is_file(),
+    reason="Train the local assistant before checking targeted intent regressions.",
+)
+@pytest.mark.parametrize(
+    ("question", "expected_intent"),
+    [
+        ("Which retailer has the lowest shelf price for cooking oil?", "cheapest_item"),
+        ("What does cooking oil cost per litre?", "unit_price"),
+        (
+            "What is the price per litre of cooking oil at Naivas?",
+            "unit_price",
+        ),
+        ("Compare the price by unit for milk across stores", "unit_price"),
+        ("price of an iPhone at Naivas", "price_at_store"),
+        ("What is the price at Quickmart?", "price_at_store"),
+        (
+            "Which items at Naivas are below their regular price?",
+            "biggest_discount",
+        ),
+    ],
+)
+def test_real_trained_model_classifies_targeted_weak_intents(
+    question: str, expected_intent: str,
+) -> None:
+    intent, _confidence, error = _classify(question)
+
+    assert error is None, error
+    assert intent == expected_intent
+
+
 def _classify_as(monkeypatch: pytest.MonkeyPatch, intent: str) -> None:
     monkeypatch.setattr(
         "price_check_api.trained_assistant._classify",

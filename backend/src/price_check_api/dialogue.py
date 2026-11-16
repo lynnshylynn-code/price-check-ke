@@ -383,8 +383,11 @@ def _slot_match(text: str, slot: str) -> str | None:
 
 def _unknown_store_mention(text: str) -> str | None:
     match = re.search(r"\b(?:only\s+at|at)\s+([a-z][a-z0-9-]*)", text, re.I)
-    if match and not _slot_match(match.group(1), "store"):
-        return match.group(1)
+    if match:
+        store = _slot_match(match.group(1), "store")
+        snapshot_stores = {item.supermarket.casefold() for item in get_listings()}
+        if not store or store.casefold() not in snapshot_stores:
+            return match.group(1)
     return None
 
 

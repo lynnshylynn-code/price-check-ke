@@ -166,7 +166,14 @@ def test_ai_written_heldout_set_remains_separate():
 
 def test_discount_and_unit_price_template_families_were_appended_sequentially():
     rows = read_rows(TEMPLATES_PATH)
-    appended = rows[-48:-24]
+    appended = [
+        row for row in rows
+        if 229 <= int(row["template_id"][1:]) <= 252
+        and row["family_id"] in {
+            *(f"unit_price_{number:02d}" for number in range(9, 13)),
+            *(f"biggest_discount_{number:02d}" for number in range(9, 13)),
+        }
+    ]
 
     assert [row["template_id"] for row in appended] == [
         f"T{number:03d}" for number in range(229, 253)
@@ -183,7 +190,14 @@ def test_discount_and_unit_price_template_families_were_appended_sequentially():
 
 
 def test_cheapest_and_discount_families_were_appended_sequentially():
-    appended = read_rows(TEMPLATES_PATH)[-24:]
+    appended = [
+        row for row in read_rows(TEMPLATES_PATH)
+        if 253 <= int(row["template_id"][1:]) <= 276
+        and row["family_id"] in {
+            *(f"cheapest_item_{number:02d}" for number in range(9, 13)),
+            *(f"biggest_discount_{number:02d}" for number in range(13, 17)),
+        }
+    ]
 
     assert [row["template_id"] for row in appended] == [
         f"T{number:03d}" for number in range(253, 277)
@@ -195,6 +209,35 @@ def test_cheapest_and_discount_families_were_appended_sequentially():
         f"biggest_discount_{number:02d}" for number in range(13, 17)
     }
     for row in appended:
+        slots = sorted(set(re.findall(r"\{(\w+)\}", row["template"])))
+        assert row["slots"] == ",".join(slots)
+
+
+def test_targeted_weak_intent_templates_stay_in_training_families():
+    rows = [
+        row for row in read_rows(TEMPLATES_PATH)
+        if 277 <= int(row["template_id"][1:]) <= 303
+    ]
+    assert [row["template_id"] for row in rows] == [
+        f"T{number:03d}" for number in range(277, 304)
+    ]
+    families = [
+        "cheapest_item_09",
+        "cheapest_item_10",
+        "cheapest_item_12",
+        "unit_price_09",
+        "unit_price_10",
+        "unit_price_11",
+        "biggest_discount_13",
+        "biggest_discount_15",
+        "biggest_discount_16",
+    ]
+    assert [rows[index]["family_id"] for index in range(0, 27, 3)] == families
+    train_families = set(
+        (SPLIT_DIR / "train_families.txt").read_text(encoding="utf-8").splitlines()
+    )
+    assert set(families) <= train_families
+    for row in rows:
         slots = sorted(set(re.findall(r"\{(\w+)\}", row["template"])))
         assert row["slots"] == ",".join(slots)
 
