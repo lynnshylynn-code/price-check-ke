@@ -1,27 +1,27 @@
 {
   "cap_multiplier": 1.25,
   "minimum_training_median_fraction": 0.7,
-  "minimum_training_rows_per_intent": 402,
+  "minimum_training_rows_per_intent": 404,
   "training_rows_added_by_intent": {
-    "food_inflation": 192,
-    "market_price": 190,
-    "price_at_store": 19
+    "food_inflation": 194,
+    "market_price": 192,
+    "price_at_store": 21
   },
   "training_intent_rows": {
-    "biggest_discount": 719,
+    "biggest_discount": 721,
     "cheapest_item": 579,
     "compare_stores": 631,
-    "food_inflation": 402,
-    "market_price": 402,
-    "out_of_scope": 575,
-    "price_at_store": 402,
+    "food_inflation": 404,
+    "market_price": 404,
+    "out_of_scope": 721,
+    "price_at_store": 404,
     "unit_price": 576
   },
   "training_rows_dropped_for_similarity": 0,
   "highest_training_heldout_similarity": 0.75,
   "closest_heldout_source": "AI-written held-out",
-  "training_rows_dropped_by_cap": 84,
-  "training_rows": 4286,
+  "training_rows_dropped_by_cap": 106,
+  "training_rows": 4440,
   "validation_rows": 887,
   "synthetic_test_rows": 920
 }

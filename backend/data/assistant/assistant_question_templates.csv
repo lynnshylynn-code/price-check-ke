@@ -330,3 +330,13 @@ T304,price_at_store_10,price_at_store,formal,How much does {store} charge for {u
 T305,price_at_store_10,price_at_store,short,price quotation for {unknown_product} from {store},"store,unknown_product"
 T306,price_at_store_10,price_at_store,formal,What is the price at {store}?,store
 T307,price_at_store_10,price_at_store,casual,How much is it at {store}?,store
+T308,out_of_scope_general_knowledge_train,out_of_scope,formal,Tell me about the history of the Olympic Games.,
+T309,out_of_scope_general_knowledge_train,out_of_scope,formal,Explain the rules of chess.,
+T310,out_of_scope_general_knowledge_train,out_of_scope,formal,How many moons does Mars have?,
+T311,out_of_scope_general_knowledge_train,out_of_scope,formal,Who wrote Hamlet?,
+T312,out_of_scope_general_knowledge_train,out_of_scope,formal,What does the word democracy mean?,
+T313,out_of_scope_forecast_train,out_of_scope,formal,Give a projection of {product} prices six months from now.,product
+T314,out_of_scope_forecast_train,out_of_scope,formal,Estimate the future cost of {product}.,product
+T315,out_of_scope_forecast_train,out_of_scope,formal,Could {product} become less expensive later this year?,product
+T316,out_of_scope_forecast_train,out_of_scope,formal,What might {product} cost during the next harvest season?,product
+T317,out_of_scope_forecast_train,out_of_scope,formal,Forecast what shoppers will pay for {product} in the future.,product

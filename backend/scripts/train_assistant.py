@@ -167,7 +167,9 @@ def choose_threshold(
     confidence = probs.max(axis=1)
     indexes = probs.argmax(axis=1)
     candidates = np.unique(np.concatenate(([0.0], confidence)))
-    best: tuple[float, float, float] | None = None
+    labels_array = np.asarray(labels)
+    model_labels = sorted(set(labels))
+    best: tuple[float, float, float, float] | None = None
     best_result: dict[str, float] = {}
     best_threshold = 0.0
     best_prediction: np.ndarray | None = None
@@ -178,9 +180,24 @@ def choose_threshold(
             continue
         accepted = predictions != ABSTAIN
         accepted_accuracy = float(
-            accuracy_score(np.asarray(labels)[accepted], predictions[accepted])
+            accuracy_score(labels_array[accepted], predictions[accepted])
         ) if np.any(accepted) else 0.0
-        result = (accepted_accuracy, coverage, float(threshold))
+        class_scores = f1_score(
+            labels_array,
+            predictions,
+            labels=model_labels + [ABSTAIN],
+            average=None,
+            zero_division=0,
+        )
+        macro_f1_with_abstentions = float(
+            np.mean(class_scores[: len(model_labels)])
+        )
+        result = (
+            macro_f1_with_abstentions,
+            accepted_accuracy,
+            coverage,
+            float(threshold),
+        )
         if best is None or result > best:
             best = result
             best_threshold = float(threshold)
@@ -205,9 +222,8 @@ def choose_threshold(
 
     assert best_prediction is not None
     accepted = best_prediction != ABSTAIN
-    model_labels = sorted(set(labels))
     class_scores = f1_score(
-        labels,
+        labels_array,
         best_prediction,
         labels=model_labels + [ABSTAIN],
         average=None,
@@ -216,14 +232,15 @@ def choose_threshold(
     best_result = {
         "macro_f1_with_abstentions": float(np.mean(class_scores[: len(model_labels)])),
         "accepted_accuracy": float(
-            accuracy_score(np.asarray(labels)[accepted], best_prediction[accepted])
+            accuracy_score(labels_array[accepted], best_prediction[accepted])
         ) if np.any(accepted) else 0.0,
         "coverage": float(np.mean(accepted)),
     }
     if best_threshold == 0.0:
         print(
-            "Confidence threshold 0.0 selected explicitly: it maximized accepted accuracy "
-            f"among thresholds with coverage >= {MIN_VALIDATION_COVERAGE:.0%}."
+            "Confidence threshold 0.0 selected explicitly: it maximized validation "
+            "macro-F1 with abstentions among thresholds with coverage >= "
+            f"{MIN_VALIDATION_COVERAGE:.0%}."
         )
     return best_threshold, best_result
 
@@ -397,10 +414,7 @@ def main() -> None:
         model.fit(x_train, y_train)
         classes, probs = probabilities(model, x_validation)
         threshold, validation_metrics = choose_threshold(y_validation, classes, probs)
-        validation_prediction = model.predict(x_validation)
-        validation_macro_f1 = float(
-            f1_score(y_validation, validation_prediction, average="macro", zero_division=0)
-        )
+        validation_macro_f1 = validation_metrics["macro_f1_with_abstentions"]
         fitted[name] = (model, threshold, validation_metrics, validation_macro_f1)
         print(
             f"  {name}: threshold={threshold:.4f}; "

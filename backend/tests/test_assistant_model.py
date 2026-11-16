@@ -28,10 +28,10 @@ def test_validation_threshold_keeps_required_coverage_and_explains_zero(capsys):
     assert metrics["coverage"] >= MIN_VALIDATION_COVERAGE
     assert set(metrics) == {"macro_f1_with_abstentions", "accepted_accuracy", "coverage"}
     if threshold == 0.0:
-        assert "maximized accepted accuracy" in capsys.readouterr().out
+        assert "maximized validation macro-F1 with abstentions" in capsys.readouterr().out
 
 
-def test_validation_threshold_maximizes_accepted_accuracy_at_required_coverage():
+def test_validation_threshold_maximizes_macro_f1_at_required_coverage():
     # 9 confident "a", 9 confident "b", then two low-confidence predictions that are wrong.
     labels = ["a"] * 9 + ["b"] * 9 + ["b", "a"]
     classes = np.asarray(["a", "b"])
@@ -45,6 +45,24 @@ def test_validation_threshold_maximizes_accepted_accuracy_at_required_coverage()
     assert metrics["coverage"] >= MIN_VALIDATION_COVERAGE
     assert metrics["coverage"] == 0.9
     assert metrics["accepted_accuracy"] == 1.0
+
+
+def test_validation_threshold_prioritizes_weak_class_recall_over_accepted_accuracy():
+    labels = ["a"] * 90 + ["b"] * 5 + ["c"] * 5
+    classes = np.asarray(["a", "b", "c"])
+    probabilities = np.asarray(
+        [[0.99, 0.005, 0.005]] * 90
+        + [[0.005, 0.55, 0.445]] * 4
+        + [[0.6, 0.39, 0.01]]
+        + [[0.005, 0.005, 0.99]] * 5
+    )
+
+    threshold, metrics = choose_threshold(labels, classes, probabilities)
+
+    assert threshold == 0.55
+    assert metrics["coverage"] == 1.0
+    assert metrics["accepted_accuracy"] == 0.99
+    assert metrics["macro_f1_with_abstentions"] > 0.95
 
 
 def test_validation_threshold_warns_when_no_candidate_meets_coverage(monkeypatch, capsys):

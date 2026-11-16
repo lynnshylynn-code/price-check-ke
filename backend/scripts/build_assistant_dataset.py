@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ASSISTANT_DIR = ROOT / "data" / "assistant"
 TEMPLATES_PATH = ASSISTANT_DIR / "assistant_question_templates.csv"
 SLOTS_PATH = ASSISTANT_DIR / "assistant_slot_values.csv"
+TRAIN_ONLY_FAMILIES_PATH = ASSISTANT_DIR / "train_only_families.txt"
 OUTPUT_PATH = ASSISTANT_DIR / "assistant_training_questions.csv"
 SPLIT_DIR = ASSISTANT_DIR / "splits"
 
@@ -132,11 +133,26 @@ def families_by_intent(templates_path: Path) -> dict[str, list[str]]:
 def split_families(rng: random.Random) -> tuple[set[str], set[str], set[str]]:
     intent_families = families_by_intent(TEMPLATES_PATH)
     all_families = sorted({family for families in intent_families.values() for family in families})
+    train_only_families = (
+        {
+            line.strip()
+            for line in TRAIN_ONLY_FAMILIES_PATH.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
+        if TRAIN_ONLY_FAMILIES_PATH.is_file()
+        else set()
+    )
+    unknown_families = train_only_families - set(all_families)
+    if unknown_families:
+        raise ValueError(
+            f"Train-only family manifest references unknown families: {sorted(unknown_families)}"
+        )
+
     val: set[str] = set()
     test: set[str] = set()
 
     for intent, families in sorted(intent_families.items()):
-        shuffled = families[:]
+        shuffled = [family for family in families if family not in train_only_families]
         rng.shuffle(shuffled)
         if len(shuffled) < 3:
             raise ValueError(

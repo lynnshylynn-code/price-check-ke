@@ -81,6 +81,54 @@ def test_written_splits_hold_out_whole_families_and_keep_every_intent():
         assert sum(family in test for family in families) >= minimum
 
 
+def test_train_only_families_preserve_existing_holdout_assignments(tmp_path, monkeypatch):
+    import build_assistant_dataset as dataset_builder
+
+    templates_path = tmp_path / "templates.csv"
+    train_only_path = tmp_path / "train_only_families.txt"
+    fields = ["template_id", "family_id", "intent", "style", "template", "slots"]
+    baseline_rows = [
+        {
+            "template_id": f"T{index}",
+            "family_id": f"intent_family_{index}",
+            "intent": "sample_intent",
+            "style": "formal",
+            "template": f"Sample question {index}",
+            "slots": "",
+        }
+        for index in range(5)
+    ]
+
+    def write_templates(rows):
+        with templates_path.open("w", encoding="utf-8", newline="") as output:
+            writer = csv.DictWriter(output, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    write_templates(baseline_rows)
+    monkeypatch.setattr(dataset_builder, "TEMPLATES_PATH", templates_path)
+    monkeypatch.setattr(dataset_builder, "TRAIN_ONLY_FAMILIES_PATH", train_only_path)
+    _train, validation, test = split_families(Random(SPLIT_SEED))
+
+    new_training_family = {
+        "template_id": "T6",
+        "family_id": "additional_training_family",
+        "intent": "sample_intent",
+        "style": "formal",
+        "template": "Another sample question",
+        "slots": "",
+    }
+    write_templates([*baseline_rows, new_training_family])
+    train_only_path.write_text("additional_training_family\n", encoding="utf-8")
+    train_with_addition, validation_with_addition, test_with_addition = split_families(
+        Random(SPLIT_SEED)
+    )
+
+    assert validation_with_addition == validation
+    assert test_with_addition == test
+    assert "additional_training_family" in train_with_addition
+
+
 def test_training_rows_are_capped_by_intent_and_sampled_across_families():
     rows = expand_templates(Random(SEED))
     train, _validation, _test = split_families(Random(SPLIT_SEED))

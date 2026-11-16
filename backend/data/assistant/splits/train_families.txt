@@ -41,6 +41,8 @@ market_price_08
 out_of_scope_advice
 out_of_scope_chitchat
 out_of_scope_coding_help
+out_of_scope_forecast_train
+out_of_scope_general_knowledge_train
 out_of_scope_greeting
 out_of_scope_stock_delivery
 out_of_scope_weather_news

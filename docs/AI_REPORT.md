@@ -39,42 +39,42 @@ Intent routing is a **model-based/goal-based agent**: it uses a trained model to
 
 ## Data provenance and splits
 
-The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The dataset builder generates family-grouped splits, applies an intent cap, and removes training questions whose normalized character-trigram Jaccard similarity to AI-written or human-written held-out questions is at least 0.85. Current row counts and leakage results are populated from training metadata below. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. No human-written held-out file is present.
+The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The dataset builder generates family-grouped splits, applies an intent cap, and removes training questions whose normalized character-trigram Jaccard similarity to AI-written or human-written held-out questions is at least 0.85. Additional general-knowledge and future-price examples are explicitly train-only; their held-out counterparts remain separate template families. Current row counts and leakage results are populated from training metadata below. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. No human-written held-out file is present.
 
 ## Intent model results
 
-The main training path is `notebooks/assistant_intent_crisp_dm.ipynb`, generated and executed by `backend/scripts/build_assistant_notebook.py`. It compares a majority-class baseline with Multinomial Naive Bayes, kNN, a decision tree, logistic regression, calibrated linear SVM, random forest, and a small MLP neural network. Every candidate uses the same word and character TF-IDF feature union. Validation-only macro-F1 with abstentions, accepted accuracy, and coverage determine model and global threshold selection; a separate `compare_stores` cutoff is selected on validation data to meet a minimum precision target while preserving overall coverage. Test and held-out results are reported only after these choices. Tree-depth, neighbour-count, and regularization sweeps demonstrate train/validation gaps. The CLI script remains available as a consistency check and writes the same metadata and model format. Re-run the notebook builder to refresh the executed comparison table when training data or dependencies change.
+The main training path is `notebooks/assistant_intent_crisp_dm.ipynb`, generated and executed by `backend/scripts/build_assistant_notebook.py`. It compares a majority-class baseline with Multinomial Naive Bayes, kNN, a decision tree, logistic regression, calibrated linear SVM, random forest, and a small MLP neural network. Every candidate uses the same word and character TF-IDF feature union. Validation-only macro-F1 with abstentions selects the model and global confidence threshold; accepted accuracy and coverage break ties. A separate `compare_stores` cutoff is selected on validation data to meet a minimum precision target while preserving overall coverage. Test and held-out results are reported only after these choices. Tree-depth, neighbour-count, and regularization sweeps demonstrate train/validation gaps. The CLI script remains available as a consistency check and writes the same metadata and model format. Re-run the notebook builder to refresh the executed comparison table when training data or dependencies change.
 
 
-The dataset splits changed in this version, so older scores are not directly comparable. Evaluation remains template-based; the synthetic validation and test splits each cover only two `compare_stores` template families.
+Two supplemental out-of-scope families are training-only; the existing validation and test question files are unchanged. Scores are not directly comparable to earlier versions because training examples and the selection metric changed. Evaluation remains template-based; the synthetic validation and test splits each cover only two `compare_stores` template families.
 
 <!-- metrics:start -->
 - Selected model: `CalibratedLinearSVC`.
-- Abstain threshold: 0.5283; validation coverage: 0.8963.
-- Intent-specific cutoff: `compare_stores` 0.8039; validation precision 0.7581, recall 0.8624, coverage 0.8568 (target 0.7500).
-- Rows: training 4286, validation 887, synthetic test 920.
-- Synthetic test: accuracy 0.7717, macro-F1 0.8410, coverage 0.8370, abstained 150.
+- Abstain threshold: 0.4014; validation coverage: 0.9989.
+- Intent-specific cutoff: `compare_stores` 0.8076; validation precision 0.7538, recall 0.8991, coverage 0.9651 (target 0.7500).
+- Rows: training 4440, validation 887, synthetic test 920.
+- Synthetic test: accuracy 0.8707, macro-F1 0.8904, coverage 0.9391, abstained 56.
 - Synthetic test per-intent precision/recall:
 | Intent | Precision | Recall | F1 | Support |
 |---|---:|---:|---:|---:|
-| biggest_discount | 0.8333 | 0.6373 | 0.7222 | 102 |
-| cheapest_item | 0.9146 | 0.6881 | 0.7853 | 109 |
+| biggest_discount | 0.8023 | 0.6765 | 0.7340 | 102 |
+| cheapest_item | 0.9277 | 0.7064 | 0.8021 | 109 |
 | compare_stores | 0.8145 | 0.9439 | 0.8745 | 107 |
 | food_inflation | 1.0000 | 1.0000 | 1.0000 | 111 |
 | market_price | 1.0000 | 0.9806 | 0.9902 | 103 |
-| out_of_scope | 1.0000 | 0.5056 | 0.6716 | 178 |
+| out_of_scope | 1.0000 | 0.9045 | 0.9499 | 178 |
 | price_at_store | 0.8509 | 0.9798 | 0.9108 | 99 |
-| unit_price | 1.0000 | 0.6306 | 0.7735 | 111 |
-- AI-written held-out: rows 91; accuracy 0.8242; macro-F1 0.8711; coverage 0.9011; abstained 9.
+| unit_price | 1.0000 | 0.7568 | 0.8615 | 111 |
+- AI-written held-out: rows 91; accuracy 0.8462; macro-F1 0.8757; coverage 0.9341; abstained 6.
 - AI-written held-out per-intent precision/recall:
 | Intent | Precision | Recall | F1 | Support |
 |---|---:|---:|---:|---:|
 | biggest_discount | 0.9091 | 1.0000 | 0.9524 | 10 |
 | cheapest_item | 0.8889 | 0.8000 | 0.8421 | 10 |
 | compare_stores | 0.9000 | 0.9000 | 0.9000 | 10 |
-| food_inflation | 0.9000 | 0.9000 | 0.9000 | 10 |
+| food_inflation | 1.0000 | 0.8000 | 0.8889 | 10 |
 | market_price | 0.9000 | 0.9000 | 0.9000 | 10 |
-| out_of_scope | 1.0000 | 0.7000 | 0.8235 | 20 |
+| out_of_scope | 0.8947 | 0.8500 | 0.8718 | 20 |
 | price_at_store | 0.8000 | 0.7273 | 0.7619 | 11 |
 | unit_price | 1.0000 | 0.8000 | 0.8889 | 10 |
 - Leakage check: training questions dropped at or above 0.85 similarity 0; highest retained similarity 0.7500 (AI-written held-out).

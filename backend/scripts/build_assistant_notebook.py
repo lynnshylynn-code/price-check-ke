@@ -159,7 +159,7 @@ display(pd.DataFrame(top_features))
 """),
     markdown(7, """## Modelling
 
-All candidates use the exact `feature_union()` from the command-line script. Compare a majority-class baseline, Multinomial Naive Bayes, k-nearest neighbours, decision tree, balanced logistic regression, balanced calibrated linear SVM, random forest, and a small multilayer perceptron (MLP). Timing is measured at execution. Validation accuracy and macro-F1 are descriptive comparison measures; the CLI candidates are selected by validation macro-F1, and the threshold maximizes accepted validation accuracy subject to the coverage rule.
+All candidates use the exact `feature_union()` from the command-line script. Compare a majority-class baseline, Multinomial Naive Bayes, k-nearest neighbours, decision tree, balanced logistic regression, balanced calibrated linear SVM, random forest, and a small multilayer perceptron (MLP). Timing is measured at execution. The CLI candidates and global confidence threshold are selected by validation macro-F1 with abstentions; accepted accuracy and coverage break ties.
 """),
     code(8, """from time import perf_counter
 from sklearn.base import clone
@@ -205,15 +205,16 @@ import build_assistant_dataset as dataset_builder
 def best_validation_score_for_cap(multiplier):
     with tempfile.TemporaryDirectory(prefix="assistant-cap-") as temporary:
         temporary_dir = Path(temporary)
-        for filename in ["assistant_question_templates.csv", "assistant_slot_values.csv", "heldout_test_questions.csv", "human_test_questions.csv"]:
+        for filename in ["assistant_question_templates.csv", "assistant_slot_values.csv", "train_only_families.txt", "heldout_test_questions.csv", "human_test_questions.csv"]:
             source = DATA_DIR / filename
             if source.is_file():
                 shutil.copy2(source, temporary_dir / filename)
-        original = {name: getattr(dataset_builder, name) for name in ["ASSISTANT_DIR", "TEMPLATES_PATH", "SLOTS_PATH", "OUTPUT_PATH", "SPLIT_DIR", "CAP_MULTIPLIER"]}
+        original = {name: getattr(dataset_builder, name) for name in ["ASSISTANT_DIR", "TEMPLATES_PATH", "SLOTS_PATH", "TRAIN_ONLY_FAMILIES_PATH", "OUTPUT_PATH", "SPLIT_DIR", "CAP_MULTIPLIER"]}
         try:
             dataset_builder.ASSISTANT_DIR = temporary_dir
             dataset_builder.TEMPLATES_PATH = temporary_dir / "assistant_question_templates.csv"
             dataset_builder.SLOTS_PATH = temporary_dir / "assistant_slot_values.csv"
+            dataset_builder.TRAIN_ONLY_FAMILIES_PATH = temporary_dir / "train_only_families.txt"
             dataset_builder.OUTPUT_PATH = temporary_dir / "assistant_training_questions.csv"
             dataset_builder.SPLIT_DIR = temporary_dir / "splits"
             dataset_builder.CAP_MULTIPLIER = multiplier
@@ -269,7 +270,7 @@ for name in cli_candidate_names:
     model = fitted[name]
     classes, probs = probabilities(model, x_validation)
     threshold, threshold_metrics = choose_threshold(y_validation, classes, probs)
-    validation_scores[name] = {"model": model, "threshold": threshold, "metrics": threshold_metrics, "validation_macro_f1": f1_score(y_validation, model.predict(x_validation), average="macro", zero_division=0)}
+    validation_scores[name] = {"model": model, "threshold": threshold, "metrics": threshold_metrics, "validation_macro_f1": threshold_metrics["macro_f1_with_abstentions"]}
 chosen_name = max(validation_scores, key=lambda name: (validation_scores[name]["validation_macro_f1"], validation_scores[name]["metrics"]["accepted_accuracy"], validation_scores[name]["metrics"]["coverage"]))
 chosen_model = validation_scores[chosen_name]["model"]
 threshold = validation_scores[chosen_name]["threshold"]
