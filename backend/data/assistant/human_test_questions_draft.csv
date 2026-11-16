@@ -1,0 +1,33 @@
+question,expected_intent,language,review_status,reviewer,review_notes,source
+Where can I buy maize flour for the lowest price?,cheapest_item,English,pending,,,ai_draft_pending_review
+Which store has the cheapest cooking oil?,cheapest_item,English,pending,,,ai_draft_pending_review
+Nipate wapi unga wa mahindi kwa bei ya chini?,cheapest_item,Swahili draft,pending,,,ai_draft_pending_review
+Ni shop gani iko na mafuta ya kupikia ya bei poa?,cheapest_item,Swahili/Sheng draft,pending,,,ai_draft_pending_review
+At Quickmart Westlands what was the listed price of Omo Machine Wash Powder Extrafresh 2Kg?,price_at_store,English,pending,,"Observed 2026-11-16: KSh 1,500 at Quickmart Westlands 24 HRS; https://www.quickmart.co.ke/omo-machine-wash-powder-extrafresh-2kg-39. This is one branch, not all Nairobi stores.",ai_draft_pending_review
+What is the listed price of Mumias Sugar Packed 2 kg for Naivas Nairobi delivery?,price_at_store,English,pending,,"Observed 2026-11-16: KSh 289 (regular KSh 295) on the Naivas Nairobi delivery site; https://www.naivas.online/mumias-sugar-packed-2-kg. This does not verify every Nairobi branch.",ai_draft_pending_review
+Jaza Nairobi delivery: Soko Maize Meal 2Kg ni bei gani?,price_at_store,Swahili draft,pending,,"Observed 2026-11-16: KSh 167 at Jaza's Nairobi delivery location (SKU JT00945); https://shop.jaza.ke/. Review the Swahili wording.",ai_draft_pending_review
+Bei ya Soko Flour Maize Meal 2kg ya Carrefour Westlands ilikuwa ngapi kwenye snapshot ya 20 Oct 2026?,price_at_store,Swahili/Sheng draft,pending,,"Observed 2026-10-20: KSh 151 at Carrefour's Westlands - Nairobi site default; https://www.carrefour.ke/mafken/en/corn-flour/soko-flour-maize-meal-2kg/p/32022. This is a dated listing, not a current all-branch price; review the mixed-language wording.",ai_draft_pending_review
+Compare the price of rice at Carrefour and Naivas.,compare_stores,English,pending,,,ai_draft_pending_review
+"Which is cheaper for eggs, Quickmart or Naivas?",compare_stores,English,pending,,,ai_draft_pending_review
+Linganisha bei ya sukari Carrefour na Naivas.,compare_stores,Swahili draft,pending,,,ai_draft_pending_review
+"Quickmart na Carrefour, nani ako na bei poa ya mafuta?",compare_stores,Swahili/Sheng draft,pending,,,ai_draft_pending_review
+Which listed product has the largest discount?,biggest_discount,English,pending,,,ai_draft_pending_review
+Find the biggest markdown on laundry detergent.,biggest_discount,English,pending,,,ai_draft_pending_review
+Which item has the highest percentage taken off its usual price?,biggest_discount,English,pending,,,ai_draft_pending_review
+Onyesha offers zenye discount kubwa leo.,biggest_discount,Swahili/Sheng draft,pending,,,ai_draft_pending_review
+Which brand of cooking oil costs the least per litre?,unit_price,English,pending,,,ai_draft_pending_review
+Compare these maize flours by price per kilogram.,unit_price,English,pending,,,ai_draft_pending_review
+Ni mafuta gani ya kupikia ni nafuu kwa kila lita?,unit_price,Swahili draft,pending,,,ai_draft_pending_review
+Which cooking oil is the best value per 100 ml at Naivas?,unit_price,English,pending,,,ai_draft_pending_review
+Are any maize prices recorded for Nairobi County?,market_price,English,pending,,,ai_draft_pending_review
+What is the latest recorded price of beans in Mombasa County?,market_price,English,pending,,,ai_draft_pending_review
+"Je, bei ya mahindi imerekodiwa Kisumu County?",market_price,Swahili draft,pending,,,ai_draft_pending_review
+"Je, Nairobi County ina rekodi za bei ya maharagwe za hivi karibuni?",market_price,Swahili draft,pending,,,ai_draft_pending_review
+What is Kenya's food inflation rate?,food_inflation,English,pending,,,ai_draft_pending_review
+Show the recent national food-price trend.,food_inflation,English,pending,,,ai_draft_pending_review
+Mfumuko wa bei ya chakula Kenya ukoje?,food_inflation,Swahili draft,pending,,,ai_draft_pending_review
+Bei ya vyakula imebadilikaje nchini?,food_inflation,Swahili draft,pending,,,ai_draft_pending_review
+How can I reset my email password?,out_of_scope,English,pending,,,ai_draft_pending_review
+Can you predict sugar prices for next month?,out_of_scope,English,pending,,,ai_draft_pending_review
+Nisaidie kuandika barua ya kazi.,out_of_scope,Swahili draft,pending,,,ai_draft_pending_review
+Do you have cooking oil in stock at the shop right now?,out_of_scope,English,pending,,,ai_draft_pending_review

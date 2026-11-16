@@ -39,7 +39,7 @@ Intent routing is a **model-based/goal-based agent**: it uses a trained model to
 
 ## Data provenance and splits
 
-The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The dataset builder generates family-grouped splits, applies an intent cap, and removes training questions whose normalized character-trigram Jaccard similarity to AI-written or human-written held-out questions is at least 0.85. Additional general-knowledge and future-price examples are explicitly train-only; their held-out counterparts remain separate template families. Current row counts and leakage results are populated from training metadata below. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. No human-written held-out file is present.
+The supplied templates are AI-written. Expanded rows are **synthetic**, not human-authored. The dataset builder generates family-grouped splits, applies an intent cap, and removes training questions whose normalized character-trigram Jaccard similarity to AI-written or human-written held-out questions is at least 0.85. Additional general-knowledge and future-price examples are explicitly train-only; their held-out counterparts remain separate template families. Current row counts and leakage results are populated from training metadata below. The separate `heldout_test_questions.csv` remains AI-written and was not used to train or select the classifier. `human_test_questions_draft.csv` contains AI-generated candidates awaiting human and fluent-speaker review; it is not used for evaluation. Its four supermarket price-at-store candidates now reference observed listings from Naivas Nairobi delivery, Quickmart Westlands, Jaza Nairobi delivery, and the dated Carrefour Westlands snapshot; their review notes preserve price, source, date, and location caveats. They do not represent all Nairobi branches. No approved human-written held-out file is present.
 
 ## Intent model results
 
@@ -94,7 +94,7 @@ Question generation comes from AI-written templates and does not represent real 
 
 ## Not yet done / unverified
 
-- Human-authored assistant test questions and human review of the match-pair labels.
+- Human review of `human_test_questions_draft.csv`, then evaluation of approved questions; human review of the match-pair labels.
 - Device/emulator instrumentation tests (no `adb` executable/device was available); the Android unit tests and debug build did pass.
 - Daraja sandbox transaction and callback with merchant credentials and a reachable HTTPS callback.
 - Human spot-check of the predicted food-group/NOVA badges; the output is local and ignored by Git.

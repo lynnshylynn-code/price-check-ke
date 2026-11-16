@@ -7,6 +7,33 @@ AI-written held-out set (91 rows with `source=ai_written`); it is not human-auth
 Do not train on it, tune on it, or copy its questions into templates. Any future rows marked
 `source=human` must be evaluated and reported separately.
 
+## Human evaluation draft
+
+`human_test_questions_draft.csv` contains AI-generated candidate questions, not human-written
+evaluation data. It is intentionally separate from the training and evaluation scripts, and every
+row is marked `pending`. A human reviewer must confirm or rewrite each question and independently
+confirm its intent label. A fluent Swahili/Sheng speaker must review the translated or mixed-language
+wording. Remove or correct any ambiguous examples.
+
+The four `price_at_store` candidates include observed supermarket examples; their `review_notes`
+record the product, advertised price, source, date, and available Nairobi location context:
+Naivas Nairobi delivery, Quickmart Westlands 24 HRS, Jaza Nairobi delivery, and Carrefour Westlands
+from the 20 Oct 2026 snapshot. These observations cover only those specific site/location contexts,
+not every Nairobi branch. Carrefour's later location-selection attempt did not reliably confirm its
+backend delivery area, so its example remains explicitly dated to the earlier Westlands snapshot.
+The notes are reference evidence for human review, not human-authored answers or a branch-complete
+price dataset.
+
+The market-price draft questions focus on Nairobi, Mombasa, and Kisumu. Coverage is limited:
+Kisumu has no price observations, Nairobi and Mombasa have no maize observations, and their bean
+observations are old. Review expected answers against the current data rather than implying current
+prices where none are available.
+
+Only after human review, copy approved rows to `human_test_questions.csv` with `question` and
+`expected_intent` columns. The training script evaluates that file as a separate held-out source;
+it does not use it to train or tune the model. Do not report the draft's model score as human
+evaluation.
+
 ## Files
 - `assistant_question_templates.csv` - 228 templates in 68 families.
   Columns: `template_id`, `family_id`, `intent`, `style`, `template`, `slots`.
@@ -70,7 +97,9 @@ land on the same side of the split. Keep each intent represented in train, valid
 A random row split would leak and inflate accuracy. Save family lists and print per-split counts.
 
 ## Things to verify before using
-- Product names and prices come from the 20 Oct 2026 snapshot; re-check names if the snapshot changes.
+- The Carrefour supermarket example comes from the 20 Oct 2026 snapshot; the Naivas, Quickmart,
+  and Jaza examples were observed on 16 Nov 2026. Re-check names and prices against the source before
+  using them as evaluation questions.
 - County coverage notes (which county has maize, beans or goat data) come from the RTFP file in the repo; the generator should read the real coverage instead of trusting these notes.
 - Goat prices are per unit, not per kg; confirm in the data dictionary before writing answer templates.
 - Swahili and sheng-style phrases were written to be simple and natural; have a Swahili speaker skim them.
