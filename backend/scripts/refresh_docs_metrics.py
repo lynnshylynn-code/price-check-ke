@@ -50,6 +50,9 @@ def render_metrics(metadata: dict[str, Any]) -> str:
     heldout = metrics.get("heldout_by_source") or {}
     validation = metrics.get("validation") or {}
     leakage = metadata.get("leakage") or {}
+    intent_thresholds = metadata.get("intent_confidence_thresholds") or {}
+    threshold_selection = metadata.get("intent_threshold_selection") or {}
+    selected_intent = threshold_selection.get("intent")
     lines = [
         f"- Selected model: `{_value(metadata.get('model_name'))}`.",
         f"- Abstain threshold: {_value(metadata.get('confidence_threshold'))}; "
@@ -64,6 +67,17 @@ def render_metrics(metadata: dict[str, Any]) -> str:
         "- Synthetic test per-intent precision/recall:",
         *_intent_table(synthetic),
     ]
+    if selected_intent in intent_thresholds:
+        validation_metrics = threshold_selection.get("validation_metrics") or {}
+        lines.insert(
+            2,
+            f"- Intent-specific cutoff: `{selected_intent}` "
+            f"{_value(intent_thresholds[selected_intent])}; validation precision "
+            f"{_value(validation_metrics.get('precision'))}, recall "
+            f"{_value(validation_metrics.get('recall'))}, coverage "
+            f"{_value(validation_metrics.get('coverage'))} "
+            f"(target {_value(threshold_selection.get('minimum_precision'))}).",
+        )
     heldout_titles = (
         ("ai_written", "AI-written held-out"),
         ("human_written", "Human-written held-out"),
@@ -159,14 +173,11 @@ def refresh(metadata_path: Path, docs_paths: tuple[Path, ...]) -> None:
         if dialogue_path.is_file()
         else {}
     )
-    followup_content = (
-        render_followup_metrics(followup, dialogues)
-        if followup
-        else "Follow-up classifier and dialogue evaluation metrics need refresh after training."
-    )
+    followup_content = render_followup_metrics(followup, dialogues) if followup else None
     for path in docs_paths:
         replace_section(path, content)
-        replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
+        if followup_content is not None:
+            replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
 
 
 def main() -> int:
@@ -184,12 +195,11 @@ def main() -> int:
         if dialogue_path.is_file()
         else {}
     )
-    followup_content = render_followup_metrics(followup, dialogues) if followup else (
-        "Follow-up classifier metrics need refresh after training."
-    )
+    followup_content = render_followup_metrics(followup, dialogues) if followup else None
     for path in DEFAULT_DOCS:
         replace_section(path, content)
-        replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
+        if followup_content is not None:
+            replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
         print(f"Refreshed metrics in {path.relative_to(ROOT)}")
     return 0
 

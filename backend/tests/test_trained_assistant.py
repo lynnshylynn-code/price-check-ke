@@ -640,6 +640,33 @@ def test_real_trained_model_classifies_targeted_weak_intents(
     assert intent == expected_intent
 
 
+def test_classifier_applies_compare_stores_threshold_from_model_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FixedPipeline:
+        classes_ = np.asarray(["compare_stores", "price_at_store"])
+
+        def predict_proba(self, _questions: list[str]) -> np.ndarray:
+            return np.asarray([[0.75, 0.25]])
+
+    monkeypatch.setattr(
+        "price_check_api.trained_assistant.load_assistant_model",
+        lambda: AssistantModelState(
+            FixedPipeline(),
+            {
+                "confidence_threshold": 0.5,
+                "intent_confidence_thresholds": {"compare_stores": 0.8},
+            },
+        ),
+    )
+
+    intent, confidence, error = _classify("Compare Naivas and Quickmart prices")
+
+    assert error is None
+    assert intent == "out_of_scope"
+    assert confidence == 0.75
+
+
 def _classify_as(monkeypatch: pytest.MonkeyPatch, intent: str) -> None:
     monkeypatch.setattr(
         "price_check_api.trained_assistant._classify",

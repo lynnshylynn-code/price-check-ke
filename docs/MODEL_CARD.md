@@ -2,32 +2,33 @@
 
 ## Intent classifier
 
-- **Training path:** `notebooks/assistant_intent_crisp_dm.ipynb` is the main training path. It compares a majority baseline, Multinomial Naive Bayes, kNN, decision tree, logistic regression, calibrated linear SVM, random forest, and MLP over shared word/character TF-IDF features. Selection and abstention use validation data only. `backend/scripts/train_assistant.py` is the command-line copy.
+- **Training path:** `notebooks/assistant_intent_crisp_dm.ipynb` is the main training path. It compares a majority baseline, Multinomial Naive Bayes, kNN, decision tree, logistic regression, calibrated linear SVM, random forest, and MLP over shared word/character TF-IDF features. Model selection, global abstention, and the precision-targeted `compare_stores` cutoff use validation data only. `backend/scripts/train_assistant.py` is the command-line copy.
 - **Evaluation note:** the dataset splits changed in this version, so older results are not directly comparable. The synthetic validation and test splits each cover only two `compare_stores` template families.
 
 <!-- metrics:start -->
 - Selected model: `CalibratedLinearSVC`.
 - Abstain threshold: 0.5283; validation coverage: 0.8963.
+- Intent-specific cutoff: `compare_stores` 0.8039; validation precision 0.7581, recall 0.8624, coverage 0.8568 (target 0.7500).
 - Rows: training 4286, validation 887, synthetic test 920.
-- Synthetic test: accuracy 0.7783, macro-F1 0.8330, coverage 0.8728, abstained 117.
+- Synthetic test: accuracy 0.7717, macro-F1 0.8410, coverage 0.8370, abstained 150.
 - Synthetic test per-intent precision/recall:
 | Intent | Precision | Recall | F1 | Support |
 |---|---:|---:|---:|---:|
 | biggest_discount | 0.8333 | 0.6373 | 0.7222 | 102 |
 | cheapest_item | 0.9146 | 0.6881 | 0.7853 | 109 |
-| compare_stores | 0.6815 | 1.0000 | 0.8106 | 107 |
+| compare_stores | 0.8145 | 0.9439 | 0.8745 | 107 |
 | food_inflation | 1.0000 | 1.0000 | 1.0000 | 111 |
 | market_price | 1.0000 | 0.9806 | 0.9902 | 103 |
 | out_of_scope | 1.0000 | 0.5056 | 0.6716 | 178 |
 | price_at_store | 0.8509 | 0.9798 | 0.9108 | 99 |
 | unit_price | 1.0000 | 0.6306 | 0.7735 | 111 |
-- AI-written held-out: rows 91; accuracy 0.8352; macro-F1 0.8586; coverage 0.9560; abstained 4.
+- AI-written held-out: rows 91; accuracy 0.8242; macro-F1 0.8711; coverage 0.9011; abstained 9.
 - AI-written held-out per-intent precision/recall:
 | Intent | Precision | Recall | F1 | Support |
 |---|---:|---:|---:|---:|
 | biggest_discount | 0.9091 | 1.0000 | 0.9524 | 10 |
 | cheapest_item | 0.8889 | 0.8000 | 0.8421 | 10 |
-| compare_stores | 0.6667 | 1.0000 | 0.8000 | 10 |
+| compare_stores | 0.9000 | 0.9000 | 0.9000 | 10 |
 | food_inflation | 0.9000 | 0.9000 | 0.9000 | 10 |
 | market_price | 0.9000 | 0.9000 | 0.9000 | 10 |
 | out_of_scope | 1.0000 | 0.7000 | 0.8235 | 20 |

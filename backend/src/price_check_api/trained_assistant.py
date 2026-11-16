@@ -371,7 +371,14 @@ def _classify(question: str) -> tuple[str, float, str | None]:
     ):
         intent_index = list(state.pipeline.classes_).index("price_at_store")
         return "price_at_store", float(probabilities[intent_index]), None
-    if confidence < float(state.metadata.get("confidence_threshold", 1.0)):
+    global_threshold = float(state.metadata.get("confidence_threshold", 1.0))
+    intent_thresholds = state.metadata.get("intent_confidence_thresholds", {})
+    intent_threshold = (
+        float(intent_thresholds.get(intent, global_threshold))
+        if isinstance(intent_thresholds, dict)
+        else global_threshold
+    )
+    if confidence < max(global_threshold, intent_threshold):
         return "out_of_scope", confidence, None
     return intent, confidence, None
 

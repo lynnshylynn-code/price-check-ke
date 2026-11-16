@@ -16,6 +16,16 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
         "validation_rows": 4,
         "synthetic_test_rows": 5,
         "confidence_threshold": 0.6,
+        "intent_confidence_thresholds": {"compare_stores": 0.8},
+        "intent_threshold_selection": {
+            "intent": "compare_stores",
+            "minimum_precision": 0.75,
+            "validation_metrics": {
+                "precision": 0.75,
+                "recall": 0.5,
+                "coverage": 0.9,
+            },
+        },
         "validation": {"coverage": 0.9},
         "metrics": {
             "validation": {"coverage": 0.9},
@@ -54,7 +64,8 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
     metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
     docs = tmp_path / "report.md"
     docs.write_text(
-        "before\n<!-- metrics:start -->\nold\n<!-- metrics:end -->\nafter\n",
+        "before\n<!-- metrics:start -->\nold\n<!-- metrics:end -->\nafter\n"
+        "<!-- followup:start -->\nexisting follow-up metrics\n<!-- followup:end -->\n",
         encoding="utf-8",
     )
 
@@ -64,8 +75,16 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
 
     assert docs.read_text(encoding="utf-8") == rendered_once
     assert rendered_once.startswith("before\n<!-- metrics:start -->")
-    assert rendered_once.endswith("<!-- metrics:end -->\nafter\n")
+    assert rendered_once.endswith(
+        "after\n<!-- followup:start -->\nexisting follow-up metrics\n<!-- followup:end -->\n"
+    )
+    assert "existing follow-up metrics" in rendered_once
     assert "UnitTestModel" in rendered_once
+    assert (
+        "Intent-specific cutoff: `compare_stores` 0.8000; validation precision 0.7500, "
+        "recall 0.5000, coverage 0.9000"
+        in rendered_once
+    )
     assert "| cheapest_item | 0.7500 | 0.5000 | 0.6000 | 2 |" in rendered_once
     assert "__abstain__" not in rendered_once
     assert "abstained 1" in rendered_once

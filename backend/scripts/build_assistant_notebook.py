@@ -132,8 +132,9 @@ plt.tight_layout(); plt.show()
 The checked-in split files are already grouped by `family_id`: a template family stays in one split. This reduces leakage from near-identical generated phrasings across train, validation, and test. Fit TF-IDF only on training questions; the word n-grams capture terms and short phrases, while character n-grams help with spelling variation. The feature function below is imported directly from `train_assistant.py`, so it matches the command-line path exactly.
 """),
     code(6, """from train_assistant import (
-    ABSTAIN, MIN_VALIDATION_COVERAGE, candidates, choose_threshold, evaluate,
-    feature_union, heldout_by_source, probabilities,
+    ABSTAIN, COMPARE_STORES_MIN_PRECISION, MIN_VALIDATION_COVERAGE, candidates,
+    choose_intent_threshold, choose_threshold, evaluate, feature_union,
+    heldout_by_source, probabilities,
 )
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -239,7 +240,7 @@ display(cap_comparison)
 """),
     markdown(9, """## Evaluation
 
-First inspect overfitting by comparing training and validation accuracy while varying tree depth, k, and logistic-regression C. Then choose the model and confidence threshold using only validation labels and `choose_threshold()` from the CLI. The synthetic test split and each held-out provenance group are evaluated separately and only once for final reporting.
+First inspect overfitting by comparing training and validation accuracy while varying tree depth, k, and logistic-regression C. Then choose the model, global confidence threshold, and a precision-targeted `compare_stores` cutoff using only validation labels. The synthetic test split and each held-out provenance group are evaluated separately and only once for final reporting.
 """),
     code(10, """from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 
@@ -272,8 +273,20 @@ for name in cli_candidate_names:
 chosen_name = max(validation_scores, key=lambda name: (validation_scores[name]["validation_macro_f1"], validation_scores[name]["metrics"]["accepted_accuracy"], validation_scores[name]["metrics"]["coverage"]))
 chosen_model = validation_scores[chosen_name]["model"]
 threshold = validation_scores[chosen_name]["threshold"]
+chosen_classes, chosen_probabilities = probabilities(chosen_model, x_validation)
+compare_threshold, compare_threshold_metrics = choose_intent_threshold(
+    y_validation, chosen_classes, chosen_probabilities, threshold,
+    "compare_stores", COMPARE_STORES_MIN_PRECISION,
+)
+intent_thresholds = {"compare_stores": compare_threshold} if compare_threshold > threshold else {}
+intent_threshold_selection = {
+    "intent": "compare_stores",
+    "minimum_precision": COMPARE_STORES_MIN_PRECISION,
+    "validation_metrics": compare_threshold_metrics,
+}
 display(pd.DataFrame([{"model": name, "validation_macro_f1": row["validation_macro_f1"], "threshold": row["threshold"], **row["metrics"]} for name, row in validation_scores.items()]).sort_values(["validation_macro_f1", "accepted_accuracy", "coverage"], ascending=False))
 print("Selected by validation macro-F1:", chosen_name, "| confidence threshold selected by accepted accuracy and coverage:", threshold)
+print("Validation-selected compare_stores threshold:", compare_threshold, "| precision:", compare_threshold_metrics["precision"], "| recall:", compare_threshold_metrics["recall"])
 
 val_classes, val_probs = probabilities(chosen_model, x_validation)
 confidence = val_probs.max(axis=1)
@@ -291,7 +304,7 @@ axis.set(title="Validation coverage versus accepted accuracy", xlabel="Coverage"
 
 def report_metrics(name, rows, cutoff):
     with contextlib.redirect_stdout(io.StringIO()):
-        return evaluate(name, chosen_model, rows, cutoff)
+        return evaluate(name, chosen_model, rows, cutoff, intent_thresholds)
 
 synthetic_test_rows = test_df.drop(columns=["question_chars", "question_words"], errors="ignore").astype(str).to_dict("records")
 synthetic_metrics = report_metrics("Synthetic test split", synthetic_test_rows, threshold)
@@ -347,6 +360,8 @@ metadata = {
     "synthetic_test_rows": len(test_df),
     "heldout_rows_by_source": {source: len(rows) for source, rows in heldout_by_source(heldout_df.to_dict("records")).items()},
     "confidence_threshold": threshold,
+    "intent_confidence_thresholds": intent_thresholds,
+    "intent_threshold_selection": intent_threshold_selection,
     "minimum_validation_coverage": MIN_VALIDATION_COVERAGE,
     "leakage": json.loads((DATA_DIR / "dataset_build_metadata.json").read_text(encoding="utf-8")) if (DATA_DIR / "dataset_build_metadata.json").is_file() else {},
     "metrics": {
@@ -412,10 +427,11 @@ try:
         differences = {
             "model_name": metadata["model_name"] != cli_metadata["model_name"],
             "confidence_threshold": metadata["confidence_threshold"] != cli_metadata["confidence_threshold"],
+            "intent_confidence_thresholds": metadata["intent_confidence_thresholds"] != cli_metadata["intent_confidence_thresholds"],
             "synthetic_test_accuracy": metadata["metrics"]["synthetic_test"]["accuracy"] != cli_metadata["metrics"]["synthetic_test"]["accuracy"],
             "synthetic_test_macro_f1": metadata["metrics"]["synthetic_test"]["macro_f1"] != cli_metadata["metrics"]["synthetic_test"]["macro_f1"],
         }
-        display(pd.DataFrame([{"field": key, "notebook": metadata["model_name"] if key == "model_name" else metadata["confidence_threshold"] if key == "confidence_threshold" else metadata["metrics"]["synthetic_test"]["accuracy"] if key.endswith("accuracy") else metadata["metrics"]["synthetic_test"]["macro_f1"], "command_line": cli_metadata["model_name"] if key == "model_name" else cli_metadata["confidence_threshold"] if key == "confidence_threshold" else cli_metadata["metrics"]["synthetic_test"]["accuracy"] if key.endswith("accuracy") else cli_metadata["metrics"]["synthetic_test"]["macro_f1"], "different": value} for key, value in differences.items()]))
+        display(pd.DataFrame([{"field": key, "notebook": metadata["model_name"] if key == "model_name" else metadata["confidence_threshold"] if key == "confidence_threshold" else metadata["intent_confidence_thresholds"] if key == "intent_confidence_thresholds" else metadata["metrics"]["synthetic_test"]["accuracy"] if key.endswith("accuracy") else metadata["metrics"]["synthetic_test"]["macro_f1"], "command_line": cli_metadata["model_name"] if key == "model_name" else cli_metadata["confidence_threshold"] if key == "confidence_threshold" else cli_metadata["intent_confidence_thresholds"] if key == "intent_confidence_thresholds" else cli_metadata["metrics"]["synthetic_test"]["accuracy"] if key.endswith("accuracy") else cli_metadata["metrics"]["synthetic_test"]["macro_f1"], "different": value} for key, value in differences.items()]))
         print("Consistency check:", "MATCH" if not any(differences.values()) else "DIFFERENCE FOUND")
 finally:
     default_model_dir.mkdir(parents=True, exist_ok=True)

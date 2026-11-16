@@ -47,6 +47,7 @@ HUMAN_HELDOUT_FILE = ASSISTANT_DIR / "human_test_questions.csv"
 MODEL_FILE = MODEL_DIR / "intent_pipeline.joblib"
 METADATA_FILE = MODEL_DIR / "metadata.json"
 MIN_VALIDATION_COVERAGE = 0.85
+COMPARE_STORES_MIN_PRECISION = 0.75
 ABSTAIN = "__abstain__"
 
 
@@ -227,11 +228,75 @@ def choose_threshold(
     return best_threshold, best_result
 
 
+def choose_intent_threshold(
+    labels: list[str],
+    model_classes: np.ndarray,
+    probs: np.ndarray,
+    base_threshold: float,
+    intent: str,
+    min_precision: float,
+) -> tuple[float, dict[str, float]]:
+    confidence = probs.max(axis=1)
+    indexes = probs.argmax(axis=1)
+    predicted = model_classes[indexes]
+    base_predictions = np.where(confidence >= base_threshold, predicted, ABSTAIN)
+    candidates = np.unique(
+        np.concatenate(
+            (
+                [base_threshold],
+                confidence[(predicted == intent) & (confidence >= base_threshold)],
+            )
+        )
+    )
+    labels_array = np.asarray(labels)
+    best: tuple[float, float, float, float, float] | None = None
+    best_threshold = base_threshold
+    best_metrics: dict[str, float] = {}
+    for threshold in candidates:
+        predictions = base_predictions.copy()
+        predictions[(predicted == intent) & (confidence < threshold)] = ABSTAIN
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            labels_array, predictions, labels=[intent], zero_division=0,
+        )
+        coverage = float(np.mean(predictions != ABSTAIN))
+        if precision[0] < min_precision or coverage < MIN_VALIDATION_COVERAGE:
+            continue
+        score = (
+            float(recall[0]),
+            float(f1[0]),
+            float(precision[0]),
+            coverage,
+            -float(threshold),
+        )
+        if best is None or score > best:
+            best = score
+            best_threshold = float(threshold)
+            best_metrics = {
+                "precision": float(precision[0]),
+                "recall": float(recall[0]),
+                "f1": float(f1[0]),
+                "coverage": coverage,
+            }
+
+    if best is None:
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            labels_array, base_predictions, labels=[intent], zero_division=0,
+        )
+        best_metrics = {
+            "precision": float(precision[0]),
+            "recall": float(recall[0]),
+            "f1": float(f1[0]),
+            "coverage": float(np.mean(base_predictions != ABSTAIN)),
+        }
+    return best_threshold, best_metrics
+
+
 def evaluate(
     name: str,
     model: Pipeline,
     rows: list[dict[str, str]],
     threshold: float | None,
+    intent_thresholds: dict[str, float] | None = None,
 ) -> dict[str, Any]:
     questions = [row["question"] for row in rows]
     truth = np.asarray([row["intent"] for row in rows])
@@ -240,6 +305,8 @@ def evaluate(
     prediction = classes[probs.argmax(axis=1)].astype(str)
     if threshold is not None:
         prediction[confidence < threshold] = ABSTAIN
+    for intent, intent_threshold in (intent_thresholds or {}).items():
+        prediction[(prediction == intent) & (confidence < intent_threshold)] = ABSTAIN
 
     intent_labels = sorted(set(truth) | set(classes.astype(str)))
     all_labels = intent_labels + [ABSTAIN]
@@ -352,6 +419,26 @@ def main() -> None:
     )
     chosen_model, threshold, validation_metrics, _ = fitted[chosen_name]
     print(f"Selected model: {chosen_name}; confidence threshold={threshold:.4f}")
+    validation_classes, validation_probs = probabilities(chosen_model, x_validation)
+    compare_threshold, compare_threshold_metrics = choose_intent_threshold(
+        y_validation,
+        validation_classes,
+        validation_probs,
+        threshold,
+        "compare_stores",
+        COMPARE_STORES_MIN_PRECISION,
+    )
+    intent_thresholds = (
+        {"compare_stores": compare_threshold}
+        if compare_threshold > threshold
+        else {}
+    )
+    print(
+        "Validation-selected compare_stores confidence threshold: "
+        f"{compare_threshold:.4f}; precision={compare_threshold_metrics['precision']:.4f}; "
+        f"recall={compare_threshold_metrics['recall']:.4f}; "
+        f"coverage={compare_threshold_metrics['coverage']:.4f}"
+    )
 
     dummy = candidates()["DummyMostFrequent"]
     dummy.fit(x_train, y_train)
@@ -360,6 +447,7 @@ def main() -> None:
         chosen_model,
         synthetic_test,
         threshold,
+        intent_thresholds,
     )
     synthetic_dummy = evaluate(
         "Synthetic test split baseline (DummyClassifier)", dummy, synthetic_test, None
@@ -368,7 +456,9 @@ def main() -> None:
     heldout_dummy = {}
     for source, rows in heldout_by_source(heldout_rows).items():
         title = "AI-written held-out set" if source == "ai_written" else f"Held-out set ({source})"
-        heldout_metrics[source] = evaluate(title, chosen_model, rows, threshold)
+        heldout_metrics[source] = evaluate(
+            title, chosen_model, rows, threshold, intent_thresholds,
+        )
         heldout_dummy[source] = evaluate(f"{title} baseline (DummyClassifier)", dummy, rows, None)
 
     training_hash = hashlib.sha256(TRAIN_FILE.read_bytes()).hexdigest()
@@ -391,6 +481,12 @@ def main() -> None:
             key: len(value) for key, value in heldout_by_source(heldout_rows).items()
         },
         "confidence_threshold": threshold,
+        "intent_confidence_thresholds": intent_thresholds,
+        "intent_threshold_selection": {
+            "intent": "compare_stores",
+            "minimum_precision": COMPARE_STORES_MIN_PRECISION,
+            "validation_metrics": compare_threshold_metrics,
+        },
         "minimum_validation_coverage": MIN_VALIDATION_COVERAGE,
         "leakage": (
             json.loads((ASSISTANT_DIR / "dataset_build_metadata.json").read_text(encoding="utf-8"))
