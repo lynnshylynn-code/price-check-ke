@@ -162,6 +162,19 @@ def test_listing_groups_expose_real_store_availability() -> None:
     assert set(oil["missing_at_stores"]) == {"Carrefour", "Quickmart"}
 
 
+def test_listing_reasoning_endpoint_exposes_explainable_snapshot_facts() -> None:
+    listing = get_listings()[0]
+
+    response = client.get(f"/api/v1/listings/{listing.id}/reasoning")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["listing_id"] == listing.id
+    assert "NOT STOCK_CONFIRMED" in payload["facts"]
+    assert "IN_STOCK_UNKNOWN" in payload["derived_facts"]
+    assert payload["reason"].endswith("are not verified.")
+
+
 def test_basket_optimize_uses_group_prices_and_reports_gaps() -> None:
     response = client.post(
         "/api/v1/basket/optimize",
@@ -177,6 +190,40 @@ def test_basket_optimize_uses_group_prices_and_reports_gaps() -> None:
     assert payload["lines"][0]["product_url"].startswith("https://")
     assert set(payload["lines"][0]["missing_at_stores"]) == {"Carrefour", "Quickmart"}
     assert payload["best_single_store"] == "Naivas"
+
+
+def test_basket_constraints_endpoint_returns_explicit_assignment_or_constraint() -> None:
+    solved = client.post(
+        "/api/v1/basket/constraints",
+        json={
+            "product_ids": ["supa-loaf-white-bread-400g"],
+            "max_stores": 1,
+            "must_use_store": "Naivas",
+        },
+    )
+    assert solved.status_code == 200
+    assert solved.json()["status"] == "solved"
+    assert solved.json()["assignment"][0]["store"] == "Naivas"
+
+    impossible = client.post(
+        "/api/v1/basket/constraints",
+        json={"product_ids": ["sugar-2kg"], "budget_cap": 1},
+    )
+    assert impossible.status_code == 200
+    assert impossible.json()["status"] == "unsatisfiable"
+    assert impossible.json()["violated_constraint"] == "budget cap"
+
+
+def test_association_suggestions_identify_their_synthetic_source() -> None:
+    response = client.get(
+        "/api/v1/basket/suggestions",
+        params={"items": "maize-meal-2kg"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert "synthetic" in payload["source_notice"].casefold()
+    assert any(item["item"] == "cooking-oil-1l" for item in payload["suggestions"])
 
 
 def test_basket_optimize_rejects_unavailable_group_and_unknown_group() -> None:

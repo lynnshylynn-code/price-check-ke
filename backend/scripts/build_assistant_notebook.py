@@ -133,8 +133,8 @@ The checked-in split files are already grouped by `family_id`: a template family
 """),
     code(6, """from train_assistant import (
     ABSTAIN, COMPARE_STORES_MIN_PRECISION, MIN_VALIDATION_COVERAGE, candidates,
-    choose_intent_threshold, choose_threshold, evaluate, feature_union,
-    heldout_by_source, probabilities,
+    choose_intent_threshold, choose_threshold, cross_validate_candidates, evaluate,
+    feature_union, heldout_by_source, probabilities, roc_auc_report,
 )
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -159,9 +159,10 @@ display(pd.DataFrame(top_features))
 """),
     markdown(7, """## Modelling
 
-All candidates use the exact `feature_union()` from the command-line script. Compare a majority-class baseline, Multinomial Naive Bayes, k-nearest neighbours, decision tree, balanced logistic regression, balanced calibrated linear SVM, random forest, and a small multilayer perceptron (MLP). Timing is measured at execution. The CLI candidates and global confidence threshold are selected by validation macro-F1 with abstentions; accepted accuracy and coverage break ties.
+All candidates use the exact `feature_union()` from the command-line script. Compare a majority-class baseline, Multinomial Naive Bayes, k-nearest neighbours, decision tree, balanced logistic regression, balanced calibrated linear SVM, random forest, and a small multilayer perceptron (MLP). Timing is measured at execution. The CLI candidates and global confidence threshold are selected by validation macro-F1 with abstentions; accepted accuracy and coverage break ties. Stratified, family-grouped five-fold CV on training data is reported separately as a robustness check and never changes model selection.
 """),
-    code(8, """from time import perf_counter
+    code(8, """import time
+from time import perf_counter
 from sklearn.base import clone
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -170,6 +171,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.tree import DecisionTreeClassifier
 
+TRAINING_STARTED = time.perf_counter()
 model_candidates = {name: clone(model) for name, model in candidates().items()}
 model_candidates.update({
     "KNeighbors": Pipeline([("features", feature_union()), ("classifier", KNeighborsClassifier(n_neighbors=5, metric="cosine", algorithm="brute"))]),
@@ -192,6 +194,15 @@ for name, model in model_candidates.items():
     fitted[name] = model
 comparison_df = pd.DataFrame(comparison).sort_values(["validation_macro_f1", "validation_accuracy"], ascending=False).reset_index(drop=True)
 display(comparison_df)
+cv_metrics = cross_validate_candidates(
+    x_train, y_train, train_df["family_id"].astype(str).tolist()
+)
+cv_df = pd.DataFrame([
+    {"model": name, "macro_f1_mean": row["macro_f1_mean"],
+     "macro_f1_std": row["macro_f1_std"], "fold_scores": row["fold_scores"]}
+    for name, row in cv_metrics.items()
+]).sort_values(["macro_f1_mean", "macro_f1_std"], ascending=[False, True])
+display(cv_df)
 """),
     markdown(15, """### Training-cap sensitivity
 
@@ -241,9 +252,11 @@ display(cap_comparison)
 """),
     markdown(9, """## Evaluation
 
-First inspect overfitting by comparing training and validation accuracy while varying tree depth, k, and logistic-regression C. Then choose the model, global confidence threshold, and a precision-targeted `compare_stores` cutoff using only validation labels. The synthetic test split and each held-out provenance group are evaluated separately and only once for final reporting.
+First inspect overfitting by comparing training and validation accuracy while varying tree depth, k, and logistic-regression C. Then choose the model, global confidence threshold, and a precision-targeted `compare_stores` cutoff using only validation labels. The synthetic test split and each held-out provenance group are evaluated separately and only once for final reporting. One-vs-rest ROC-AUC and ROC curves are additional threshold-independent ranking diagnostics on the synthetic test and AI-written held-out sets.
+
+**Interpretation (Week 9):** accuracy can hide poor minority-intent performance when class frequencies differ. ROC-AUC measures ranking over thresholds, not calibrated probabilities or the precision/recall at the deployed cutoff; in imbalanced data it can look reassuring while positive-class precision is poor. Review per-intent metrics, confusion matrices, coverage, and real human questions too.
 """),
-    code(10, """from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
+    code(10, """from sklearn.metrics import confusion_matrix, precision_recall_fscore_support, roc_curve
 
 overfit_rows = []
 for depth in [1, 2, 4, 8, None]:
@@ -321,8 +334,9 @@ show_evaluation("Synthetic test split (synthetic generated questions)", syntheti
 
 heldout_path = DATA_DIR / "heldout_test_questions.csv"
 heldout_df = pd.read_csv(heldout_path, dtype=str).fillna("")
+heldout_groups = heldout_by_source(heldout_df.to_dict("records"))
 heldout_metrics = {}
-for source, group in heldout_by_source(heldout_df.to_dict("records")).items():
+for source, group in heldout_groups.items():
     rows = [{**row, "intent": row["expected_intent"]} for row in group]
     metrics = report_metrics(f"Held-out ({source})", rows, threshold)
     heldout_metrics[source] = metrics
@@ -337,6 +351,37 @@ if human_path.is_file():
     show_evaluation("Human-written held-out provenance", human_metrics)
 else:
     print("Human-written held-out set: not present; no human metrics reported.")
+
+roc_metrics = {
+    "synthetic_test": roc_auc_report(chosen_model, synthetic_test_rows),
+    "ai_written_heldout": roc_auc_report(chosen_model, heldout_groups.get("ai_written", [])),
+}
+def plot_roc_curves(title, rows):
+    if not rows:
+        print(title, "ROC curves unavailable: no rows.")
+        return
+    questions = [row["question"] for row in rows]
+    truth = np.asarray([row.get("intent") or row["expected_intent"] for row in rows])
+    classes, probability_values = probabilities(chosen_model, questions)
+    fig, axis = plt.subplots(figsize=(8, 6))
+    for index, intent in enumerate(classes.astype(str)):
+        binary_truth = truth == intent
+        if binary_truth.any() and (~binary_truth).any():
+            fpr, tpr, _ = roc_curve(binary_truth, probability_values[:, index])
+            auc = roc_metrics["synthetic_test" if "synthetic" in title.lower()
+                              else "ai_written_heldout"]["per_intent_auc_ovr"][intent]
+            axis.plot(fpr, tpr, label=f"{intent} (AUC={auc:.3f})")
+    axis.plot([0, 1], [0, 1], linestyle="--", color="black", label="chance")
+    axis.set(title=title, xlabel="False positive rate", ylabel="True positive rate")
+    axis.legend(loc="lower right", fontsize="small")
+    plt.tight_layout(); plt.show()
+
+display(pd.DataFrame(roc_metrics).T)
+plot_roc_curves("One-vs-rest ROC — synthetic test", synthetic_test_rows)
+plot_roc_curves(
+    "One-vs-rest ROC — AI-written held-out",
+    heldout_groups.get("ai_written", []),
+)
 """),
     markdown(11, """## Deployment
 
@@ -356,6 +401,7 @@ metadata = {
     "training_date": date.today().isoformat(),
     "sklearn_version": sklearn.__version__,
     "training_data_sha256": hashlib.sha256(train_file.read_bytes()).hexdigest(),
+    "training_wall_seconds": time.perf_counter() - TRAINING_STARTED,
     "training_rows": len(train_df),
     "validation_rows": len(validation_df),
     "synthetic_test_rows": len(test_df),
@@ -372,6 +418,8 @@ metadata = {
         "heldout_by_source": heldout_metrics,
         "heldout_dummy_by_source": {},
     },
+    "cross_validation": cv_metrics,
+    "roc_auc": roc_metrics,
 }
 dummy_model = candidates()["DummyMostFrequent"].fit(x_train, y_train)
 with contextlib.redirect_stdout(io.StringIO()):

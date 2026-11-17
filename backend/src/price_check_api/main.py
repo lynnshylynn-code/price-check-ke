@@ -12,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import orders
 from .ai_rate_limit import enforce_ai_rate_limit
 from .assistant_model import load_assistant_model
+from .association_rules import AssociationRule, association_rules, read_transactions
+from .basket_csp import solve_basket_csp
 from .basket_search import a_star_search, breadth_first_search, uniform_cost_search
 from .dialogue import answer_dialogue
 from .fuzzy_listings import deal_position as listing_deal_position
@@ -19,6 +21,7 @@ from .fuzzy_price import price_position
 from .listing_groups import get_comparable_group, get_comparable_groups
 from .listing_matcher import load_matcher
 from .listings import DATA_CAVEATS, DATA_LABEL, ListingDataError, get_listings, listing_dict
+from .logic_rules import reason_about_listing
 from .market_data import (
     COMMODITIES,
     SOURCE_NAME,
@@ -35,6 +38,9 @@ from .product_catalog import (
 )
 from .schemas import (
     AssistantAskRequest,
+    BasketCSPAssignment,
+    BasketCSPRequest,
+    BasketCSPResponse,
     BasketOptimizedLine,
     BasketOptimizeRequest,
     BasketOptimizeResponse,
@@ -42,12 +48,15 @@ from .schemas import (
     BasketPricingResponse,
     BasketSearchAssignment,
     BasketSingleStoreOption,
+    BasketSuggestion,
+    BasketSuggestionsResponse,
     FoodInflationResponse,
     ListingCollectionResponse,
     ListingDealPositionResponse,
     ListingDetailResponse,
     ListingGroup,
     ListingGroupCollectionResponse,
+    ListingReasoningResponse,
     MarketDirectoryResponse,
     MarketQuestionRequest,
     MarketQuestionResponse,
@@ -186,6 +195,29 @@ def listing_deal_position_endpoint(listing_id: str) -> ListingDealPositionRespon
         price_memberships=result.price_memberships,
         group_percentiles=result.group_percentiles,
     )
+
+
+@app.get(
+    "/api/v1/listings/{listing_id}/reasoning",
+    response_model=ListingReasoningResponse,
+    tags=["listings"],
+)
+def listing_reasoning_endpoint(listing_id: str) -> ListingReasoningResponse:
+    try:
+        item = next((row for row in get_listings() if row.id == listing_id), None)
+    except ListingDataError as error:
+        raise HTTPException(status_code=503, detail="Listing snapshot is unavailable.") from error
+    if item is None:
+        raise HTTPException(status_code=404, detail="Listing not found in this snapshot.")
+    group = next(
+        (
+            candidate
+            for candidate in get_comparable_groups()
+            if any(row.id == item.id for row in candidate.listings)
+        ),
+        None,
+    )
+    return ListingReasoningResponse(**reason_about_listing(item, group))
 
 
 @app.get(
@@ -462,6 +494,114 @@ def basket_optimize(request: BasketOptimizeRequest) -> BasketOptimizeResponse:
         assignments=[
             BasketSearchAssignment(product_id=product.id, store=store)
             for product, store in zip(selected, assignment, strict=True)
+        ],
+    )
+
+
+@app.post(
+    "/api/v1/basket/constraints",
+    response_model=BasketCSPResponse,
+    tags=["products"],
+)
+def basket_constraints(request: BasketCSPRequest) -> BasketCSPResponse:
+    try:
+        catalog = get_product_catalog("Nairobi")
+    except ProductCatalogDataError as error:
+        raise HTTPException(
+            status_code=503, detail="Nairobi price catalog is unavailable."
+        ) from error
+    products = {product.id: product for product in catalog.products}
+    unknown = [identifier for identifier in request.product_ids if identifier not in products]
+    if unknown:
+        raise HTTPException(status_code=404, detail=f"Unknown product id: {unknown[0]}")
+
+    domains: dict[str, dict[str, float]] = {}
+    selected_prices = {}
+    for identifier in request.product_ids:
+        product = products[identifier]
+        best_by_store = {}
+        for price in product.prices:
+            current = best_by_store.get(price.store)
+            if current is None or price.price < current.price:
+                best_by_store[price.store] = price
+        domains[identifier] = {store: price.price for store, price in best_by_store.items()}
+        selected_prices[identifier] = best_by_store
+    result = solve_basket_csp(
+        domains,
+        max_stores=request.max_stores,
+        min_spend_per_store=request.min_spend_per_store,
+        budget_cap=request.budget_cap,
+        must_use_store=request.must_use_store,
+    )
+    if result.assignment is None:
+        return BasketCSPResponse(
+            status="unsatisfiable",
+            total_kes=None,
+            nodes_expanded=result.nodes_expanded,
+            violated_constraint=result.violated_constraint,
+        )
+    assignment = [
+        BasketCSPAssignment(
+            product_id=product_id,
+            store=store,
+            location_id=selected_prices[product_id][store].location_id,
+            price_kes=selected_prices[product_id][store].price,
+        )
+        for product_id, store in result.assignment.items()
+    ]
+    return BasketCSPResponse(
+        status="solved",
+        assignment=assignment,
+        total_kes=result.total,
+        nodes_expanded=result.nodes_expanded,
+    )
+
+
+@app.get(
+    "/api/v1/basket/suggestions",
+    response_model=BasketSuggestionsResponse,
+    tags=["products"],
+)
+def basket_suggestions(
+    items: Annotated[str, Query(min_length=1, max_length=300)],
+) -> BasketSuggestionsResponse:
+    selected = frozenset(item.strip() for item in items.split(",") if item.strip())
+    if not selected or len(selected) > 10:
+        raise HTTPException(status_code=422, detail="Provide between one and ten basket items.")
+    path = Path(__file__).resolve().parents[2] / "data/baskets/synthetic_baskets.csv"
+    try:
+        transactions = read_transactions(str(path))
+    except (OSError, ValueError) as error:
+        raise HTTPException(
+            status_code=503, detail="Synthetic basket data is unavailable."
+        ) from error
+    rules = association_rules(transactions, min_support=0.02, min_confidence=0.1)
+    suggestions: dict[str, AssociationRule] = {}
+    for rule in rules:
+        if rule.antecedent.issubset(selected) and len(rule.consequent) == 1:
+            item = next(iter(rule.consequent))
+            if item not in selected and (
+                item not in suggestions
+                or rule.confidence > suggestions[item].confidence
+            ):
+                suggestions[item] = rule
+    ordered = sorted(
+        suggestions.values(),
+        key=lambda rule: (-rule.confidence, -rule.lift, sorted(rule.consequent)),
+    )[:10]
+    return BasketSuggestionsResponse(
+        source_notice=(
+            "Suggestions are mined from seeded synthetic baskets, not real purchase histories "
+            "or a claim about what shoppers actually buy."
+        ),
+        suggestions=[
+            BasketSuggestion(
+                item=next(iter(rule.consequent)),
+                support=rule.support,
+                confidence=rule.confidence,
+                lift=rule.lift,
+            )
+            for rule in ordered
         ],
     )
 

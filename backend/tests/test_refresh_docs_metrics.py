@@ -5,7 +5,13 @@ from pathlib import Path
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from refresh_docs_metrics import refresh, render_followup_metrics, render_metrics  # noqa: E402
+from refresh_docs_metrics import (  # noqa: E402
+    refresh,
+    render_compute_metrics,
+    render_followup_metrics,
+    render_metrics,
+    render_robustness_metrics,
+)
 
 
 def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) -> None:
@@ -67,12 +73,28 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
             "ai_written": 3,
             "human_written": 32,
         },
+        "training_wall_seconds": 12.345,
+        "cross_validation": {
+            "LogisticRegression": {"macro_f1_mean": 0.7, "macro_f1_std": 0.05}
+        },
+        "roc_auc": {
+            "synthetic_test": {
+                "macro_auc_ovr": 0.8,
+                "per_intent_auc_ovr": {"cheapest_item": 0.75},
+            },
+            "ai_written_heldout": {
+                "macro_auc_ovr": 0.78,
+                "per_intent_auc_ovr": {"cheapest_item": 0.7},
+            },
+        },
     }
     metadata_path = tmp_path / "metadata.json"
     metadata_path.write_text(json.dumps(metadata), encoding="utf-8")
     docs = tmp_path / "report.md"
     docs.write_text(
         "before\n<!-- metrics:start -->\nold\n<!-- metrics:end -->\nafter\n"
+        "<!-- robustness:start -->\nold robustness\n<!-- robustness:end -->\n"
+        "<!-- compute:start -->\nold compute\n<!-- compute:end -->\n"
         "<!-- followup:start -->\nexisting follow-up metrics\n<!-- followup:end -->\n",
         encoding="utf-8",
     )
@@ -84,7 +106,7 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
     assert docs.read_text(encoding="utf-8") == rendered_once
     assert rendered_once.startswith("before\n<!-- metrics:start -->")
     assert rendered_once.endswith(
-        "after\n<!-- followup:start -->\nexisting follow-up metrics\n<!-- followup:end -->\n"
+        "<!-- followup:start -->\nexisting follow-up metrics\n<!-- followup:end -->\n"
     )
     assert "existing follow-up metrics" in rendered_once
     assert "UnitTestModel" in rendered_once
@@ -97,6 +119,10 @@ def test_refresh_fills_markers_and_preserves_surrounding_text(tmp_path: Path) ->
     assert "__abstain__" not in rendered_once
     assert "abstained 1" in rendered_once
     assert "Human-written held-out: rows 32" in rendered_once
+    assert "LogisticRegression | 0.7000 | 0.0500" in rendered_once
+    assert "Synthetic test macro one-vs-rest ROC-AUC: 0.8000" in rendered_once
+    assert "AI-written held-out `cheapest_item` ROC-AUC: 0.7000" in rendered_once
+    assert "12.345 seconds" in rendered_once
 
 
 def test_metrics_renderer_marks_missing_metadata_as_unavailable() -> None:
@@ -105,6 +131,14 @@ def test_metrics_renderer_marks_missing_metadata_as_unavailable() -> None:
     assert "Selected model: `not available`" in rendered
     assert "not available" in rendered
     assert "AI-written held-out set: metrics not available" in rendered
+
+
+def test_robustness_renderer_marks_missing_metrics_unavailable() -> None:
+    rendered = render_robustness_metrics({})
+
+    assert "Cross-validation metrics: not available" in rendered
+    assert "Synthetic test one-vs-rest ROC-AUC: not available" in rendered
+    assert "Training wall-clock time: not available" in render_compute_metrics({})
 
 
 def test_followup_metrics_include_classifier_and_dialogue_scores() -> None:

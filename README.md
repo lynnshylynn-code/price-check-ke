@@ -14,13 +14,19 @@ The assistant supports stateless multi-turn task-oriented conversations: clients
 ```text
 price-check-ke/
 ├── backend/              # FastAPI food-market data and AI API
-│   ├── data/              # Supplied 20.4 MB RTFP Kenya dataset
+│   ├── data/              # RTFP, dated listings, and synthetic examples
+│   │   └── baskets/       # Seeded synthetic baskets, not purchase data
 │   ├── src/price_check_api/
 │   │   ├── main.py        # API routes and CORS
 │   │   ├── trained_assistant.py # Trained intent routing and deterministic answers
+│   │   ├── logic_rules.py # Explainable propositional forward/backward chaining
+│   │   ├── basket_csp.py   # MRV backtracking and forward checking
+│   │   ├── association_rules.py # Apriori on labelled synthetic baskets
+│   │   ├── local_search.py # Hill climbing, annealing, and alpha-beta demo
 │   │   ├── market_data.py # Dataset loading and summary
 │   │   └── schemas.py     # Validated API response models
-│   ├── tests/
+│   ├── scripts/           # Training, coverage, search, and association-rule demos
+│   ├── tests/             # Backend and AI-course concept tests
 │   └── pyproject.toml
 ├── frontend/             # Expo web client
 │   ├── assets/            # App icons and splash images
@@ -127,8 +133,9 @@ python -m pytest
   intent confidence and source information; the assistant does not forecast or
   give buying advice.
 - Questions generated from the supplied templates are synthetic. The separate
-  AI-written held-out set is reported separately; human-authored question
-  metrics are not available yet.
+  AI-written held-out set is reported separately. A 32-question human-written
+  pilot is reported separately but is not a large or independently reviewed
+  user study.
 - If trained artifacts are missing, the assistant returns an unavailable
   message and example questions. Train the artifacts before serving answers.
 - RTFP's national food-price index cannot substantiate product-specific

@@ -160,3 +160,31 @@ Task X — Improve overlapping intent routing.
 Changed: Added training examples for cheapest-item, unit-price, discount, and single-store price questions; explicit unit-price and store-price cues now protect these intents from common classifier confusions. Unknown-store follow-ups now distinguish slot aliases from stores present in the listing snapshot.
 Verification: Regenerated the stable family splits, trained the local model (`CalibratedLinearSVC`), and ran the CRISP-DM notebook/CLI consistency check. Synthetic-test macro-F1 was 0.8330 and AI-written held-out macro-F1 was 0.8586; these sets are not human evaluation. Backend tests: 233 passed; Ruff passed on changed Python files.
 
+Task Y — Add propositional logic and knowledge-based reasoning.
+Changed: Added signed listing propositions, Horn rules, forward/backward chaining, truth-table entailment, proof traces, and the listing reasoning endpoint.
+Verification: Focused reasoning/API tests and the full backend suite passed (265 tests); Ruff passed.
+
+Task Z — Add basket constraint satisfaction.
+Changed: Added MRV backtracking with forward checking for retailer, minimum-spend, budget, and required-store constraints, exposed through the basket constraints endpoint.
+Verification: Solvable, unsatisfiable, and node-count comparison cases passed, as did the full backend suite (265 tests) and Ruff.
+
+Task AA — Add cross-validation and ROC-AUC evaluation.
+Changed: Added family-grouped stratified five-fold CV for each model without changing validation-based selection, one-vs-rest ROC-AUC tables/plots for synthetic and AI-written held-out data, and documented accuracy/AUC caveats.
+Verification: Regenerated and executed the notebook; measured training wall time was 396.2 seconds. Selected-model macro ROC-AUC was 0.9760 on the synthetic test and 0.9884 on the AI-written held-out set. Refreshed report/model-card metrics; full backend suite (265 tests) and Ruff passed.
+
+Task AB — Demonstrate Apriori association rules.
+Changed: Added support, confidence, and lift mining plus 500 seeded, explicitly synthetic staple-group baskets and the basket suggestions endpoint with a synthetic-data notice.
+Verification: Hand-computed rule tests, endpoint tests, and the full backend suite (265 tests) passed; Ruff passed.
+
+Task AC — Document sustainable, ethical, and governed AI.
+Changed: Added measured-runtime (not energy) reporting, SDG context, sample/prejudicial/measurement bias discussion, a retailer/county coverage audit, and client/server data-retention and erase-flow documentation.
+Verification: Coverage audit ran on the dated public listing file (239 rows); full backend suite (265 tests) and Ruff passed.
+
+Task AD — Add an optional pretrained-embedding comparison.
+Changed: Added an optional sentence-transformer embedding plus logistic-regression comparison against the local intent model; no dependency or hosted model was added.
+Verification: The script exited cleanly with an unavailable-package message because sentence-transformers is not installed; no comparison metric is claimed. Full backend suite (265 tests) and Ruff passed.
+
+Task AE — Add local and adversarial search demonstrations.
+Changed: Added hill climbing with random restarts, seeded simulated annealing, and minimax/alpha-beta on an explicitly illustrative pricing game; included the comparisons in the search demo.
+Verification: Determinism, non-worsening, and minimax equivalence/node-count tests passed; the demo ran successfully. Full backend suite (265 tests) and Ruff passed.
+

@@ -47,8 +47,66 @@
 | price_at_store | 1.0000 | 0.5000 | 0.6667 | 4 |
 | unit_price | 0.7500 | 0.7500 | 0.7500 | 4 |
 - Leakage check: training questions dropped at or above 0.85 similarity 0; highest retained similarity 0.7500 (AI-written held-out).
-- Training date: 2026-11-16.
+- Training date: 2026-11-17.
 <!-- metrics:end -->
+
+## Cross-validation and ROC-AUC robustness
+
+The CV is stratified by intent and grouped by template family; it is a training-only robustness check and does not select the shipped model. Some intents have few template families, so the scores are not an independent real-world generalization estimate. ROC-AUC is one-vs-rest probability ranking and does not measure deployed-threshold calibration.
+
+<!-- robustness:start -->
+Stratified, family-grouped five-fold CV is a training-only robustness check; it does not select the deployed model.
+| Candidate | Mean macro-F1 | Std. dev. |
+|---|---:|---:|
+| CalibratedLinearSVC | 0.6910 | 0.0890 |
+| DecisionTree | 0.5623 | 0.0584 |
+| DummyMostFrequent | 0.0355 | 0.0054 |
+| KNeighbors | 0.5416 | 0.0581 |
+| LogisticRegression | 0.6919 | 0.0842 |
+| MLP | 0.6873 | 0.0804 |
+| MultinomialNB | 0.6537 | 0.0764 |
+| RandomForest | 0.6863 | 0.0760 |
+Synthetic test macro one-vs-rest ROC-AUC: 0.9760.
+- Synthetic test `biggest_discount` ROC-AUC: 0.9038.
+- Synthetic test `cheapest_item` ROC-AUC: 0.9645.
+- Synthetic test `compare_stores` ROC-AUC: 0.9880.
+- Synthetic test `food_inflation` ROC-AUC: 1.0000.
+- Synthetic test `market_price` ROC-AUC: 1.0000.
+- Synthetic test `out_of_scope` ROC-AUC: 0.9999.
+- Synthetic test `price_at_store` ROC-AUC: 0.9946.
+- Synthetic test `unit_price` ROC-AUC: 0.9574.
+AI-written held-out macro one-vs-rest ROC-AUC: 0.9884.
+- AI-written held-out `biggest_discount` ROC-AUC: 0.9975.
+- AI-written held-out `cheapest_item` ROC-AUC: 0.9778.
+- AI-written held-out `compare_stores` ROC-AUC: 0.9963.
+- AI-written held-out `food_inflation` ROC-AUC: 1.0000.
+- AI-written held-out `market_price` ROC-AUC: 0.9864.
+- AI-written held-out `out_of_scope` ROC-AUC: 0.9585.
+- AI-written held-out `price_at_store` ROC-AUC: 0.9909.
+- AI-written held-out `unit_price` ROC-AUC: 1.0000.
+<!-- robustness:end -->
+
+## Sustainability, ethics and governance
+
+- Training runtime is measured locally in seconds; no electrical energy or kWh is claimed without power measurements.
+- Food-price transparency may support SDG 2 and SDG 12, but the prototype has no measured social or environmental impact.
+- Sample bias: current Nairobi observations have limited Naivas/Quickmart location coverage. The audit of the dated public listing file counted 239 rows (Naivas 176, Carrefour 25, Quickmart 38, no Jaza); 214 rows do not explicitly identify a county. Counts describe this file only.
+- Prejudicial bias risk: synthetic, limited language coverage can reduce performance on Swahili/Sheng, dialects, typos, and unseen product names.
+- Measurement bias: advertised prices are not verified checkout prices, promotion eligibility, stock, or purchase records.
+- Basket, budget, watchlist, shopping area, and assistant chat stay in on-device AsyncStorage/DataStore. The API receives assistant questions plus client context per request without saving conversation state.
+- Prototype orders send retailer, listing IDs/quantities, phone, delivery address, and optional coordinates to backend SQLite. Phone is masked in responses; use the order delete action / `DELETE /api/v1/orders/{id}` to remove an order. Chat history has a local clear action; there is no all-preferences erase control.
+- Orders are not forwarded to a supermarket; the prototype sends no real payment. The optional Daraja path is sandbox-only.
+
+Measured training runtime:
+
+<!-- compute:start -->
+Measured local training wall-clock time: 396.216 seconds. This is elapsed time, not measured electrical energy.
+<!-- compute:end -->
+
+## Pretrained model comparison
+
+- No hosted LLM or transformer fine-tuning is used. Small synthetic training data, local CPU latency, no per-query service cost, offline operation, and deterministic data-grounded answers favor TF-IDF with linear classifiers.
+- An optional sentence-transformer embedding comparison is available; no result is reported unless it is actually run.
 
 ## Follow-up classifier and dialogue system
 

@@ -13,6 +13,10 @@ START = "<!-- metrics:start -->"
 END = "<!-- metrics:end -->"
 FOLLOWUP_START = "<!-- followup:start -->"
 FOLLOWUP_END = "<!-- followup:end -->"
+ROBUSTNESS_START = "<!-- robustness:start -->"
+ROBUSTNESS_END = "<!-- robustness:end -->"
+COMPUTE_START = "<!-- compute:start -->"
+COMPUTE_END = "<!-- compute:end -->"
 
 
 def _value(value: Any, digits: int = 4) -> str:
@@ -142,6 +146,46 @@ def render_followup_metrics(metadata: dict[str, Any], dialogues: dict[str, Any])
     return "\n".join(lines)
 
 
+def render_robustness_metrics(metadata: dict[str, Any]) -> str:
+    cross_validation = metadata.get("cross_validation") or {}
+    roc_auc = metadata.get("roc_auc") or {}
+    lines = [
+        "Stratified, family-grouped five-fold CV is a training-only robustness check; "
+        "it does not select the deployed model."
+    ]
+    if cross_validation:
+        lines.extend(["| Candidate | Mean macro-F1 | Std. dev. |", "|---|---:|---:|"])
+        for name, result in sorted(cross_validation.items()):
+            lines.append(
+                f"| {name} | {_value(result.get('macro_f1_mean'))} | "
+                f"{_value(result.get('macro_f1_std'))} |"
+            )
+    else:
+        lines.append("Cross-validation metrics: not available.")
+    for key, title in (
+        ("synthetic_test", "Synthetic test"),
+        ("ai_written_heldout", "AI-written held-out"),
+    ):
+        result = roc_auc.get(key)
+        if not result:
+            lines.append(f"{title} one-vs-rest ROC-AUC: not available.")
+            continue
+        lines.append(f"{title} macro one-vs-rest ROC-AUC: {_value(result.get('macro_auc_ovr'))}.")
+        for intent, score in sorted((result.get("per_intent_auc_ovr") or {}).items()):
+            lines.append(f"- {title} `{intent}` ROC-AUC: {_value(score)}.")
+    return "\n".join(lines)
+
+
+def render_compute_metrics(metadata: dict[str, Any]) -> str:
+    seconds = metadata.get("training_wall_seconds")
+    if seconds is None:
+        return "Training wall-clock time: not available; run the local training script."
+    return (
+        f"Measured local training wall-clock time: {_value(seconds, 3)} seconds. "
+        "This is elapsed time, not measured electrical energy."
+    )
+
+
 def replace_section(path: Path, content: str) -> None:
     text = path.read_text(encoding="utf-8")
     start = text.index(START) + len(START)
@@ -162,6 +206,8 @@ def replace_optional_section(path: Path, start_marker: str, end_marker: str, con
 def refresh(metadata_path: Path, docs_paths: tuple[Path, ...]) -> None:
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     content = render_metrics(metadata)
+    robustness_content = render_robustness_metrics(metadata)
+    compute_content = render_compute_metrics(metadata)
     followup_path = metadata_path.with_name("followup_metadata.json")
     dialogue_path = metadata_path.with_name("dialogue_metrics.json")
     followup = (
@@ -177,6 +223,8 @@ def refresh(metadata_path: Path, docs_paths: tuple[Path, ...]) -> None:
     followup_content = render_followup_metrics(followup, dialogues) if followup else None
     for path in docs_paths:
         replace_section(path, content)
+        replace_optional_section(path, ROBUSTNESS_START, ROBUSTNESS_END, robustness_content)
+        replace_optional_section(path, COMPUTE_START, COMPUTE_END, compute_content)
         if followup_content is not None:
             replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
 
@@ -184,6 +232,8 @@ def refresh(metadata_path: Path, docs_paths: tuple[Path, ...]) -> None:
 def main() -> int:
     metadata = json.loads(DEFAULT_METADATA.read_text(encoding="utf-8"))
     content = render_metrics(metadata)
+    robustness_content = render_robustness_metrics(metadata)
+    compute_content = render_compute_metrics(metadata)
     followup_path = ROOT / "backend/models/followup_metadata.json"
     followup = (
         json.loads(followup_path.read_text(encoding="utf-8"))
@@ -199,6 +249,8 @@ def main() -> int:
     followup_content = render_followup_metrics(followup, dialogues) if followup else None
     for path in DEFAULT_DOCS:
         replace_section(path, content)
+        replace_optional_section(path, ROBUSTNESS_START, ROBUSTNESS_END, robustness_content)
+        replace_optional_section(path, COMPUTE_START, COMPUTE_END, compute_content)
         if followup_content is not None:
             replace_optional_section(path, FOLLOWUP_START, FOLLOWUP_END, followup_content)
         print(f"Refreshed metrics in {path.relative_to(ROOT)}")

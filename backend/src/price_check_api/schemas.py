@@ -329,6 +329,47 @@ class BasketOptimizeResponse(BaseModel):
     single_store_options: list[BasketSingleStoreOption] = Field(default_factory=list)
 
 
+class BasketCSPRequest(BaseModel):
+    product_ids: list[str] = Field(min_length=1, max_length=20)
+    max_stores: int | None = Field(default=None, ge=1, le=20)
+    min_spend_per_store: float = Field(default=0, ge=0, allow_inf_nan=False)
+    budget_cap: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    must_use_store: str | None = Field(default=None, min_length=1, max_length=40)
+
+    @model_validator(mode="after")
+    def reject_duplicate_products(self) -> "BasketCSPRequest":
+        if len(set(self.product_ids)) != len(self.product_ids):
+            raise ValueError("product_ids must be unique")
+        return self
+
+
+class BasketCSPAssignment(BaseModel):
+    product_id: str
+    store: str
+    location_id: str
+    price_kes: float
+
+
+class BasketCSPResponse(BaseModel):
+    status: Literal["solved", "unsatisfiable"]
+    assignment: list[BasketCSPAssignment] = Field(default_factory=list)
+    total_kes: float | None
+    nodes_expanded: int
+    violated_constraint: str | None = None
+
+
+class BasketSuggestion(BaseModel):
+    item: str
+    support: float
+    confidence: float
+    lift: float
+
+
+class BasketSuggestionsResponse(BaseModel):
+    source_notice: str
+    suggestions: list[BasketSuggestion]
+
+
 class ListingImage(BaseModel):
     image_url: HttpUrl
     attribution: str
@@ -385,6 +426,18 @@ class ListingDealPositionResponse(BaseModel):
     discount_memberships: dict[str, float] | None
     price_memberships: dict[str, float] | None
     group_percentiles: dict[str, float] | None
+
+
+class ListingReasoningResponse(BaseModel):
+    listing_id: str
+    facts: list[str]
+    derived_facts: list[str]
+    fired_rules: list[str]
+    backward_proof: list[str]
+    conclusion: str
+    conclusion_supported: bool
+    reason: str
+    entailment_checked: bool
 
 
 class ListingGroup(BaseModel):

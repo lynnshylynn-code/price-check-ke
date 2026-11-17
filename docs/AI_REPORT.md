@@ -90,8 +90,52 @@ Two supplemental out-of-scope families are training-only; the existing validatio
 | price_at_store | 1.0000 | 0.5000 | 0.6667 | 4 |
 | unit_price | 0.7500 | 0.7500 | 0.7500 | 4 |
 - Leakage check: training questions dropped at or above 0.85 similarity 0; highest retained similarity 0.7500 (AI-written held-out).
-- Training date: 2026-11-16.
+- Training date: 2026-11-17.
 <!-- metrics:end -->
+
+## ROC-AUC and cross-validation robustness
+
+The five folds are stratified by intent and grouped by template family. These training-only results are a robustness check; validation-only macro-F1 continues to select the model. Some intents have few distinct training families, so these CV scores are not an independent real-world generalization estimate. One-vs-rest ROC-AUC scores use class probabilities without the deployed abstention threshold.
+
+<!-- robustness:start -->
+Stratified, family-grouped five-fold CV is a training-only robustness check; it does not select the deployed model.
+| Candidate | Mean macro-F1 | Std. dev. |
+|---|---:|---:|
+| CalibratedLinearSVC | 0.6910 | 0.0890 |
+| DecisionTree | 0.5623 | 0.0584 |
+| DummyMostFrequent | 0.0355 | 0.0054 |
+| KNeighbors | 0.5416 | 0.0581 |
+| LogisticRegression | 0.6919 | 0.0842 |
+| MLP | 0.6873 | 0.0804 |
+| MultinomialNB | 0.6537 | 0.0764 |
+| RandomForest | 0.6863 | 0.0760 |
+Synthetic test macro one-vs-rest ROC-AUC: 0.9760.
+- Synthetic test `biggest_discount` ROC-AUC: 0.9038.
+- Synthetic test `cheapest_item` ROC-AUC: 0.9645.
+- Synthetic test `compare_stores` ROC-AUC: 0.9880.
+- Synthetic test `food_inflation` ROC-AUC: 1.0000.
+- Synthetic test `market_price` ROC-AUC: 1.0000.
+- Synthetic test `out_of_scope` ROC-AUC: 0.9999.
+- Synthetic test `price_at_store` ROC-AUC: 0.9946.
+- Synthetic test `unit_price` ROC-AUC: 0.9574.
+AI-written held-out macro one-vs-rest ROC-AUC: 0.9884.
+- AI-written held-out `biggest_discount` ROC-AUC: 0.9975.
+- AI-written held-out `cheapest_item` ROC-AUC: 0.9778.
+- AI-written held-out `compare_stores` ROC-AUC: 0.9963.
+- AI-written held-out `food_inflation` ROC-AUC: 1.0000.
+- AI-written held-out `market_price` ROC-AUC: 0.9864.
+- AI-written held-out `out_of_scope` ROC-AUC: 0.9585.
+- AI-written held-out `price_at_store` ROC-AUC: 0.9909.
+- AI-written held-out `unit_price` ROC-AUC: 1.0000.
+<!-- robustness:end -->
+
+## Course-topic reasoning demonstrations
+
+- **Propositional logic and knowledge-based reasoning:** `logic_rules.py` derives snapshot facts such as a recorded discount and relative unit-price position, then uses Horn clauses, forward chaining, backward chaining, and truth-table entailment. `GET /api/v1/listings/{listing_id}/reasoning` returns base facts, derived facts, fired rules, and a proof. Missing stock evidence is represented as unknown, never as in-stock.
+- **Constraint satisfaction:** `basket_csp.py` treats each selected Nairobi catalog product as a variable and observed retailer prices as its domain. MRV backtracking and forward checking apply a maximum-store limit, minimum spend for each used store, optional budget cap, and optional requirement to use a named retailer. `POST /api/v1/basket/constraints` returns the least-cost satisfying assignment found, expanded-node count, or an explicit unsatisfied constraint. A public listing is an observed offer, not verified stock.
+- **Association rules:** `association_rules.py` implements Apriori support, confidence, and lift over `backend/data/baskets/synthetic_baskets.csv`. The baskets are seeded teaching examples based on staple groups, not transactions or evidence of actual shopper behavior. `GET /api/v1/basket/suggestions?items=...` repeats that synthetic-data warning.
+- **Local and adversarial search:** `local_search.py` demonstrates hill climbing with random restarts and seeded simulated annealing over store assignments, alongside the A* basket search. The minimax/alpha-beta pricing game in `search_demo.py` has arbitrary illustrative payoffs and is not an economic or retailer-behavior model.
+
 ## Entity linking and listing matching
 
 Entity linking uses a character n-gram TF-IDF nearest-neighbour index over observed listing names and supplied product surface forms. Store, county and commodity resolution uses the supplied slot lexicon, with county/commodity names also checked against the RTFP directory. The product and store thresholds were selected on synthetic validation data: 0.05 product similarity (159 product cases, 0.9937 accuracy) and 0.875 store similarity (validation accuracy 1.0000). These high validation figures are synthetic and should not be read as real-world performance.
@@ -103,6 +147,27 @@ The listing matcher is `LogisticRegression` over token overlap, word/character c
 ## Bias and limitations
 
 Question generation comes from AI-written templates and does not represent real user language. Synthetic noise and the AI-written held-out questions are not independent human evaluation. Current synthetic results are uneven: `biggest_discount`, `cheapest_item`, and `market_price` remain weak on the synthetic test split, and `unit_price` recall is lower in the AI-written held-out set. The 32-question human-written intent set is an initial pilot; a larger independently authored sample and human dialogue evaluation are needed before drawing conclusions about real user queries. Some product, store and county names are absent from the snapshot; fuzzy matches can still be wrong. Listing prices are a dated advertised snapshot, not checkout prices, stock, or price history. RTFP covers only recorded markets and periods; missing observations are not filled in. APHRC-derived categories are predictions and inherit the catalogue’s coverage and label limitations.
+
+## Sustainability, ethics and governance
+
+- **Training compute:** the training script records measured Python wall-clock duration below. It is elapsed runtime, not a power or energy measurement. No kWh figure is claimed because hardware power draw was not measured. If later estimated, use `energy_kWh = average_power_W × elapsed_seconds / 3,600,000` and state the measured or assumed average power.
+- **AI for sustainability:** clearer access to dated food prices can support SDG 2 (Zero Hunger) by helping users inspect price information, and SDG 12 (Responsible Consumption and Production) by supporting comparisons. This prototype does not measure hunger, affordability outcomes, waste reduction, or SDG impact.
+- **Bias — sample:** listing coverage is sparse and uneven across retailers and locations. The audit of the dated public-listings file reports 239 rows: Naivas 176, Carrefour 25, Quickmart 38, and no Jaza rows. Only 25 rows explicitly name Nairobi as county; 214 location contexts do not identify a county. These are counts in that file, not proof of complete branch coverage or stock. `python scripts/audit_coverage.py` reproduces the counts.
+- **Bias — prejudicial:** intent routing may work less well for Swahili/Sheng, dialects, spelling variation, or unfamiliar product names because the training examples are mostly synthetic and language coverage is limited. Do not treat confidence as proof of equal performance; expand and independently review language-specific evaluations.
+- **Bias — measurement:** advertised prices can differ from checkout prices, promotion eligibility, and stock. The listing snapshot is not a transaction dataset or a history of price changes.
+- **Governance and privacy:** basket, budget, watched items, shopping area, basket strategy, optional display name, and assistant conversation are stored locally by the web client (AsyncStorage) or Android app (DataStore); Android also stores the last order ID. The assistant API receives a question and client-supplied context for that request and does not persist conversation state. Prototype order creation sends store, listing IDs/quantities, delivery address, phone number, and optional coordinates to the backend’s SQLite order store; it does not transmit the order to a supermarket. The API masks phone numbers in returned order records, but the prototype retains the stored order until deleted. The order-status delete control calls `DELETE /api/v1/orders/{id}`; chat can be cleared locally. There is no single in-app erase-all control for local preferences.
+
+Measured training runtime:
+
+<!-- compute:start -->
+Measured local training wall-clock time: 396.216 seconds. This is elapsed time, not measured electrical energy.
+<!-- compute:end -->
+
+## Pretrained models and transfer learning
+
+This project uses a small local word/character TF-IDF representation with linear classifiers rather than fine-tuning a transformer or calling a hosted LLM. Available labelled question data is small and synthetic; a transformer would add more parameters and training complexity without evidence of a matching data scale. The local pipeline has predictable CPU latency, no per-query API charge, works offline after model artifacts are installed, and routes requests to deterministic answers grounded in the local snapshots. A hosted generative model could produce fluent prose, but would add network dependence, privacy and governance concerns, recurring inference cost, and a risk of unsupported prices unless tightly grounded.
+
+`python scripts/compare_pretrained_embeddings.py` is an optional local comparison using sentence-transformer embeddings with logistic regression. It was not run unless the optional package and model are available; no comparison metric is claimed here.
 
 ## Not yet done / unverified
 

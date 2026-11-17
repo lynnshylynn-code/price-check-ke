@@ -30,6 +30,9 @@ The trained artifacts are written to the ignored `backend/models/` directory. Th
 - `GET /api/v1/models/info` — model availability, training date, data hash and metrics.
 - `GET /api/markets` and `GET /api/prices` — World Bank RTFP market price data.
 - `GET /api/v1/listings` and `/api/v1/listing-groups` — dated advertised listing snapshot.
+- `GET /api/v1/listings/{listing_id}/reasoning` — propositional facts, fired rules, and proof trace.
+- `POST /api/v1/basket/constraints` — MRV/forward-checking assignment with explicit constraints.
+- `GET /api/v1/basket/suggestions?items=...` — Apriori suggestions from labelled synthetic baskets only.
 - Order and basket endpoints remain prototype-only.
 
 ## Dataset and model provenance
@@ -43,6 +46,8 @@ Follow-up dialogue training is separate from the intent model: run `python scrip
 Question templates are AI-written and generated questions are synthetic. `train_only_families.txt` assigns supplemental unsupported-topic families to training while preserving family-disjoint validation and test sets. The separate `heldout_test_questions.csv` set is AI-written held-out data and is never used for training or tuning. The matcher uses human labels only when `label` is filled; otherwise it bootstraps synthetic noisy-copy positives and same-brand different-size negatives. Report these metrics as synthetic. The APHRC workbook is optional and excluded from Git; every endpoint must work when it is absent.
 
 Run backend checks with `python -m pytest` and `ruff check`. See `../docs/AI_REPORT.md` and `../docs/MODEL_CARD.md` for design, metrics and limitations.
+
+Course demonstrations include `python scripts/search_demo.py`, `python scripts/mine_basket_rules.py`, and `python scripts/audit_coverage.py`. The optional `python scripts/compare_pretrained_embeddings.py` requires the separately installed `sentence-transformers` package and a local or available embedding model.
 
 ## Optional product image suggestions
 

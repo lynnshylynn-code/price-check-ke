@@ -10,6 +10,8 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import time
+from collections.abc import Mapping, Sequence
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -27,7 +29,9 @@ from sklearn.metrics import (
     confusion_matrix,
     f1_score,
     precision_recall_fscore_support,
+    roc_auc_score,
 )
+from sklearn.model_selection import StratifiedGroupKFold, cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
@@ -160,6 +164,59 @@ def candidates() -> dict[str, Pipeline]:
 def probabilities(model: Pipeline, questions: list[str]) -> tuple[np.ndarray, np.ndarray]:
     values = model.predict_proba(questions)
     return np.asarray(model.classes_), values
+
+
+def cross_validate_candidates(
+    questions: Sequence[str],
+    labels: Sequence[str],
+    groups: Sequence[str],
+    model_candidates: Mapping[str, Any] | None = None,
+) -> dict[str, dict[str, Any]]:
+    """Run stratified, family-grouped five-fold CV as a training-only robustness check."""
+    if not (len(questions) == len(labels) == len(groups)):
+        raise ValueError("questions, labels, and groups must have matching lengths")
+    if min(np.unique(labels, return_counts=True)[1], default=0) < 5:
+        raise ValueError("each intent needs at least five training examples for five-fold CV")
+    splitter = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
+    models = candidates() if model_candidates is None else model_candidates
+    results = {}
+    for name, model in models.items():
+        scores = cross_val_score(
+            model,
+            list(questions),
+            list(labels),
+            groups=list(groups),
+            cv=splitter,
+            scoring="f1_macro",
+            n_jobs=1,
+        )
+        results[name] = {
+            "fold_scores": [float(value) for value in scores],
+            "macro_f1_mean": float(np.mean(scores)),
+            "macro_f1_std": float(np.std(scores)),
+        }
+    return results
+
+
+def roc_auc_report(model: Any, rows: Sequence[dict[str, str]]) -> dict[str, Any]:
+    """Measure one-vs-rest ROC-AUC from class probabilities without tuning a threshold."""
+    if not rows:
+        return {"macro_auc_ovr": None, "per_intent_auc_ovr": {}}
+    classes, scores = probabilities(model, [row["question"] for row in rows])
+    truth = np.asarray([row.get("intent") or row["expected_intent"] for row in rows])
+    per_intent: dict[str, float | None] = {}
+    for index, intent in enumerate(classes.astype(str)):
+        binary_truth = truth == intent
+        per_intent[intent] = (
+            float(roc_auc_score(binary_truth, scores[:, index]))
+            if binary_truth.any() and (~binary_truth).any()
+            else None
+        )
+    defined = [score for score in per_intent.values() if score is not None]
+    return {
+        "macro_auc_ovr": float(np.mean(defined)) if defined else None,
+        "per_intent_auc_ovr": per_intent,
+    }
 
 
 def choose_threshold(
@@ -405,6 +462,7 @@ def read_optional_human_heldout() -> list[dict[str, str]]:
 
 
 def main() -> None:
+    training_started = time.perf_counter()
     train = read_csv(TRAIN_FILE)
     validation = read_csv(VALIDATION_FILE)
     synthetic_test = read_csv(TEST_FILE)
@@ -442,6 +500,16 @@ def main() -> None:
     )
     chosen_model, threshold, validation_metrics, _ = fitted[chosen_name]
     print(f"Selected model: {chosen_name}; confidence threshold={threshold:.4f}")
+    cv_results = cross_validate_candidates(
+        x_train,
+        y_train,
+        [row["family_id"] for row in train],
+    )
+    print("Stratified, family-grouped 5-fold macro-F1 robustness check:")
+    for name, result in cv_results.items():
+        print(
+            f"  {name}: {result['macro_f1_mean']:.4f} ± {result['macro_f1_std']:.4f}"
+        )
     validation_classes, validation_probs = probabilities(chosen_model, x_validation)
     compare_threshold, compare_threshold_metrics = choose_intent_threshold(
         y_validation,
@@ -484,6 +552,11 @@ def main() -> None:
         )
         heldout_dummy[source] = evaluate(f"{title} baseline (DummyClassifier)", dummy, rows, None)
 
+    ai_heldout = heldout_by_source(heldout_rows).get("ai_written", [])
+    roc_results = {
+        "synthetic_test": roc_auc_report(chosen_model, synthetic_test),
+        "ai_written_heldout": roc_auc_report(chosen_model, ai_heldout),
+    }
     training_hash = hashlib.sha256(TRAIN_FILE.read_bytes()).hexdigest()
     metrics = {
         "validation": validation_metrics,
@@ -497,6 +570,7 @@ def main() -> None:
         "training_date": date.today().isoformat(),
         "sklearn_version": sklearn.__version__,
         "training_data_sha256": training_hash,
+        "training_wall_seconds": time.perf_counter() - training_started,
         "training_rows": len(train),
         "validation_rows": len(validation),
         "synthetic_test_rows": len(synthetic_test),
@@ -517,6 +591,8 @@ def main() -> None:
             else {}
         ),
         "metrics": metrics,
+        "cross_validation": cv_results,
+        "roc_auc": roc_results,
     }
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     joblib.dump(chosen_model, MODEL_FILE)

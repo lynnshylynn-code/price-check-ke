@@ -2,6 +2,9 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
 
 ROOT = Path(__file__).parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -11,7 +14,9 @@ from train_assistant import (  # noqa: E402
     candidates,
     choose_intent_threshold,
     choose_threshold,
+    cross_validate_candidates,
     evaluate,
+    roc_auc_report,
 )
 
 from price_check_api.assistant_model import load_assistant_model  # noqa: E402
@@ -148,3 +153,52 @@ def test_linear_candidates_use_balanced_class_weights():
     assert models["LogisticRegression"].named_steps["classifier"].class_weight == "balanced"
     calibrated = models["CalibratedLinearSVC"].named_steps["classifier"]
     assert calibrated.estimator.class_weight == "balanced"
+
+
+def test_grouped_stratified_cross_validation_returns_five_fold_summary():
+    questions = [f"apple item {index}" for index in range(5)] + [
+        f"banana item {index}" for index in range(5)
+    ]
+    labels = ["apple"] * 5 + ["banana"] * 5
+    groups = [f"apple-{index}" for index in range(5)] + [
+        f"banana-{index}" for index in range(5)
+    ]
+    model = Pipeline(
+        [
+            ("features", TfidfVectorizer()),
+            ("classifier", LogisticRegression(random_state=42)),
+        ]
+    )
+
+    result = cross_validate_candidates(
+        questions,
+        labels,
+        groups,
+        {"small-model": model},
+    )["small-model"]
+
+    assert len(result["fold_scores"]) == 5
+    assert 0 <= result["macro_f1_mean"] <= 1
+    assert result["macro_f1_std"] >= 0
+
+
+def test_roc_auc_is_reported_per_intent_and_macro():
+    class FixedPipeline:
+        classes_ = np.asarray(["apple", "banana"])
+
+        def predict_proba(self, questions: list[str]) -> np.ndarray:
+            return np.asarray(
+                [[0.9, 0.1], [0.8, 0.2], [0.2, 0.8], [0.1, 0.9]]
+            )[: len(questions)]
+
+    rows = [
+        {"question": "apple one", "intent": "apple"},
+        {"question": "apple two", "intent": "apple"},
+        {"question": "banana one", "intent": "banana"},
+        {"question": "banana two", "intent": "banana"},
+    ]
+
+    result = roc_auc_report(FixedPipeline(), rows)
+
+    assert result["macro_auc_ovr"] == 1
+    assert result["per_intent_auc_ovr"] == {"apple": 1, "banana": 1}
