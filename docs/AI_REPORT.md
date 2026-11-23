@@ -90,7 +90,7 @@ Two supplemental out-of-scope families are training-only; the existing validatio
 | price_at_store | 1.0000 | 0.5000 | 0.6667 | 4 |
 | unit_price | 0.7500 | 0.7500 | 0.7500 | 4 |
 - Leakage check: training questions dropped at or above 0.85 similarity 0; highest retained similarity 0.7500 (AI-written held-out).
-- Training date: 2026-11-17.
+- Training date: 2026-11-23.
 <!-- metrics:end -->
 
 ## ROC-AUC and cross-validation robustness
@@ -160,7 +160,7 @@ Question generation comes from AI-written templates and does not represent real 
 Measured training runtime:
 
 <!-- compute:start -->
-Measured local training wall-clock time: 396.216 seconds. This is elapsed time, not measured electrical energy.
+Measured local training wall-clock time: 441.243 seconds. This is elapsed time, not measured electrical energy.
 <!-- compute:end -->
 
 ## Pretrained models and transfer learning
